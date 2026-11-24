@@ -133,6 +133,27 @@ body.sin-navegacion .contenido {
   transform: none;
 }
 
+.aviso-flotante {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--alto-navegacion) + var(--espacio-4) + env(safe-area-inset-bottom));
+  z-index: var(--capa-flotante);
+  max-width: min(92vw, 420px);
+  padding: var(--espacio-3) var(--espacio-5);
+  border-radius: var(--radio-m);
+  background: var(--sobre-superficie);
+  color: var(--fondo);
+  font-weight: var(--peso-medio);
+  box-shadow: 0 8px 24px var(--sombra-fuerte);
+  transform: translateX(-50%);
+  animation: subir var(--duracion-media) var(--curva) both;
+}
+
+.aviso-flotante--saliendo {
+  opacity: 0;
+  transition: opacity var(--duracion-media) var(--curva);
+}
+
 .aviso {
   padding: var(--espacio-3) var(--espacio-4);
   border-radius: var(--radio-m);

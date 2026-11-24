@@ -9,11 +9,11 @@
   --primario-contenedor: #E6DEFF;
   --sobre-primario-contenedor: #1F0A6B;
 
-  --secundario: #B07A00;
+  --secundario: #8A5F00;
   --secundario-contenedor: #FFE6A8;
   --sobre-secundario-contenedor: #3D2A00;
 
-  --acierto: #1B8A6B;
+  --acierto: #0F7A5C;
   --acierto-contenedor: #BFF0DE;
   --sobre-acierto-contenedor: #00392B;
 
@@ -50,9 +50,9 @@
   --foco: #5B3FE0;
 
   --unidad-1: #5B3FE0;
-  --unidad-2: #1B8A6B;
+  --unidad-2: #157A5E;
   --unidad-3: #C93C7C;
-  --unidad-4: #D9540B;
+  --unidad-4: #C24A08;
   --unidad-5: #0E7FA8;
 
   /* Espaciado */
@@ -156,7 +156,7 @@
     --velo: rgba(0, 0, 0, 0.65);
     --foco: #C9B8FF;
 
-    --unidad-1: #8F74FF;
+    --unidad-1: #B3A3FF;
     --unidad-2: #3FB893;
     --unidad-3: #E86AA6;
     --unidad-4: #F07A3C;

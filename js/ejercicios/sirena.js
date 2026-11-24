@@ -43,8 +43,13 @@ export function crearEjercicioSirena(ejercicio, { contenedor, alTerminar, fijarA
         ]);
         return;
       }
-      const { puntuacion, amplitud } = puntuarSirena(resultado.muestras.map((muestra) => muestra.midi));
-      alTerminar({ puntuacion, detalle: T.amplitudFormato(Math.round(amplitud)) });
+      estado.textContent = '';
+      const { puntuacion, amplitud, ascendente } = puntuarSirena(resultado.muestras.map((muestra) => muestra.midi));
+      alTerminar({
+        puntuacion,
+        titulo: ascendente ? T.completada : T.sinSubir,
+        detalle: T.amplitudFormato(Math.round(amplitud)),
+      });
     });
   }
 

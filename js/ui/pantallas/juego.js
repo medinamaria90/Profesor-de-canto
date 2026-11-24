@@ -151,12 +151,14 @@ export function crearPantallaJuego() {
     montado() {
       audio.preparar().catch((error) => console.warn('No se pudo activar el audio aún.', error));
       if (audio.tieneEntrada()) arrancar();
+      else if (audio.permisoConcedido()) audio.abrirEntrada().then(arrancar).catch(() => area.replaceChildren(crearSolicitudMicrofono({ alListo: arrancar }).elemento));
       else area.replaceChildren(crearSolicitudMicrofono({ alListo: arrancar }).elemento);
     },
     destruir() {
       if (animacion !== null) cancelAnimationFrame(animacion);
       partida = null;
       lector?.detener();
+      audio.cerrarEntrada();
       vista.destruir();
       audio.detenerTodo();
     },

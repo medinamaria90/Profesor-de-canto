@@ -10,10 +10,13 @@ import { TEXTOS } from '../../contenido/textos.js';
 import { obtenerEstado } from '../../estado/tienda.js';
 import { fechaClave, rachaVigente, xpHoy, rutinaHechaHoy, estrellasLeccion, XP_RUTINA_DIARIA } from '../../estado/progreso.js';
 import { navegar } from '../../nucleo/router.js';
+import { consumirAvisosPendientes } from '../../estado/sesion.js';
+import { mostrarAviso } from '../componentes/aviso.js';
 
 const T = TEXTOS.inicio;
 // Desplazamiento lateral de los nodos del camino, en ciclos de cuatro.
 const PATRON_ZIGZAG = ['centro', 'derecha', 'centro', 'izquierda'];
+const DURACION_AVISO_MS = 3500;
 
 function crearCabecera(estado, hoy) {
   const racha = rachaVigente(estado, hoy);
@@ -85,7 +88,7 @@ function crearNodoLeccion(leccion, estado, esActual, posicion) {
   const descripcion = !desbloqueada ? T.bloqueada : T.estrellasFormato(estrellas);
   return el(
     'li',
-    { clase: `camino__nodo camino__nodo--${posicion}` },
+    { clase: `camino__nodo camino__nodo--${posicion} ${esActual ? 'camino__nodo--actual' : ''}`.trim() },
     boton,
     el('span', { clase: 'camino__titulo', texto: leccion.titulo }),
     desbloqueada && crearEstrellas(estrellas, { tamano: 's' }),
@@ -123,5 +126,10 @@ export function crearPantallaInicio() {
     crearTarjetaRutina(estado, hoy),
     UNIDADES.map((unidad) => crearUnidad(unidad, estado, leccionActual)),
   );
-  return { elemento };
+  return {
+    elemento,
+    montado() {
+      consumirAvisosPendientes().forEach((texto, indice) => mostrarAviso(texto, { retrasoMs: indice * DURACION_AVISO_MS }));
+    },
+  };
 }

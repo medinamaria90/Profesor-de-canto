@@ -19,10 +19,13 @@ test('el error medio conserva el signo para dar consejo', () => {
   assert.equal(puntuarMuestras([-30, -40]).errorMedio, -35);
 });
 
-test('sirena: siete semitonos es el máximo', () => {
+test('sirena: siete semitonos es el máximo y debe subir de grave a agudo', () => {
   assert.equal(puntuarSirena([60, 62, 67]).puntuacion, 100);
   assert.equal(puntuarSirena([60, 61.5]).puntuacion, 21);
   assert.equal(puntuarSirena([60]).puntuacion, 0);
+  const descendente = puntuarSirena([67, 65, 62, 60]);
+  assert.equal(descendente.ascendente, false);
+  assert.equal(descendente.puntuacion, 50);
 });
 
 test('melodía es la media de sus notas', () => {

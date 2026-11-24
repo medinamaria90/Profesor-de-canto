@@ -10,6 +10,17 @@ const RADIO_PUNTO = 4;
 const RADIO_PUNTO_ACTUAL = 9;
 const GROSOR_OBJETIVO = 3;
 const ALTO_BANDA_RELATIVO = TOLERANCIA_CENTS_AFINADO / 100;
+// Con poco alto por semitono, solo se etiquetan las notas naturales; con muy poco, solo los Do.
+const ALTO_FILA_TODAS_LAS_ETIQUETAS = 18;
+const ALTO_FILA_SOLO_NATURALES = 9;
+const SEMITONOS_CON_SOSTENIDO = new Set([1, 3, 6, 8, 10]);
+
+function mereceEtiqueta(midi, altoFila) {
+  if (altoFila >= ALTO_FILA_TODAS_LAS_ETIQUETAS) return true;
+  const grado = ((midi % 12) + 12) % 12;
+  if (altoFila >= ALTO_FILA_SOLO_NATURALES) return !SEMITONOS_CON_SOSTENIDO.has(grado);
+  return grado === 0;
+}
 
 export function crearAfinadorVisual({ midiObjetivo = null, amplitudSemitonos = AMPLITUD_SEMITONOS_POR_DEFECTO, etiqueta } = {}) {
   const canvas = el('canvas', { clase: 'afinador-visual__canvas' });
@@ -50,18 +61,15 @@ export function crearAfinadorVisual({ midiObjetivo = null, amplitudSemitonos = A
 
     contexto.strokeStyle = paleta.cuadricula;
     contexto.lineWidth = 1;
-    contexto.fillStyle = paleta.texto;
-    contexto.font = '12px system-ui, sans-serif';
-    contexto.textBaseline = 'middle';
     const desde = Math.ceil(centro - amplitud / 2);
     const hasta = Math.floor(centro + amplitud / 2);
+    const altoFila = alto / amplitud;
     for (let midi = desde; midi <= hasta; midi++) {
       const y = yDeMidi(midi, alto);
       contexto.beginPath();
       contexto.moveTo(0, y);
       contexto.lineTo(ancho, y);
       contexto.stroke();
-      contexto.fillText(nombreNota(midi), 6, y - 8);
     }
 
     if (objetivo !== null) {
@@ -75,6 +83,15 @@ export function crearAfinadorVisual({ midiObjetivo = null, amplitudSemitonos = A
       contexto.moveTo(0, y);
       contexto.lineTo(ancho, y);
       contexto.stroke();
+    }
+
+    contexto.fillStyle = paleta.texto;
+    contexto.font = '12px system-ui, sans-serif';
+    contexto.textBaseline = 'middle';
+    for (let midi = desde; midi <= hasta; midi++) {
+      if (!mereceEtiqueta(midi, altoFila)) continue;
+      const y = yDeMidi(midi, alto);
+      contexto.fillText(nombreNota(midi), 6, Math.max(8, y - Math.min(8, altoFila / 2)));
     }
 
     const ahora = performance.now() / 1000;

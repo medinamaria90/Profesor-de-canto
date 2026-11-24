@@ -26,7 +26,6 @@
   font-weight: var(--peso-fuerte);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  opacity: 0.9;
 }
 
 .unidad__titulo {
@@ -35,7 +34,6 @@
 }
 
 .unidad__descripcion {
-  opacity: 0.92;
   font-size: var(--tam-letra-s);
 }
 
@@ -64,6 +62,10 @@
 
 .camino__nodo--izquierda {
   transform: translateX(-72px);
+}
+
+.camino__nodo--actual {
+  padding-top: 44px;
 }
 
 .camino__boton {

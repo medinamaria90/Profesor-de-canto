@@ -38,14 +38,27 @@ export function puntuarMuestras(centsMuestras) {
   };
 }
 
-// Una sirena se puntúa por la amplitud recorrida (en semitonos) respecto a la amplitud objetivo.
+// Una sirena se puntúa por la amplitud recorrida (en semitonos) y debe ir de grave a agudo:
+// si el tramo final no está claramente por encima del inicial, la puntuación se reduce a la mitad.
+export const FACTOR_PENALIZACION_SIRENA_DESCENDENTE = 0.5;
+const FRACCION_TRAMO_SIRENA = 1 / 3;
+const FRACCION_SUBIDA_MINIMA = 0.5;
+
+function media(valores) {
+  return valores.reduce((acumulado, valor) => acumulado + valor, 0) / valores.length;
+}
+
 export function puntuarSirena(midiMuestras, semitonosObjetivo = SEMITONOS_SIRENA_OBJETIVO) {
-  if (midiMuestras.length < 2) return { puntuacion: 0, amplitud: 0 };
+  if (midiMuestras.length < 2) return { puntuacion: 0, amplitud: 0, ascendente: false };
   const minimo = Math.min(...midiMuestras);
   const maximo = Math.max(...midiMuestras);
   const amplitud = maximo - minimo;
-  const puntuacion = Math.round(Math.min(1, amplitud / semitonosObjetivo) * PUNTUACION_MAXIMA);
-  return { puntuacion, amplitud };
+  const tramo = Math.max(1, Math.floor(midiMuestras.length * FRACCION_TRAMO_SIRENA));
+  const subida = media(midiMuestras.slice(-tramo)) - media(midiMuestras.slice(0, tramo));
+  const ascendente = subida >= amplitud * FRACCION_SUBIDA_MINIMA;
+  const base = Math.min(1, amplitud / semitonosObjetivo) * PUNTUACION_MAXIMA;
+  const puntuacion = Math.round(ascendente ? base : base * FACTOR_PENALIZACION_SIRENA_DESCENDENTE);
+  return { puntuacion, amplitud, ascendente };
 }
 
 export function puntuarMelodia(puntuacionesNotas) {

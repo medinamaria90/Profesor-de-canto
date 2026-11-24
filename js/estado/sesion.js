@@ -11,3 +11,16 @@ export function consumirResultadoLeccion() {
   ultimoResultado = null;
   return resultado;
 }
+
+let avisosPendientes = [];
+
+// Mensajes cortos (por ejemplo, logros conseguidos) que la siguiente pantalla muestra en un aviso.
+export function guardarAvisosPendientes(avisos) {
+  avisosPendientes = [...avisosPendientes, ...avisos];
+}
+
+export function consumirAvisosPendientes() {
+  const avisos = avisosPendientes;
+  avisosPendientes = [];
+  return avisos;
+}

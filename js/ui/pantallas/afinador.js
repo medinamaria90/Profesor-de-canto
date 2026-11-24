@@ -72,10 +72,12 @@ export function crearPantallaAfinador() {
     elemento,
     montado() {
       if (audio.tieneEntrada()) arrancar();
+      else if (audio.permisoConcedido()) audio.abrirEntrada().then(arrancar).catch(() => area.replaceChildren(crearSolicitudMicrofono({ alListo: arrancar }).elemento));
       else area.replaceChildren(crearSolicitudMicrofono({ alListo: arrancar }).elemento);
     },
     destruir() {
       lector?.detener();
+      audio.cerrarEntrada();
       visual.destruir();
     },
   };

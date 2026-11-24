@@ -64,6 +64,7 @@ export function crearEjercicioNota(ejercicio, { contenedor, alTerminar, fijarAcc
         ]);
         return;
       }
+      estado.textContent = '';
       const cents = resultado.muestras.map((muestra) => (muestra.midi - ejercicio.midi) * CENTS_POR_SEMITONO);
       const puntuacion = puntuarMuestras(cents);
       alTerminar({

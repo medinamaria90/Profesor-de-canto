@@ -9,6 +9,8 @@ import { CONFIGURACION } from '../nucleo/configuracion.js';
 
 let entrada = null;
 let aperturaPendiente = null;
+// Tras conceder el permiso una vez, las siguientes aperturas no necesitan tarjeta explicativa.
+let permisoConcedido = false;
 
 export const audio = {
   esSimulado: CONFIGURACION.simulacion,
@@ -21,6 +23,17 @@ export const audio = {
     return entrada !== null;
   },
 
+  permisoConcedido() {
+    return permisoConcedido;
+  },
+
+  // Libera el micrófono: se llama al salir de cualquier pantalla que lo use.
+  cerrarEntrada() {
+    if (!entrada) return;
+    entrada.cerrar();
+    entrada = null;
+  },
+
   async abrirEntrada() {
     if (entrada) return entrada;
     if (!aperturaPendiente) {
@@ -28,6 +41,7 @@ export const audio = {
       aperturaPendiente = (CONFIGURACION.simulacion ? Promise.resolve(crearEntradaSimulada(contexto)) : abrirMicrofono(contexto))
         .then((nueva) => {
           entrada = nueva;
+          permisoConcedido = true;
           return nueva;
         })
         .finally(() => {

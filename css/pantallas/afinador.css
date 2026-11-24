@@ -70,6 +70,19 @@
   background: var(--aviso);
 }
 
+.rango__cabecera {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+}
+
+.rango__chips {
+  display: flex;
+  gap: var(--espacio-2);
+  flex-wrap: wrap;
+}
+
 .rango__acciones {
   display: flex;
   flex-direction: column;

@@ -45,7 +45,7 @@ export function crearEjercicioRespiracion(ejercicio, { contenedor, alTerminar, f
     etiquetaFase.textContent = '';
     cuenta.textContent = '';
     estado.textContent = '';
-    alTerminar({ puntuacion: PUNTUACION_MAXIMA });
+    alTerminar({ puntuacion: PUNTUACION_MAXIMA, titulo: T.completada });
   }
 
   return {
