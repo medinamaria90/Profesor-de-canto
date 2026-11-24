@@ -67,6 +67,20 @@ test('las puertas se reciclan manteniendo la separación', () => {
   assert.ok(partida.puertas.every((puerta) => puerta.nota >= RANGO.minimo && puerta.nota <= RANGO.maximo));
 });
 
+test('en modo secuencia las puertas siguen las notas y la partida termina al acabarlas', () => {
+  const secuencia = [55, 57, 59, 60, 59, 57, 55];
+  const partida = crearPartida(RANGO, { aleatorio: aleatorioFijo, secuencia });
+  empezar(partida);
+  assert.deepEqual(partida.puertas.map((puerta) => puerta.nota), secuencia.slice(0, 4));
+  const eventos = simularHasta(partida, 40, (p) => {
+    const siguiente = p.puertas.find((puerta) => !puerta.superada && !puerta.chocada);
+    return siguiente ? siguiente.nota : null;
+  });
+  assert.equal(eventos.filter((evento) => evento.tipo === 'puerta').length, secuencia.length);
+  assert.equal(partida.estado, 'terminada');
+  assert.equal(partida.vidas, VIDAS_INICIALES);
+});
+
 test('el hueco de una puerta está centrado en la altura de su nota', () => {
   const partida = crearPartida(RANGO, { aleatorio: aleatorioFijo });
   const puerta = partida.puertas[0];

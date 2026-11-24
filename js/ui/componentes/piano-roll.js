@@ -1,6 +1,6 @@
 // Rollo de pianola: las notas de una melodía en el tiempo, un cursor y la estela de la voz del usuario.
 
-import { el, leerVariableCss, ajustarCanvas } from '../dom.js';
+import { el, crearPaleta, ajustarCanvas } from '../dom.js';
 import { nombreNota } from '../../musica/notas.js';
 import { segundosPorPulso } from '../../audio/sintetizador.js';
 import { TOLERANCIA_CENTS_AFINADO, TOLERANCIA_CENTS_AMPLIA, UMBRAL_DOS_ESTRELLAS, UMBRAL_TRES_ESTRELLAS } from '../../ejercicios/puntuacion.js';
@@ -13,12 +13,14 @@ const RADIO_ESQUINA = 8;
 const RADIO_PUNTO = 3.5;
 const SEPARACION_NOTAS_SEGUNDOS = 0.04;
 const MARGEN_RESUMEN = 8;
+const RADIO_BOLA_VOZ = 11;
+const SEGUNDOS_BOLA_VISIBLE = 0.25;
 
 export function crearPianoRoll(notas, tempo, { etiqueta } = {}) {
   const canvas = el('canvas', { clase: 'piano-roll__canvas' });
   const elemento = el('div', { clase: 'piano-roll', role: 'img', 'aria-label': etiqueta }, canvas);
   const pulso = segundosPorPulso(tempo);
-  const midisReales = notas.map((nota) => nota.midi).filter((midi) => midi !== null);
+  const midisReales = notas.map((nota) => nota.midi).filter((midi) => midi !== null && midi !== undefined);
   const midiMinimo = Math.min(...midisReales) - MARGEN_SEMITONOS;
   const midiMaximo = Math.max(...midisReales) + MARGEN_SEMITONOS;
 
@@ -36,22 +38,23 @@ export function crearPianoRoll(notas, tempo, { etiqueta } = {}) {
   // En modo resumen la melodía entera cabe en el ancho del canvas.
   let resumen = false;
 
-  function colores() {
-    return {
-      fondo: leerVariableCss('--superficie-1'),
-      cuadricula: leerVariableCss('--contorno-suave'),
-      nota: leerVariableCss('--primario-contenedor'),
-      notaBorde: leerVariableCss('--primario'),
-      notaTexto: leerVariableCss('--sobre-primario-contenedor'),
-      notaActiva: leerVariableCss('--primario'),
-      notaActivaTexto: leerVariableCss('--sobre-primario'),
-      cursor: leerVariableCss('--sobre-superficie'),
-      afinado: leerVariableCss('--acierto'),
-      cerca: leerVariableCss('--aviso'),
-      lejos: leerVariableCss('--error'),
-      texto: leerVariableCss('--texto-suave'),
-    };
-  }
+  const paletaCss = crearPaleta({
+    fondo: '--superficie-1',
+    cuadricula: '--contorno-suave',
+    nota: '--primario-contenedor',
+    notaBorde: '--primario',
+    notaTexto: '--sobre-primario-contenedor',
+    notaActiva: '--primario',
+    notaActivaTexto: '--sobre-primario',
+    cursor: '--sobre-superficie',
+    afinado: '--acierto',
+    cerca: '--aviso',
+    lejos: '--error',
+    texto: '--texto-suave',
+    bola: '--racha',
+    bolaBrillo: '--sobre-primario',
+  });
+  const colores = () => paletaCss.obtener();
 
   function colorEstado(estado, paleta) {
     if (estado >= UMBRAL_TRES_ESTRELLAS) return paleta.afinado;
@@ -133,6 +136,20 @@ export function crearPianoRoll(notas, tempo, { etiqueta } = {}) {
     }
 
     if (resumen) return;
+
+    // La voz es la bola: se dibuja en el cursor a la altura de la última lectura reciente.
+    const ultima = estela[estela.length - 1];
+    if (ultima && tiempo - ultima.tiempo < SEGUNDOS_BOLA_VISIBLE) {
+      const y = yDeMidi(ultima.midi);
+      contexto.fillStyle = paleta.bola;
+      contexto.beginPath();
+      contexto.arc(xCursor, y, RADIO_BOLA_VOZ, 0, Math.PI * 2);
+      contexto.fill();
+      contexto.fillStyle = paleta.bolaBrillo;
+      contexto.beginPath();
+      contexto.arc(xCursor - RADIO_BOLA_VOZ * 0.35, y - RADIO_BOLA_VOZ * 0.35, RADIO_BOLA_VOZ * 0.3, 0, Math.PI * 2);
+      contexto.fill();
+    }
     contexto.strokeStyle = paleta.cursor;
     contexto.lineWidth = 2;
     contexto.beginPath();
@@ -187,6 +204,7 @@ export function crearPianoRoll(notas, tempo, { etiqueta } = {}) {
     },
     destruir() {
       observador?.disconnect();
+      paletaCss.destruir();
     },
   };
 }

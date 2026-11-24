@@ -1,5 +1,5 @@
 // Generado por herramientas/generar-lista-sw.cjs; no editar a mano.
-self.VERSION_ARCHIVOS = 'mwutfghf';
+self.VERSION_ARCHIVOS = 'mwutoz57';
 self.ARCHIVOS_APP = [
   "./css/apaisado.css",
   "./css/base.css",
@@ -35,9 +35,11 @@ self.ARCHIVOS_APP = [
   "./js/audio/microfono.js",
   "./js/audio/servicio-audio.js",
   "./js/audio/sintetizador.js",
+  "./js/contenido/canciones.js",
   "./js/contenido/curriculum.js",
   "./js/contenido/ejercicios.js",
   "./js/contenido/logros.js",
+  "./js/contenido/tecnicas.js",
   "./js/contenido/textos.js",
   "./js/ejercicios/comun.js",
   "./js/ejercicios/escucha.js",
@@ -46,7 +48,9 @@ self.ARCHIVOS_APP = [
   "./js/ejercicios/nota-sostenida.js",
   "./js/ejercicios/puntuacion.js",
   "./js/ejercicios/respiracion.js",
+  "./js/ejercicios/reto.js",
   "./js/ejercicios/sirena.js",
+  "./js/ejercicios/tecnica.js",
   "./js/estado/almacen.js",
   "./js/estado/leccion-en-curso.js",
   "./js/estado/progreso.js",

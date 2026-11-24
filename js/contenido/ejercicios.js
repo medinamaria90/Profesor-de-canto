@@ -1,6 +1,9 @@
 // Convierte las plantillas de una lección (grados relativos) en ejercicios concretos adaptados al rango vocal.
 
 import { gradosDeMelodia } from '../musica/melodias.js';
+import { obtenerCancion, gradosDeCancion, notasDeFrase, pulsoInicioFrase } from './canciones.js';
+import { obtenerTecnica } from './tecnicas.js';
+import { PULSOS_POR_COMPAS, compasesDeMelodia } from '../musica/arreglos.js';
 import { SEMITONOS_POR_NIVEL_OIDO, NIVEL_OIDO_MINIMO } from '../estado/progreso.js';
 
 export const DURACION_SIRENA_SEGUNDOS = 12;
@@ -13,7 +16,40 @@ export const RESPIRACION_POR_DEFECTO = { inhalar: 4, retener: 4, exhalar: 6 };
 function gradosDePlantilla(plantilla) {
   if (plantilla.tipo === 'nota') return [plantilla.grado, ...plantilla.escuchar];
   if (plantilla.tipo === 'melodia') return gradosDeMelodia(plantilla.melodia);
+  if (plantilla.tipo === 'cancion' || plantilla.tipo === 'reto') return gradosDeCancion(obtenerCancion(plantilla.cancionId));
   return [];
+}
+
+// Los acordes suenan una octava por debajo de la melodía para no taparla.
+const OCTAVA = 12;
+
+function instanciarCancion(plantilla, base) {
+  const cancion = obtenerCancion(plantilla.cancionId);
+  if (!cancion) throw new Error(`Canción desconocida: ${plantilla.cancionId}`);
+  const esFrase = plantilla.modo === 'frase';
+  const notasGrados = esFrase ? notasDeFrase(cancion, plantilla.frase) : cancion.notas;
+  const pulsoInicio = esFrase ? pulsoInicioFrase(cancion, plantilla.frase) : 0;
+  const compasInicio = Math.floor(pulsoInicio / PULSOS_POR_COMPAS);
+  const pulsosFrase = notasGrados.reduce((suma, [, pulsos]) => suma + pulsos, 0);
+  const compases = Math.ceil((pulsoInicio - compasInicio * PULSOS_POR_COMPAS + pulsosFrase) / PULSOS_POR_COMPAS);
+  return {
+    titulo: cancion.titulo,
+    autor: cancion.autor,
+    modo: plantilla.modo ?? 'completa',
+    frase: plantilla.frase ?? null,
+    totalFrases: cancion.frases.length,
+    tempo: cancion.tempo,
+    notas: notasGrados.map(([grado, pulsos]) => ({ midi: base + grado, pulsos })),
+    // Silencio inicial para que la frase empiece donde cae dentro del compás.
+    pulsosDeEntrada: pulsoInicio - compasInicio * PULSOS_POR_COMPAS,
+    acompanamiento: {
+      estilo: cancion.estilo,
+      tempo: cancion.tempo,
+      compasInicio,
+      compases: esFrase ? compases : compasesDeMelodia(cancion.notas),
+      acordes: cancion.acordes.map((acorde) => ({ compas: acorde.compas, midis: acorde.grados.map((grado) => base + grado - OCTAVA) })),
+    },
+  };
 }
 
 // Elige la nota base de la lección: centra el conjunto de grados en el rango sin salirse de él.
@@ -95,6 +131,20 @@ export function instanciarEjercicios(plantillas, rango, opciones = {}) {
           tempo: plantilla.melodia.tempo,
           notas: plantilla.melodia.notas.map(([grado, pulsos]) => ({ midi: grado === null ? null : base + grado, pulsos })),
         };
+      case 'cancion':
+        return { ...comun, ...instanciarCancion(plantilla, base) };
+      case 'tecnica': {
+        const tecnica = obtenerTecnica(plantilla.tecnicaId);
+        if (!tecnica) throw new Error(`Técnica desconocida: ${plantilla.tecnicaId}`);
+        return { ...comun, ...tecnica };
+      }
+      case 'reto': {
+        const cancion = obtenerCancion(plantilla.cancionId);
+        if (!cancion) throw new Error(`Canción desconocida: ${plantilla.cancionId}`);
+        // Las notas repetidas seguidas se funden: una puerta por cambio de nota.
+        const notas = cancion.notas.map(([grado]) => base + grado).filter((midi, indice, lista) => indice === 0 || midi !== lista[indice - 1]);
+        return { ...comun, titulo: cancion.titulo, notas, rango };
+      }
       case 'escucha':
         return { ...comun, ...instanciarEscucha(plantilla, rango, aleatorio, nivelOido) };
       default:
@@ -104,5 +154,5 @@ export function instanciarEjercicios(plantillas, rango, opciones = {}) {
 }
 
 export function requiereMicrofono(ejercicio) {
-  return ejercicio.tipo === 'nota' || ejercicio.tipo === 'melodia' || ejercicio.tipo === 'sirena';
+  return ['nota', 'melodia', 'sirena', 'cancion', 'reto'].includes(ejercicio.tipo);
 }

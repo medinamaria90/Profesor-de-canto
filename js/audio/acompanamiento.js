@@ -1,18 +1,18 @@
 // Programa la orquestación de una canción (acordes, bajo y percusión) a partir de su arreglo.
 
-import { generarArreglo, PULSOS_POR_COMPAS } from '../musica/arreglos.js';
+import { generarArreglo } from '../musica/arreglos.js';
 import { padAcorde, bajo, percusion } from './instrumentos.js';
 import { segundosPorPulso } from './sintetizador.js';
 
 const SOLAPE_ACORDE = 0.95;
 
-// cancion: { notas: [{ midi, pulsos }], acordes: [{ compas, midis }], tempo, estilo }
+// acompanamiento: { acordes: [{ compas, midis }], tempo, estilo, compasInicio, compases }
 // Devuelve { duracion, detener() }.
-export function reproducirAcompanamiento(contexto, cancion, { cuando = contexto.currentTime, ganancia = 1, compases } = {}) {
-  const pulso = segundosPorPulso(cancion.tempo);
-  const totalCompases = compases ?? Math.ceil(cancion.notas.reduce((suma, nota) => suma + nota.pulsos, 0) / PULSOS_POR_COMPAS);
-  const acordesRelativos = cancion.acordes.map((acorde) => ({ compas: acorde.compas, grados: acorde.midis }));
-  const arreglo = generarArreglo(acordesRelativos, totalCompases, cancion.estilo);
+export function reproducirAcompanamiento(contexto, acompanamiento, { cuando = contexto.currentTime, ganancia = 1 } = {}) {
+  const pulso = segundosPorPulso(acompanamiento.tempo);
+  const totalCompases = acompanamiento.compases;
+  const acordesRelativos = acompanamiento.acordes.map((acorde) => ({ compas: acorde.compas, grados: acorde.midis }));
+  const arreglo = generarArreglo(acordesRelativos, totalCompases, acompanamiento.estilo, acompanamiento.compasInicio ?? 0);
   const voces = [];
   for (const evento of arreglo.acordes) {
     voces.push(padAcorde(contexto, evento.grados, evento.pulsos * pulso * SOLAPE_ACORDE, { cuando: cuando + evento.pulso * pulso, ganancia: 0.05 * ganancia }));

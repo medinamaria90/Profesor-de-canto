@@ -5,6 +5,7 @@ import { abrirMicrofono, ErrorMicrofono } from './microfono.js';
 import { crearEntradaSimulada } from './entrada-simulada.js';
 import { crearLectorTono, fotogramasPorSegundoDelDetector } from './lector-tono.js';
 import * as sintetizador from './sintetizador.js';
+import { reproducirAcompanamiento } from './acompanamiento.js';
 import { CONFIGURACION } from '../nucleo/configuracion.js';
 import { TAMANO_BLOQUE } from './microfono.js';
 import { leerPermisoMicrofono, guardarPermisoMicrofono, leerLatenciaAprendida, guardarLatenciaAprendida } from '../estado/almacen.js';
@@ -17,6 +18,7 @@ const LATENCIA_SALIDA_POR_DEFECTO_SEGUNDOS = 0.08;
 
 let entrada = null;
 let aperturaPendiente = null;
+const acompanamientosActivos = new Set();
 // Cada apertura lleva un número; si se cierra la entrada mientras se abre, el resultado se descarta.
 let generacion = 0;
 // Tras conceder el permiso una vez (en esta visita o en otra anterior), no se vuelve a mostrar la tarjeta.
@@ -136,7 +138,15 @@ export const audio = {
     sintetizador.clickMetronomo(obtenerContexto(), cuando, acento);
   },
 
+  reproducirAcompanamiento(acompanamiento, opciones) {
+    const control = reproducirAcompanamiento(obtenerContexto(), acompanamiento, opciones);
+    acompanamientosActivos.add(control);
+    return control;
+  },
+
   detenerTodo() {
     sintetizador.detenerTodo();
+    for (const control of acompanamientosActivos) control.detener();
+    acompanamientosActivos.clear();
   },
 };

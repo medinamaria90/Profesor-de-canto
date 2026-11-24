@@ -24,6 +24,12 @@ test('el arreglo pop genera bajo, acordes y percusión en cada compás, dentro d
   assert.equal(arreglo.bajo[0].grado, -12);
 });
 
+test('el arreglo puede empezar en un compás intermedio con pulsos relativos', () => {
+  const arreglo = generarArreglo(ACORDES, 1, 'balada', 2);
+  assert.equal(arreglo.acordes[0].pulso, 0);
+  assert.deepEqual(arreglo.acordes[0].grados, [5, 9, 12]);
+});
+
 test('un estilo desconocido cae en pop y los compases se calculan por pulsos', () => {
   assert.deepEqual(generarArreglo(ACORDES, 1, 'inexistente').percusion.length, generarArreglo(ACORDES, 1, 'pop').percusion.length);
   assert.equal(compasesDeMelodia([[0, 2], [2, 2], [4, 3], [5, 1]]), 2);

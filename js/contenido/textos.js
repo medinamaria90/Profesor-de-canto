@@ -136,6 +136,24 @@ export const TEXTOS = {
       notasFormato: (afinadas, total) => `${afinadas} de ${total} notas afinadas`,
       desfaseFormato: (segundos) => `desfase compensado ${segundos.toFixed(2).replace('.', ',')} s`,
     },
+    tecnica: {
+      titulo: 'Técnica vocal',
+      consejo: 'Consejo',
+      entendido: 'Lo tengo, seguimos',
+      aprendida: 'Técnica aprendida',
+    },
+    reto: {
+      titulo: 'Reto',
+      instruccion: (titulo) => `Vuela con tu voz por las notas de «${titulo}»`,
+      preparado: 'Las puertas siguen la canción. Cuando quieras, empieza.',
+      resultadoFormato: (superadas, total) => `${superadas} de ${total} puertas`,
+      perfecto: '¡Vuelo perfecto!',
+    },
+    cancion: {
+      titulo: 'Canción',
+      fraseFormato: (actual, total) => `Canción · frase ${actual} de ${total}`,
+      instruccionCanta: 'Ahora tú: tu voz es la bola, llévala por cada nota',
+    },
     escucha: {
       titulo: 'Oído',
       tituloNivel: (nivel) => `Oído · nivel ${nivel}`,

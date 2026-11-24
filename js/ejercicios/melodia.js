@@ -3,6 +3,7 @@
 import { el } from '../ui/dom.js';
 import { audio } from '../audio/servicio-audio.js';
 import { segundosPorPulso, GANANCIA_ACOMPANAMIENTO } from '../audio/sintetizador.js';
+import { PULSOS_POR_COMPAS } from '../musica/arreglos.js';
 import { CENTS_POR_SEMITONO } from '../musica/notas.js';
 import { crearPianoRoll } from '../ui/componentes/piano-roll.js';
 import { puntuarMuestras, puntuarMuestrasTolerante, puntuarMelodia, estimarDesfase, UMBRAL_DOS_ESTRELLAS } from './puntuacion.js';
@@ -17,15 +18,30 @@ const FRACCION_INICIO_IGNORADA = 0.3;
 const COLA_TRAS_MELODIA_SEGUNDOS = 0.3;
 
 export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijarAcciones }) {
-  const cabecera = crearCabeceraEjercicio(T.titulo, T.instruccionEscucha);
-  const rollo = crearPianoRoll(ejercicio.notas, ejercicio.tempo, { etiqueta: ejercicio.titulo });
-  const estado = crearEstadoEjercicio();
-  contenedor.append(cabecera.elemento, el('p', { clase: 'melodia__titulo', texto: ejercicio.titulo }), rollo.elemento, estado);
-
+  const esCancion = ejercicio.tipo === 'cancion';
+  const TC = TEXTOS.ejercicios.cancion;
+  const tipoTexto = esCancion ? (ejercicio.modo === 'frase' ? TC.fraseFormato(ejercicio.frase + 1, ejercicio.totalFrases) : TC.titulo) : T.titulo;
+  const cabecera = crearCabeceraEjercicio(tipoTexto, T.instruccionEscucha);
   const pulso = segundosPorPulso(ejercicio.tempo);
+  // En una frase intermedia, el acompañamiento arranca en el compás y la melodía entra unos pulsos después.
+  const entrada = (ejercicio.pulsosDeEntrada ?? 0) * pulso;
+  const notasConEntrada = entrada > 0 ? [{ midi: null, pulsos: ejercicio.pulsosDeEntrada }, ...ejercicio.notas] : ejercicio.notas;
+  const rollo = crearPianoRoll(notasConEntrada, ejercicio.tempo, { etiqueta: ejercicio.titulo });
+  const estado = crearEstadoEjercicio();
+  contenedor.append(
+    cabecera.elemento,
+    el('p', { clase: 'melodia__titulo', texto: esCancion && ejercicio.autor ? `${ejercicio.titulo} · ${ejercicio.autor}` : ejercicio.titulo }),
+    rollo.elemento,
+    estado,
+  );
   let animacion = null;
   let captura = null;
   let destruido = false;
+
+  function duracionTotal() {
+    const acompanamiento = ejercicio.acompanamiento ? ejercicio.acompanamiento.compases * PULSOS_POR_COMPAS * pulso : 0;
+    return Math.max(rollo.duracion, acompanamiento);
+  }
 
   function detenerAnimacion() {
     if (animacion !== null) cancelAnimationFrame(animacion);
@@ -41,11 +57,12 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
     cabecera.fijarInstruccion(T.instruccionEscucha);
     estado.textContent = `${TEXTOS.leccion.escuchar}…`;
     const inicio = audio.ahora() + RETARDO_INICIO_SEGUNDOS;
-    audio.reproducirSecuencia(ejercicio.notas, ejercicio.tempo, { cuando: inicio });
+    if (ejercicio.acompanamiento) audio.reproducirAcompanamiento(ejercicio.acompanamiento, { cuando: inicio });
+    audio.reproducirSecuencia(notasConEntrada, ejercicio.tempo, { cuando: inicio });
     const animar = () => {
       const tiempo = audio.ahora() - inicio;
       rollo.fijarTiempo(tiempo);
-      if (tiempo < rollo.duracion + COLA_TRAS_MELODIA_SEGUNDOS) {
+      if (tiempo < duracionTotal() + COLA_TRAS_MELODIA_SEGUNDOS) {
         animacion = requestAnimationFrame(animar);
         return;
       }
@@ -63,14 +80,15 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
     fijarAcciones([]);
     detenerAnimacion();
     rollo.reiniciar();
-    cabecera.fijarInstruccion(T.instruccionCanta);
+    cabecera.fijarInstruccion(esCancion ? TC.instruccionCanta : T.instruccionCanta);
     contenedor.classList.add('ejercicio--grabando');
     const inicio = audio.ahora() + RETARDO_INICIO_SEGUNDOS + PULSOS_CUENTA_ATRAS * pulso;
     for (let i = PULSOS_CUENTA_ATRAS; i >= 1; i--) audio.clickMetronomo(inicio - i * pulso, i === PULSOS_CUENTA_ATRAS);
-    audio.reproducirSecuencia(ejercicio.notas, ejercicio.tempo, { cuando: inicio, ganancia: GANANCIA_ACOMPANAMIENTO });
+    if (ejercicio.acompanamiento) audio.reproducirAcompanamiento(ejercicio.acompanamiento, { cuando: inicio, ganancia: 0.8 });
+    audio.reproducirSecuencia(notasConEntrada, ejercicio.tempo, { cuando: inicio, ganancia: GANANCIA_ACOMPANAMIENTO });
     captura = capturarEnTiempo({
       inicioAudio: inicio,
-      duracion: rollo.duracion,
+      duracion: duracionTotal(),
       alTiempo: (tiempo) => {
         rollo.fijarTiempo(tiempo);
         const texto = tiempo < 0 ? `${Math.ceil(-tiempo / pulso)}…` : TEXTOS.leccion.cantaAhora;

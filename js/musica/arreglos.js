@@ -18,14 +18,15 @@ function estiloDe(nombre) {
 
 // acordes: [{ compas, grados: [0, 4, 7] }] (grados relativos a la nota base de la canción).
 // Devuelve { bajo: [{ pulso, grado, pulsos }], acordes: [{ pulso, grados, pulsos }], percusion: [{ pulso, tipo }] }
-export function generarArreglo(acordes, totalCompases, nombreEstilo) {
+// compasInicio permite arrancar en mitad de la canción (los pulsos devueltos son relativos a ese compás).
+export function generarArreglo(acordes, totalCompases, nombreEstilo, compasInicio = 0) {
   const estilo = estiloDe(nombreEstilo);
   const bajo = [];
   const acordesEventos = [];
   const percusion = [];
-  for (let compas = 0; compas < totalCompases; compas++) {
-    const acorde = acordeEnCompas(acordes, compas);
-    const inicio = compas * PULSOS_POR_COMPAS;
+  for (let indice = 0; indice < totalCompases; indice++) {
+    const acorde = acordeEnCompas(acordes, compasInicio + indice);
+    const inicio = indice * PULSOS_POR_COMPAS;
     estilo.bajoPorPulso.forEach((suena, pulso) => {
       if (suena) bajo.push({ pulso: inicio + pulso, grado: acorde.grados[0] - OCTAVA, pulsos: 1 });
     });

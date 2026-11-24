@@ -49,13 +49,17 @@ export function elegirNotaPuerta(notaAnterior, rango, puertasSuperadas, aleatori
   return nota;
 }
 
-export function crearPartida(rango, { aleatorio = Math.random, ancho = 360, alto = 480 } = {}) {
+// secuencia: lista opcional de notas MIDI; si se da, las puertas las siguen en orden y la partida termina al acabarla.
+export function crearPartida(rango, { aleatorio = Math.random, ancho = 360, alto = 480, secuencia = null } = {}) {
   const notaInicial = Math.round((rango.minimo + rango.maximo) / 2);
   const partida = {
     rango,
     ancho,
     alto,
     aleatorio,
+    secuencia,
+    indiceSecuencia: 0,
+    puertasCreadas: 0,
     estado: 'lista', // lista | jugando | terminada
     vidas: VIDAS_INICIALES,
     puertasSuperadas: 0,
@@ -73,8 +77,15 @@ export function crearPartida(rango, { aleatorio = Math.random, ancho = 360, alto
 }
 
 function anadirPuerta(partida, x) {
-  const nota = elegirNotaPuerta(partida.ultimaNota, partida.rango, partida.puertasSuperadas, partida.aleatorio);
+  let nota;
+  if (partida.secuencia) {
+    if (partida.indiceSecuencia >= partida.secuencia.length) return;
+    nota = partida.secuencia[partida.indiceSecuencia++];
+  } else {
+    nota = elegirNotaPuerta(partida.ultimaNota, partida.rango, partida.puertasSuperadas, partida.aleatorio);
+  }
   partida.ultimaNota = nota;
+  partida.puertasCreadas++;
   partida.puertas.push({ x, nota, superada: false, chocada: false });
 }
 
@@ -146,9 +157,13 @@ function comprobarPuertas(partida) {
 
 function reciclarPuertas(partida) {
   while (partida.puertas.length && partida.puertas[0].x - partida.desplazamiento < -ANCHO_PUERTA * 2) {
-    partida.puertas.shift();
     const ultima = partida.puertas[partida.puertas.length - 1];
+    partida.puertas.shift();
     anadirPuerta(partida, ultima.x + SEPARACION_PUERTAS);
+  }
+  // En modo secuencia, la partida termina cuando todas las puertas han quedado atrás.
+  if (partida.secuencia && partida.indiceSecuencia >= partida.secuencia.length && partida.puertas.every((puerta) => puerta.superada || puerta.chocada)) {
+    partida.estado = 'terminada';
   }
 }
 
