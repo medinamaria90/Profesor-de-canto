@@ -23,6 +23,46 @@ const NUBES = [
 const ANCHO_CIELO = 1100;
 const ALTO_COLINAS_RELATIVO = 0.22;
 const INCLINACION_POR_VELOCIDAD = 0.0025;
+// Ciclo de día completo (día → tarde → noche → amanecer → día) mientras se juega.
+const CICLO_DIA_SEGUNDOS = 120;
+const FASES_DIA = [
+  { en: 0, nombre: 'dia' },
+  { en: 0.33, nombre: 'tarde' },
+  { en: 0.5, nombre: 'noche' },
+  { en: 0.8, nombre: 'amanecer' },
+  { en: 1, nombre: 'dia' },
+];
+const CLAVES_FASE = ['cieloAlto', 'cieloBajo', 'astro', 'colinaLejos', 'colinaCerca', 'nube'];
+const ESTRELLAS = Array.from({ length: 40 }, (_, i) => ({ x: (i * 97) % 1000 / 1000, y: ((i * 61) % 100) / 100 * 0.6, r: 1 + (i % 3) * 0.6 }));
+
+function hexARgb(hex) {
+  const limpio = hex.trim().replace('#', '');
+  const valor = parseInt(limpio.length === 3 ? limpio.split('').map((c) => c + c).join('') : limpio, 16);
+  return [(valor >> 16) & 255, (valor >> 8) & 255, valor & 255];
+}
+
+function mezclarHex(a, b, t) {
+  const ca = hexARgb(a);
+  const cb = hexARgb(b);
+  const c = ca.map((valor, i) => Math.round(valor + (cb[i] - valor) * t));
+  return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+}
+
+// Devuelve los colores del escenario para un instante del ciclo, mezclando las dos fases vecinas.
+function coloresDelMomento(fases, tiempo) {
+  const fraccion = (tiempo % CICLO_DIA_SEGUNDOS) / CICLO_DIA_SEGUNDOS;
+  let i = 0;
+  while (i < FASES_DIA.length - 2 && fraccion >= FASES_DIA[i + 1].en) i++;
+  const desde = FASES_DIA[i];
+  const hasta = FASES_DIA[i + 1];
+  const t = (fraccion - desde.en) / (hasta.en - desde.en);
+  const resultado = {};
+  for (const clave of CLAVES_FASE) resultado[clave] = mezclarHex(fases[desde.nombre][clave], fases[hasta.nombre][clave], t);
+  // Intensidad de la noche (para las estrellas): 1 en plena noche, 0 de día.
+  const noche = { dia: 0, tarde: 0, noche: 1, amanecer: 0 };
+  resultado.noche = noche[desde.nombre] + (noche[hasta.nombre] - noche[desde.nombre]) * t;
+  return resultado;
+}
 
 export function crearVistaBolaCantora() {
   const canvas = el('canvas', { clase: 'juego__canvas' });
@@ -33,13 +73,18 @@ export function crearVistaBolaCantora() {
   let ultimasSuperadas = 0;
   let yAnterior = null;
 
+  const nombresFase = {};
+  for (const fase of ['dia', 'tarde', 'noche', 'amanecer']) {
+    nombresFase[`${fase}CieloAlto`] = `--juego-${fase}-cielo-alto`;
+    nombresFase[`${fase}CieloBajo`] = `--juego-${fase}-cielo-bajo`;
+    nombresFase[`${fase}Astro`] = `--juego-${fase}-astro`;
+    nombresFase[`${fase}ColinaLejos`] = `--juego-${fase}-colina-lejos`;
+    nombresFase[`${fase}ColinaCerca`] = `--juego-${fase}-colina-cerca`;
+    nombresFase[`${fase}Nube`] = `--juego-${fase}-nube`;
+  }
   const paletaCss = crearPaleta({
-    cieloArriba: '--juego-cielo',
-    cieloAbajo: '--juego-suelo',
-    sol: '--juego-astro',
-    colinaLejos: '--juego-colina-lejos',
-    colinaCerca: '--juego-colina-cerca',
-    nube: '--juego-nube',
+    ...nombresFase,
+    estrella: '--juego-estrella',
     puerta: '--primario',
     puertaSiguiente: '--secundario',
     puertaSuperada: '--acierto',
@@ -58,6 +103,21 @@ export function crearVistaBolaCantora() {
   });
   const colores = () => paletaCss.obtener();
 
+  function fasesDeLaPaleta(paleta) {
+    const fases = {};
+    for (const fase of ['dia', 'tarde', 'noche', 'amanecer']) {
+      fases[fase] = {
+        cieloAlto: paleta[`${fase}CieloAlto`],
+        cieloBajo: paleta[`${fase}CieloBajo`],
+        astro: paleta[`${fase}Astro`],
+        colinaLejos: paleta[`${fase}ColinaLejos`],
+        colinaCerca: paleta[`${fase}ColinaCerca`],
+        nube: paleta[`${fase}Nube`],
+      };
+    }
+    return fases;
+  }
+
   function rectanguloRedondeado(contexto, x, y, ancho, alto, radio) {
     const r = Math.min(radio, ancho / 2, Math.abs(alto) / 2);
     contexto.beginPath();
@@ -70,23 +130,41 @@ export function crearVistaBolaCantora() {
   }
 
   function dibujarCielo(contexto, paleta, ancho, alto, partida) {
+    const momento = coloresDelMomento(fasesDeLaPaleta(paleta), partida.tiempo);
     const degradado = contexto.createLinearGradient(0, 0, 0, alto);
-    degradado.addColorStop(0, paleta.cieloArriba);
-    degradado.addColorStop(1, paleta.cieloAbajo);
+    degradado.addColorStop(0, momento.cieloAlto);
+    degradado.addColorStop(1, momento.cieloBajo);
     contexto.fillStyle = degradado;
     contexto.fillRect(0, 0, ancho, alto);
 
-    // Sol.
-    contexto.fillStyle = paleta.sol;
-    contexto.globalAlpha = 0.9;
+    // Estrellas, solo de noche.
+    if (momento.noche > 0.05) {
+      contexto.fillStyle = paleta.estrella;
+      contexto.globalAlpha = momento.noche * 0.9;
+      for (const estrella of ESTRELLAS) {
+        contexto.beginPath();
+        contexto.arc(estrella.x * ancho, estrella.y * alto, estrella.r, 0, Math.PI * 2);
+        contexto.fill();
+      }
+      contexto.globalAlpha = 1;
+    }
+
+    // Sol o luna: recorre el cielo a lo largo del ciclo.
+    const fraccionCiclo = (partida.tiempo % CICLO_DIA_SEGUNDOS) / CICLO_DIA_SEGUNDOS;
+    const xAstro = ancho * (0.15 + 0.7 * ((fraccionCiclo * 2) % 1));
+    const yAstro = alto * (0.18 + 0.12 * Math.abs(((fraccionCiclo * 2) % 1) - 0.5) * 2);
+    contexto.fillStyle = momento.astro;
+    contexto.shadowColor = momento.astro;
+    contexto.shadowBlur = 30;
     contexto.beginPath();
-    contexto.arc(ancho * 0.8, alto * 0.22, Math.min(ancho, alto) * 0.09, 0, Math.PI * 2);
+    contexto.arc(xAstro, yAstro, Math.min(ancho, alto) * 0.08, 0, Math.PI * 2);
     contexto.fill();
-    contexto.globalAlpha = 1;
+    contexto.shadowBlur = 0;
 
     // Nubes en paralaje.
     const avanceNubes = (partida.desplazamiento * VELOCIDAD_NUBES) % ANCHO_CIELO;
-    contexto.fillStyle = paleta.nube;
+    contexto.fillStyle = momento.nube;
+    contexto.globalAlpha = 0.85;
     for (const nube of NUBES) {
       const x = ((nube.x - avanceNubes) % ANCHO_CIELO + ANCHO_CIELO) % ANCHO_CIELO - 60;
       const y = alto * nube.y;
@@ -98,10 +176,11 @@ export function crearVistaBolaCantora() {
       contexto.arc(x + r * 0.9, y + r * 0.3, r * 0.9, 0, Math.PI * 2);
       contexto.fill();
     }
+    contexto.globalAlpha = 1;
 
     // Colinas en dos planos.
-    dibujarColinas(contexto, paleta.colinaLejos, ancho, alto, partida.desplazamiento * VELOCIDAD_COLINAS, 0.3, 140);
-    dibujarColinas(contexto, paleta.colinaCerca, ancho, alto, partida.desplazamiento * VELOCIDAD_COLINAS * 1.8, 0.55, 90);
+    dibujarColinas(contexto, momento.colinaLejos, ancho, alto, partida.desplazamiento * VELOCIDAD_COLINAS, 0.3, 140);
+    dibujarColinas(contexto, momento.colinaCerca, ancho, alto, partida.desplazamiento * VELOCIDAD_COLINAS * 1.8, 0.55, 90);
   }
 
   function dibujarColinas(contexto, color, ancho, alto, avance, amplitud, periodo) {

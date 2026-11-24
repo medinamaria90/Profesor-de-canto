@@ -53,17 +53,36 @@
   --cielo-alto: #DDEFFF;
   --cielo-bajo: #F2F8FF;
 
-  /* Escenario del vuelo de la alondra */
-  --juego-cielo: #9FD3FF;
-  --juego-suelo: #EAF6FF;
-  --juego-colina-lejos: #A9D7B8;
-  --juego-colina-cerca: #6FB98A;
-  --juego-nube: rgba(255, 255, 255, 0.85);
-  --juego-astro: #FFE08A;
-  --alondra-cuerpo: #B8793A;
-  --alondra-vientre: #F6E4C8;
-  --alondra-ala: #7A4A1E;
-  --alondra-pico: #F2B33D;
+  /* Escenario del vuelo de la alondra: cuatro fases del día que el juego mezcla con el tiempo */
+  --juego-dia-cielo-alto: #5FB2FF;
+  --juego-dia-cielo-bajo: #DDF1FF;
+  --juego-dia-astro: #FFE37A;
+  --juego-dia-colina-lejos: #9ED9A6;
+  --juego-dia-colina-cerca: #5DB46E;
+  --juego-dia-nube: #FFFFFF;
+  --juego-tarde-cielo-alto: #F08A5A;
+  --juego-tarde-cielo-bajo: #FFD7A3;
+  --juego-tarde-astro: #FFB347;
+  --juego-tarde-colina-lejos: #B58A6E;
+  --juego-tarde-colina-cerca: #7E5A48;
+  --juego-tarde-nube: #FFE1C7;
+  --juego-noche-cielo-alto: #0B1630;
+  --juego-noche-cielo-bajo: #24407A;
+  --juego-noche-astro: #F2E6B8;
+  --juego-noche-colina-lejos: #2F5A5C;
+  --juego-noche-colina-cerca: #223F3C;
+  --juego-noche-nube: #9FB0D6;
+  --juego-amanecer-cielo-alto: #7F94DD;
+  --juego-amanecer-cielo-bajo: #FFC9B0;
+  --juego-amanecer-astro: #FFD089;
+  --juego-amanecer-colina-lejos: #8FB79A;
+  --juego-amanecer-colina-cerca: #5E8E68;
+  --juego-amanecer-nube: #FFE9DC;
+  --juego-estrella: #FFFFFF;
+  --alondra-cuerpo: #E09A4E;
+  --alondra-vientre: #FFF3DD;
+  --alondra-ala: #A6692E;
+  --alondra-pico: #FFC24A;
 
   --unidad-1: #1769C4;
   --unidad-2: #0E8A7A;
@@ -176,16 +195,10 @@
     --cielo-alto: #0B1630;
     --cielo-bajo: #122247;
 
-    --juego-cielo: #1B2A5A;
-    --juego-suelo: #2E3F7A;
-    --juego-colina-lejos: #2F5A5C;
-    --juego-colina-cerca: #244B46;
-    --juego-nube: rgba(220, 230, 255, 0.35);
-    --juego-astro: #F2E6B8;
-    --alondra-cuerpo: #D08A48;
-    --alondra-vientre: #F9E9D0;
-    --alondra-ala: #8E5A2A;
-    --alondra-pico: #F7C04A;
+    --alondra-cuerpo: #E09A4E;
+    --alondra-vientre: #FFF3DD;
+    --alondra-ala: #A6692E;
+    --alondra-pico: #FFC24A;
 
     --unidad-1: #8EC2FF;
     --unidad-2: #5FD1B9;
