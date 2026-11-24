@@ -12,9 +12,13 @@ const T = TEXTOS.afinador;
 const MS_SIN_VOZ_PARA_RESETEAR = 600;
 const CENTS_MAXIMOS_AGUJA = 50;
 const GRADOS_MAXIMOS_AGUJA = 45;
+const MS_ENTRE_ANUNCIOS = 1000;
 
 export function crearPantallaAfinador() {
-  const nombre = el('p', { clase: 'afinador__nota', texto: '–', 'aria-live': 'polite' });
+  const nombre = el('p', { clase: 'afinador__nota', texto: '–' });
+  // El lector de pantalla recibe la nota como mucho una vez por segundo, no sesenta.
+  const anuncio = el('p', { clase: 'visualmente-oculto', 'aria-live': 'polite' });
+  let ultimoAnuncio = 0;
   const cents = el('p', { clase: 'afinador__cents', texto: T.silencio });
   const aguja = el('div', { clase: 'afinador__aguja', 'aria-hidden': 'true' });
   const medidor = el('div', { clase: 'afinador__medidor', 'aria-hidden': 'true' }, el('div', { clase: 'afinador__escala' }), aguja);
@@ -55,6 +59,10 @@ export function crearPantallaAfinador() {
     visual.registrar(lectura.midi);
     const desvio = Math.round(cercana.cents);
     nombre.textContent = nombreNota(cercana.midi);
+    if (ahora - ultimoAnuncio >= MS_ENTRE_ANUNCIOS) {
+      ultimoAnuncio = ahora;
+      anuncio.textContent = `${nombreNota(cercana.midi)}, ${T.centsFormato(desvio)}`;
+    }
     cents.textContent = `${T.centsFormato(desvio)} · ${Math.abs(desvio) <= TOLERANCIA_CENTS_AFINADO / 2 ? T.afinado : desvio > 0 ? T.alto : T.bajo}`;
     const angulo = (Math.max(-CENTS_MAXIMOS_AGUJA, Math.min(CENTS_MAXIMOS_AGUJA, desvio)) / CENTS_MAXIMOS_AGUJA) * GRADOS_MAXIMOS_AGUJA;
     aguja.style.setProperty('--angulo', `${angulo}deg`);
@@ -62,7 +70,7 @@ export function crearPantallaAfinador() {
   }
 
   function arrancar() {
-    area.replaceChildren(el('div', { clase: 'afinador__lectura tarjeta' }, nombre, medidor, cents), visual.elemento);
+    area.replaceChildren(el('div', { clase: 'afinador__lectura tarjeta' }, nombre, medidor, cents, anuncio), visual.elemento);
     visual.montar();
     mostrarSilencio();
     lector = audio.crearLector(alLeer);

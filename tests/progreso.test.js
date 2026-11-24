@@ -61,9 +61,11 @@ test('registrar lección guarda el mejor resultado y desbloquea la siguiente', (
 });
 
 test('la rutina diaria suma XP fijo y queda marcada para el día', () => {
-  const estado = registrarRutina(ESTADO_INICIAL, 80, '2026-01-01');
+  let estado = registrarRutina(ESTADO_INICIAL, 80, '2026-01-01');
   assert.equal(estado.xpTotal, XP_RUTINA_DIARIA);
   assert.equal(estado.rutinasDiarias['2026-01-01'], 80);
+  estado = registrarRutina(estado, 90, '2026-01-01');
+  assert.equal(estado.xpTotal, XP_RUTINA_DIARIA);
 });
 
 test('logros se desbloquean una sola vez', () => {

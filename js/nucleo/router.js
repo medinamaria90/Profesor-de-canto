@@ -47,7 +47,13 @@ function resolver() {
   for (const ruta of rutas) {
     const coincidencia = camino.match(ruta.expresion);
     if (!coincidencia) continue;
-    const parametros = Object.fromEntries(ruta.nombres.map((nombre, i) => [nombre, decodeURIComponent(coincidencia[i + 1])]));
+    let parametros;
+    try {
+      parametros = Object.fromEntries(ruta.nombres.map((nombre, i) => [nombre, decodeURIComponent(coincidencia[i + 1])]));
+    } catch (error) {
+      console.warn('Ruta con codificación inválida.', error);
+      break;
+    }
     montar(ruta.fabrica({ ...parametros, consulta }), camino);
     return;
   }

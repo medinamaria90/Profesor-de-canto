@@ -26,6 +26,7 @@ import {
   registrarActividad,
   habilidadOido,
   oidoDominado,
+  rutinaHechaHoy,
   XP_RUTINA_DIARIA,
   UMBRAL_LECCION_PERFECTA,
 } from '../../estado/progreso.js';
@@ -61,12 +62,18 @@ export function crearPantallaLeccion({ id }) {
 
   const barra = crearBarraProgreso({ valor: 0, maximo: ejercicios.length, etiqueta: T.progresoFormato(1, ejercicios.length) });
   const botonCerrar = crearBotonIcono(icono('cerrar'), { ariaLabel: T.salir, onClick: confirmarSalida });
+  const contador = el('span', { clase: 'leccion__contador', 'aria-hidden': 'true' });
   const area = el('div', { clase: 'leccion__area' });
   const pie = el('div', { clase: 'leccion__pie leccion__pie--vacio' });
   const elemento = el(
     'section',
     { clase: 'pantalla pantalla-leccion', 'aria-label': leccion.titulo },
-    el('header', { clase: 'leccion__cabecera' }, botonCerrar, barra.elemento),
+    el(
+      'header',
+      { clase: 'leccion__cabecera' },
+      botonCerrar,
+      el('div', { clase: 'leccion__progreso' }, el('div', { clase: 'leccion__fila' }, el('span', { clase: 'leccion__titulo', texto: leccion.titulo }), contador), barra.elemento),
+    ),
     area,
     pie,
   );
@@ -83,6 +90,7 @@ export function crearPantallaLeccion({ id }) {
     const ejercicio = ejercicios[indice];
     barra.actualizar(indice);
     barra.elemento.setAttribute('aria-label', T.progresoFormato(indice + 1, ejercicios.length));
+    contador.textContent = `${indice + 1}/${ejercicios.length}`;
     const contenedor = el('div', { clase: `ejercicio ejercicio--${ejercicio.tipo}` });
     area.replaceChildren(contenedor);
     fijarAcciones([]);
@@ -130,7 +138,7 @@ export function crearPantallaLeccion({ id }) {
     const puntuacion = puntuarMelodia(puntuaciones);
     const estrellas = calcularEstrellas(puntuacion);
     const hoy = fechaClave();
-    const xpCompleto = esRutina ? XP_RUTINA_DIARIA : calcularXpLeccion(puntuaciones, { conBonus: !modoPractica });
+    const xpCompleto = esRutina ? (rutinaHechaHoy(obtenerEstado(), hoy) ? 0 : XP_RUTINA_DIARIA) : calcularXpLeccion(puntuaciones, { conBonus: !modoPractica });
     const xp = modoPractica ? Math.round(xpCompleto * FACTOR_XP_PRACTICA) : xpCompleto;
     let logrosNuevos = [];
     const estadoFinal = actualizarEstado((estado) => {
@@ -178,6 +186,8 @@ export function crearPantallaLeccion({ id }) {
       return;
     }
     modoPractica = true;
+    indice = 0;
+    puntuaciones.length = 0;
     recordarProgreso();
     barra.fijarMaximo(ejercicios.length);
     elemento.insertBefore(el('p', { clase: 'aviso', role: 'note', texto: T.modoPractica }), area);
@@ -197,7 +207,7 @@ export function crearPantallaLeccion({ id }) {
         if (!destruida) mostrarEjercicio();
         return;
       } catch (error) {
-        if (destruida || error.motivo === 'cancelado') return;
+        if (destruida) return;
         console.warn('No se pudo reabrir el micrófono; se muestra la tarjeta de permiso.', error);
       }
     }

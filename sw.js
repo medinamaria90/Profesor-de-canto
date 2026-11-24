@@ -1,8 +1,10 @@
 // Service worker: red primero y caché de respaldo, para instalar la app y usarla sin conexión
 // sin quedarse con versiones antiguas cuando hay red.
 
-const NOMBRE_CACHE = 'alondra-v1';
-const ARCHIVOS_BASE = ['./', './index.html', './manifest.webmanifest', './css/index.css', './js/app.js', './iconos/icono.svg'];
+importScripts('./sw-archivos.js');
+
+const NOMBRE_CACHE = `alondra-${self.VERSION_ARCHIVOS}`;
+const ARCHIVOS_BASE = ['./', ...self.ARCHIVOS_APP];
 
 self.addEventListener('install', (evento) => {
   evento.waitUntil(
@@ -34,6 +36,6 @@ self.addEventListener('fetch', (evento) => {
         }
         return respuesta;
       })
-      .catch(() => caches.match(request).then((guardada) => guardada ?? caches.match('./index.html'))),
+      .catch(() => caches.match(request).then((guardada) => guardada ?? (request.mode === 'navigate' ? caches.match('./index.html') : Response.error()))),
   );
 });

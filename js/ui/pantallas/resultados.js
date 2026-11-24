@@ -7,7 +7,7 @@ import { crearAnilloProgreso } from '../componentes/anillo-progreso.js';
 import { icono } from '../componentes/iconos.js';
 import { lanzarConfeti } from '../componentes/confeti.js';
 import { TEXTOS } from '../../contenido/textos.js';
-import { consumirResultadoLeccion } from '../../estado/sesion.js';
+import { leerResultadoLeccion, olvidarResultadoLeccion } from '../../estado/sesion.js';
 import { PUNTUACION_MAXIMA } from '../../ejercicios/puntuacion.js';
 import { navegar } from '../../nucleo/router.js';
 
@@ -32,7 +32,7 @@ function animarContador(elemento, hasta, formato) {
 }
 
 export function crearPantallaResultados() {
-  const resultado = consumirResultadoLeccion();
+  const resultado = leerResultadoLeccion();
   if (!resultado) {
     navegar('/', { reemplazar: true });
     return { elemento: el('section', { clase: 'pantalla' }) };
@@ -95,6 +95,7 @@ export function crearPantallaResultados() {
     },
     destruir() {
       detenerConfeti();
+      olvidarResultadoLeccion();
     },
   };
 }

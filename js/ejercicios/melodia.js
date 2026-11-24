@@ -73,7 +73,8 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
       duracion: rollo.duracion,
       alTiempo: (tiempo) => {
         rollo.fijarTiempo(tiempo);
-        estado.textContent = tiempo < 0 ? `${Math.ceil(-tiempo / pulso)}…` : TEXTOS.leccion.cantaAhora;
+        const texto = tiempo < 0 ? `${Math.ceil(-tiempo / pulso)}…` : TEXTOS.leccion.cantaAhora;
+        if (estado.textContent !== texto) estado.textContent = texto;
       },
       alMuestra: (midi, tiempo) => rollo.registrarMuestra(tiempo, midi),
     });

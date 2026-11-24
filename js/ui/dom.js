@@ -29,6 +29,25 @@ export function leerVariableCss(nombre, elemento = document.documentElement) {
   return getComputedStyle(elemento).getPropertyValue(nombre).trim();
 }
 
+// Lee un conjunto de variables CSS una vez y lo vuelve a leer solo si cambia el esquema de color.
+export function crearPaleta(nombresPorClave) {
+  let valores = null;
+  const medio = window.matchMedia('(prefers-color-scheme: dark)');
+  const invalidar = () => {
+    valores = null;
+  };
+  medio.addEventListener('change', invalidar);
+  return {
+    obtener() {
+      valores ??= Object.fromEntries(Object.entries(nombresPorClave).map(([clave, nombre]) => [clave, leerVariableCss(nombre)]));
+      return valores;
+    },
+    destruir() {
+      medio.removeEventListener('change', invalidar);
+    },
+  };
+}
+
 export function esperar(milisegundos) {
   return new Promise((resolver) => setTimeout(resolver, milisegundos));
 }

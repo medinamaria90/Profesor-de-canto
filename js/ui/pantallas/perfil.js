@@ -2,6 +2,7 @@
 
 import { el } from '../dom.js';
 import { crearBoton } from '../componentes/boton.js';
+import { icono } from '../componentes/iconos.js';
 import { mostrarDialogo } from '../componentes/dialogo.js';
 import { crearSelectorObjetivo } from './bienvenida.js';
 import { LOGROS } from '../../contenido/logros.js';
@@ -50,7 +51,7 @@ export function crearPantallaPerfil() {
   const estado = obtenerEstado();
   const hoy = fechaClave();
   const conseguidos = LOGROS.filter((logro) => estado.logros[logro.id]).length;
-  const inicial = (estado.nombre || TEXTOS.app.nombre).charAt(0).toUpperCase();
+  const inicial = estado.nombre ? estado.nombre.charAt(0).toUpperCase() : null;
 
   async function confirmarBorrado() {
     const borrar = await mostrarDialogo({ titulo: T.reiniciarTitulo, texto: T.reiniciarTexto, confirmar: T.reiniciarConfirmar, cancelar: T.cancelar, peligro: true });
@@ -65,7 +66,7 @@ export function crearPantallaPerfil() {
     el(
       'header',
       { clase: 'perfil__cabecera' },
-      el('div', { clase: 'perfil__avatar', 'aria-hidden': 'true', texto: inicial }),
+      el('div', { clase: 'perfil__avatar', 'aria-hidden': 'true', texto: inicial }, inicial === null && icono('persona', { tamano: 32 })),
       el('h1', { clase: 'pantalla__titulo', texto: estado.nombre || T.titulo }),
     ),
     audio.esSimulado && el('p', { clase: 'aviso', role: 'note', texto: T.simulacion }),

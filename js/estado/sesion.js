@@ -12,16 +12,23 @@ export function guardarResultadoLeccion(resultado) {
   }
 }
 
-export function consumirResultadoLeccion() {
-  let resultado = ultimoResultado;
-  ultimoResultado = null;
+export function leerResultadoLeccion() {
+  if (ultimoResultado) return ultimoResultado;
   try {
-    resultado ??= JSON.parse(window.sessionStorage.getItem(CLAVE_RESULTADO));
-    window.sessionStorage.removeItem(CLAVE_RESULTADO);
+    return JSON.parse(window.sessionStorage.getItem(CLAVE_RESULTADO));
   } catch (error) {
     console.warn('No se pudo leer el resultado guardado.', error);
+    return null;
   }
-  return resultado ?? null;
+}
+
+export function olvidarResultadoLeccion() {
+  ultimoResultado = null;
+  try {
+    window.sessionStorage.removeItem(CLAVE_RESULTADO);
+  } catch (error) {
+    console.warn('No se pudo borrar el resultado guardado.', error);
+  }
 }
 
 let avisosPendientes = [];

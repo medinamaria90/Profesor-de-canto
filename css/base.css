@@ -205,34 +205,3 @@ body.sin-navegacion .contenido {
   }
 }
 
-/* Móvil apaisado: poco alto, así que los visores encogen y las cabeceras van en fila. */
-@media (max-height: 500px) and (orientation: landscape) {
-  .afinador-visual,
-  .piano-roll {
-    height: clamp(120px, 45vh, 220px);
-  }
-
-  .juego__escenario {
-    height: 60vh;
-  }
-
-  .respiracion {
-    min-height: 180px;
-  }
-
-  .respiracion__circulo {
-    width: 110px;
-    height: 110px;
-  }
-
-  .ejercicio__instruccion,
-  .pantalla__titulo,
-  .bienvenida__titulo {
-    font-size: var(--tam-letra-l);
-  }
-
-  .bienvenida__logo,
-  .solicitud-micro__icono {
-    display: none;
-  }
-}

@@ -1,6 +1,6 @@
 // Visor de afinación: una línea objetivo y la estela de la voz que se desplaza hacia la izquierda.
 
-import { el, leerVariableCss, ajustarCanvas } from '../dom.js';
+import { el, crearPaleta, ajustarCanvas } from '../dom.js';
 import { nombreNota } from '../../musica/notas.js';
 import { TOLERANCIA_CENTS_AFINADO, TOLERANCIA_CENTS_AMPLIA } from '../../ejercicios/puntuacion.js';
 
@@ -33,17 +33,16 @@ export function crearAfinadorVisual({ midiObjetivo = null, amplitudSemitonos = A
   const estela = [];
   let observador = null;
 
-  function colores() {
-    return {
-      cuadricula: leerVariableCss('--contorno-suave'),
-      texto: leerVariableCss('--texto-suave'),
-      objetivo: leerVariableCss('--primario'),
-      banda: leerVariableCss('--primario-contenedor'),
-      afinado: leerVariableCss('--acierto'),
-      cerca: leerVariableCss('--aviso'),
-      lejos: leerVariableCss('--error'),
-    };
-  }
+  const paletaCss = crearPaleta({
+    cuadricula: '--contorno-suave',
+    texto: '--texto-suave',
+    objetivo: '--primario',
+    banda: '--primario-contenedor',
+    afinado: '--acierto',
+    cerca: '--aviso',
+    lejos: '--error',
+  });
+  const colores = () => paletaCss.obtener();
 
   function colorPorDesvio(cents, paleta) {
     const desvio = Math.abs(cents);
@@ -150,6 +149,7 @@ export function crearAfinadorVisual({ midiObjetivo = null, amplitudSemitonos = A
     },
     destruir() {
       observador?.disconnect();
+      paletaCss.destruir();
     },
   };
 }

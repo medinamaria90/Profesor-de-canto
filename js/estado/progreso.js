@@ -134,7 +134,8 @@ export function registrarLeccion(estado, { leccionId, puntuacion, estrellas, xp,
 }
 
 export function registrarRutina(estado, puntuacion, hoy) {
-  const conActividad = registrarActividad(estado, XP_RUTINA_DIARIA, hoy);
+  const xp = rutinaHechaHoy(estado, hoy) ? 0 : XP_RUTINA_DIARIA;
+  const conActividad = registrarActividad(estado, xp, hoy);
   return { ...conActividad, rutinasDiarias: { ...estado.rutinasDiarias, [hoy]: puntuacion } };
 }
 

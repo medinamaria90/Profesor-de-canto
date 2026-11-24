@@ -31,15 +31,17 @@ export function crearEjercicioNota(ejercicio, { contenedor, alTerminar, fijarAcc
 
   let captura = null;
   let destruido = false;
+  let pausado = false;
 
   async function faseEscuchar() {
     fijarAcciones([]);
     estado.textContent = `${TEXTOS.leccion.escuchar}…`;
     await reproducirGuia(ejercicio.escuchar);
-    if (!destruido) faseCantar();
+    if (!destruido && !pausado) faseCantar();
   }
 
   function faseCantar() {
+    captura?.cancelar();
     fijarAcciones([]);
     estado.textContent = TEXTOS.leccion.cantaAhora;
     visual.limpiar();
@@ -81,11 +83,13 @@ export function crearEjercicioNota(ejercicio, { contenedor, alTerminar, fijarAcc
       faseEscuchar();
     },
     pausar() {
+      pausado = true;
       captura?.cancelar();
       fijarAcciones([]);
     },
     reanudar() {
-      faseCantar();
+      pausado = false;
+      faseEscuchar();
     },
     destruir() {
       destruido = true;

@@ -24,6 +24,7 @@ export function crearEjercicioSirena(ejercicio, { contenedor, alTerminar, fijarA
   let destruido = false;
 
   function faseCantar() {
+    captura?.cancelar();
     fijarAcciones([]);
     estado.textContent = TEXTOS.leccion.cantaAhora;
     visual.limpiar();

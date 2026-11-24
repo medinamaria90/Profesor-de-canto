@@ -61,7 +61,11 @@ export const audio = {
 
   async abrirEntrada() {
     if (entrada) return entrada;
-    if (!aperturaPendiente) {
+    if (aperturaPendiente) {
+      // Una apertura anterior puede haberse cancelado al cerrar otra pantalla: se vuelve a pedir.
+      return aperturaPendiente.catch((error) => (error.motivo === 'cancelado' ? this.abrirEntrada() : Promise.reject(error)));
+    }
+    {
       const miGeneracion = ++generacion;
       const contexto = await reanudarContexto();
       aperturaPendiente = (CONFIGURACION.simulacion ? Promise.resolve(crearEntradaSimulada(contexto)) : abrirMicrofono(contexto))

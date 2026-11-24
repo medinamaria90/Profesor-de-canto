@@ -1,6 +1,6 @@
 // Dibujo en canvas del minijuego "Bola cantora". Solo pinta: la partida la mueve la lógica pura.
 
-import { el, leerVariableCss, ajustarCanvas } from '../ui/dom.js';
+import { el, crearPaleta, ajustarCanvas } from '../ui/dom.js';
 import { nombreNota } from '../musica/notas.js';
 import { ANCHO_PUERTA, RADIO_BOLA, huecoDePuerta, xDePuerta, puertaSiguiente } from './bola-cantora-logica.js';
 
@@ -15,21 +15,20 @@ export function crearVistaBolaCantora() {
   const estela = [];
   let observador = null;
 
-  function colores() {
-    return {
-      fondoArriba: leerVariableCss('--superficie-1'),
-      fondoAbajo: leerVariableCss('--superficie-3'),
-      puerta: leerVariableCss('--primario'),
-      puertaSiguiente: leerVariableCss('--secundario'),
-      puertaSuperada: leerVariableCss('--acierto'),
-      puertaChocada: leerVariableCss('--error'),
-      etiqueta: leerVariableCss('--sobre-superficie'),
-      bola: leerVariableCss('--racha'),
-      bolaBrillo: leerVariableCss('--sobre-primario'),
-      estela: leerVariableCss('--racha-contenedor'),
-      linea: leerVariableCss('--primario'),
-    };
-  }
+  const paletaCss = crearPaleta({
+    fondoArriba: '--superficie-1',
+    fondoAbajo: '--superficie-3',
+    puerta: '--primario',
+    puertaSiguiente: '--secundario',
+    puertaSuperada: '--acierto',
+    puertaChocada: '--error',
+    etiqueta: '--sobre-superficie',
+    bola: '--racha',
+    bolaBrillo: '--sobre-primario',
+    estela: '--racha-contenedor',
+    linea: '--primario',
+  });
+  const colores = () => paletaCss.obtener();
 
   function rectanguloRedondeado(contexto, x, y, ancho, alto, radio) {
     const r = Math.min(radio, ancho / 2, Math.abs(alto) / 2);
@@ -133,6 +132,7 @@ export function crearVistaBolaCantora() {
     },
     destruir() {
       observador?.disconnect();
+      paletaCss.destruir();
     },
   };
 }
