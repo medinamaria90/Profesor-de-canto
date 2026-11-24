@@ -82,9 +82,9 @@ function segmentoEn(segmentos, tiempo) {
 }
 
 // Busca el retraso (en segundos) con el que la voz encaja mejor con la melodía: absorbe la latencia
-// de auriculares Bluetooth, del altavoz y del tiempo de reacción. Empates: el desfase menor.
+// de auriculares Bluetooth, del altavoz y del tiempo de reacción.
 export function estimarDesfase(muestras, segmentos, { desfaseMaximo = DESFASE_MAXIMO_SEGUNDOS, paso = PASO_DESFASE_SEGUNDOS } = {}) {
-  let mejorDesfase = 0;
+  let mejoresDesfases = [0];
   let mejorCredito = -1;
   for (let desfase = 0; desfase <= desfaseMaximo + 1e-9; desfase += paso) {
     let credito = 0;
@@ -95,10 +95,15 @@ export function estimarDesfase(muestras, segmentos, { desfaseMaximo = DESFASE_MA
     }
     if (credito > mejorCredito + 1e-9) {
       mejorCredito = credito;
-      mejorDesfase = desfase;
+      mejoresDesfases = [desfase];
+    } else if (Math.abs(credito - mejorCredito) <= 1e-9) {
+      mejoresDesfases.push(desfase);
     }
   }
-  return Math.round(mejorDesfase * 1000) / 1000;
+  if (mejorCredito <= 0) return 0;
+  // Varios desfases pueden encajar igual de bien (las muestras son discretas): se toma el centro del tramo.
+  const centro = mejoresDesfases.reduce((acumulado, valor) => acumulado + valor, 0) / mejoresDesfases.length;
+  return Math.round(centro * 1000) / 1000;
 }
 
 export function puntuarMelodia(puntuacionesNotas) {
