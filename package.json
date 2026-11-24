@@ -6,6 +6,12 @@
   "private": true,
   "scripts": {
     "test": "node --test \"tests/**/*.test.js\"",
-    "start": "node servidor.js"
+    "start": "node servidor.js",
+    "lint": "eslint",
+    "comprobar": "node --experimental-vm-modules herramientas/comprobar-sintaxis.cjs && eslint && node --test \"tests/**/*.test.js\""
+  },
+  "devDependencies": {
+    "eslint": "^9.39.5",
+    "globals": "^17.14.0"
   }
 }

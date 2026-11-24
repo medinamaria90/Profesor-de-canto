@@ -1,6 +1,6 @@
 // Programa la orquestación de una canción (acordes, bajo y percusión) a partir de su arreglo.
 
-import { generarArreglo } from '../musica/arreglos.js';
+import { generarArreglo, PULSOS_POR_COMPAS } from '../musica/arreglos.js';
 import { padAcorde, bajo, percusion } from './instrumentos.js';
 import { segundosPorPulso } from './sintetizador.js';
 
