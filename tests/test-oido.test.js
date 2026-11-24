@@ -10,6 +10,7 @@ import {
   valorarAbsoluto,
   notaAbsolutaAleatoria,
   parRelativo,
+  debeDetenerAbsoluto,
   NIVELES_RELATIVO_CENTS,
 } from '../js/ejercicios/test-oido-logica.js';
 
@@ -37,6 +38,8 @@ test('el umbral se estima con los cambios de sentido y se valora', () => {
   assert.ok(umbral >= 50 && umbral <= 100, `umbral ${umbral}`);
   assert.equal(valorarRelativo(umbral), umbral <= 60 ? 'bueno' : 'normal');
   assert.equal(valorarRelativo(400), 'a-entrenar');
+  assert.equal(valorarRelativo(12), 'excelente');
+  assert.equal(valorarRelativo(25), 'muy-bueno');
   assert.equal(umbralRelativo(crearEscalera()), 700);
 });
 
@@ -52,6 +55,15 @@ test('el oído absoluto se evalúa contra el azar', () => {
   assert.equal(valorarAbsoluto(resultado), 'indicios');
   assert.equal(valorarAbsoluto({ porcentajeExacto: 90 }), 'probable');
   assert.equal(valorarAbsoluto(evaluarAbsoluto([])), 'no');
+});
+
+test('el oído absoluto se corta tras cuatro fallos seguidos al principio', () => {
+  const fallos4 = [1, 2, 3, 4].map((grado) => ({ correcta: grado, elegida: grado + 5 }));
+  assert.equal(debeDetenerAbsoluto(fallos4), true);
+  assert.equal(debeDetenerAbsoluto(fallos4.slice(0, 3)), false);
+  const unAcierto = [...fallos4.slice(0, 3), { correcta: 7, elegida: 7 }];
+  assert.equal(debeDetenerAbsoluto(unAcierto), false);
+  assert.equal(debeDetenerAbsoluto(Array.from({ length: 10 }, () => ({ correcta: 0, elegida: 0 }))), true);
 });
 
 test('las notas del test no repiten la anterior y los pares respetan la distancia', () => {

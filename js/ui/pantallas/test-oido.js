@@ -15,8 +15,10 @@ import {
   valorarAbsoluto,
   notaAbsolutaAleatoria,
   parRelativo,
+  debeDetenerAbsoluto,
   PREGUNTAS_RELATIVO,
   PREGUNTAS_ABSOLUTO,
+  UMBRAL_PROFESIONAL_CENTS,
 } from '../../ejercicios/test-oido-logica.js';
 import { NOMBRES_NOTAS, nombreNota } from '../../musica/notas.js';
 import { TEXTOS } from '../../contenido/textos.js';
@@ -119,7 +121,7 @@ export function crearPantallaTestOido() {
 
   async function preguntaAbsoluta() {
     if (destruida) return;
-    if (respuestasAbsoluto.length >= PREGUNTAS_ABSOLUTO) {
+    if (debeDetenerAbsoluto(respuestasAbsoluto)) {
       resultados();
       return;
     }
@@ -169,6 +171,7 @@ export function crearPantallaTestOido() {
           el('h2', { clase: 'perfil__subtitulo', texto: T.parteRelativa }),
           el('p', { clase: 'tecnica__resumen', texto: T.umbralFormato(umbral) }),
           el('p', { texto: T.valoracionRelativa[nivelRelativo] }),
+          el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.margenFormato(umbral, UMBRAL_PROFESIONAL_CENTS) }),
           el('p', { clase: 'tecnica__consejo', texto: T.consejoRelativo[nivelRelativo] }),
         ),
         el(
@@ -176,6 +179,7 @@ export function crearPantallaTestOido() {
           { clase: 'tarjeta tecnica' },
           el('h2', { clase: 'perfil__subtitulo', texto: T.parteAbsoluta }),
           el('p', { clase: 'tecnica__resumen', texto: T.absolutoFormato(absoluto.exactas, absoluto.total, absoluto.cercanas, absoluto.azar) }),
+          absoluto.total < PREGUNTAS_ABSOLUTO && el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.absolutoCortado }),
           el('p', { texto: T.valoracionAbsoluta[nivelAbsoluto] }),
           el('p', { clase: 'tecnica__consejo', texto: T.consejoAbsoluto[nivelAbsoluto] }),
           el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.oidoAbsolutoExplicacion }),

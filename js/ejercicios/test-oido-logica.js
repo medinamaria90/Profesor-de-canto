@@ -1,8 +1,12 @@
 // Lógica pura del test de oído: escalera adaptativa para el oído relativo y evaluación del oído absoluto.
 
-export const NIVELES_RELATIVO_CENTS = [700, 500, 300, 200, 100, 50, 25];
-export const PREGUNTAS_RELATIVO = 14;
+export const NIVELES_RELATIVO_CENTS = [700, 500, 300, 200, 100, 50, 35, 25, 15, 10];
+export const PREGUNTAS_RELATIVO = 18;
 export const PREGUNTAS_ABSOLUTO = 10;
+// Si las primeras respuestas del oído absoluto no aciertan ninguna nota exacta, el test se corta.
+export const PREGUNTAS_ABSOLUTO_MINIMAS = 4;
+// Umbral de referencia de los músicos profesionales, para dar margen de mejora.
+export const UMBRAL_PROFESIONAL_CENTS = 12;
 // Escalera "dos aciertos para subir, un fallo para bajar": converge hacia el 70 % de aciertos.
 const ACIERTOS_PARA_SUBIR = 2;
 const CAMBIOS_DE_SENTIDO_PARA_UMBRAL = 4;
@@ -46,10 +50,18 @@ export function umbralRelativo(escalera) {
 }
 
 export function valorarRelativo(umbralCents) {
-  if (umbralCents <= 30) return 'excelente';
+  if (umbralCents <= 15) return 'excelente';
+  if (umbralCents <= 30) return 'muy-bueno';
   if (umbralCents <= 60) return 'bueno';
   if (umbralCents <= 150) return 'normal';
   return 'a-entrenar';
+}
+
+// true cuando ya no merece la pena seguir preguntando por el oído absoluto.
+export function debeDetenerAbsoluto(respuestas) {
+  if (respuestas.length < PREGUNTAS_ABSOLUTO_MINIMAS) return false;
+  if (respuestas.length >= PREGUNTAS_ABSOLUTO) return true;
+  return respuestas.every((r) => r.correcta !== r.elegida);
 }
 
 // respuestas: [{ correcta: grado 0-11, elegida: grado 0-11 }]
