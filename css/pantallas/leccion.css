@@ -83,6 +83,21 @@
   color: var(--sobre-error-contenedor);
 }
 
+.leccion__feedback-cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+}
+
+.leccion__feedback-porcentaje {
+  flex: none;
+  font-size: var(--tam-letra-2xl);
+  font-weight: var(--peso-fuerte);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-titulo);
+}
+
 .leccion__feedback-titulo {
   font-size: var(--tam-letra-xl);
   font-weight: var(--peso-fuerte);

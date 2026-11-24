@@ -81,6 +81,8 @@ export const TEXTOS = {
     progresoFormato: (actual, total) => `${actual} de ${total}`,
     continuar: 'Continuar',
     cantarOtraVez: 'Cantar otra vez',
+    porcentajeFormato: (puntuacion) => `${Math.round(puntuacion)} %`,
+    porcentajeEtiqueta: (puntuacion) => `Puntuación: ${Math.round(puntuacion)} por ciento`,
     reintentar: 'Reintentar',
     saltar: 'Saltar',
     empezar: 'Empezar',
@@ -144,7 +146,6 @@ export const TEXTOS = {
       instruccionCanta: 'Cántala',
       cantarYa: 'Me la sé',
       notasFormato: (afinadas, total) => `${afinadas} de ${total} notas`,
-      desfaseFormato: (segundos) => `desfase ${segundos.toFixed(2).replace('.', ',')} s`,
     },
     tecnica: {
       titulo: 'Técnica',

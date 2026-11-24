@@ -174,7 +174,7 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
     rollo.mostrarResumen();
     alTerminar({
       puntuacion: puntuarMelodia(puntuaciones, pesos),
-      detalle: `${T.notasFormato(afinadas, puntuaciones.length)} · ${T.desfaseFormato(desfase)}`,
+      detalle: T.notasFormato(afinadas, puntuaciones.length),
       errorMedio: consejoFiable(porNotas) ? porNotas.errorMedio : null,
       // Se puede volver a cantar para mejorar la puntuación.
       repetir: faseCantar,

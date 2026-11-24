@@ -132,7 +132,12 @@ export function crearPantallaLeccion({ id }) {
       el(
         'div',
         { clase: 'leccion__feedback', role: 'status' },
-        el('p', { clase: 'leccion__feedback-titulo', texto: titulo }),
+        el(
+          'div',
+          { clase: 'leccion__feedback-cabecera' },
+          el('p', { clase: 'leccion__feedback-titulo', texto: titulo }),
+          el('p', { clase: 'leccion__feedback-porcentaje', texto: T.porcentajeFormato(resultado.puntuacion), 'aria-label': T.porcentajeEtiqueta(resultado.puntuacion) }),
+        ),
         resultado.detalle && el('p', { clase: 'leccion__feedback-detalle', texto: resultado.detalle }),
         consejo && el('p', { clase: 'leccion__feedback-consejo', texto: consejo }),
       ),
