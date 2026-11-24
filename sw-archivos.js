@@ -1,5 +1,5 @@
 // Generado por herramientas/generar-lista-sw.cjs; no editar a mano.
-self.VERSION_ARCHIVOS = 'mwuvqyir';
+self.VERSION_ARCHIVOS = 'mwuw9hf1';
 self.ARCHIVOS_APP = [
   "./css/apaisado.css",
   "./css/base.css",
@@ -20,6 +20,8 @@ self.ARCHIVOS_APP = [
   "./css/pantallas/perfil.css",
   "./css/pantallas/resultados.css",
   "./css/variables.css",
+  "./fuentes/OFL.txt",
+  "./fuentes/outfit-latin-wght-normal.woff2",
   "./iconos/icono-192.png",
   "./iconos/icono-512.png",
   "./iconos/icono-maskable-512.png",

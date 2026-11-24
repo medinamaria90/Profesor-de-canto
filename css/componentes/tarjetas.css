@@ -4,38 +4,65 @@
   padding: var(--espacio-5);
   border-radius: var(--radio-l);
   background: var(--superficie);
-  box-shadow: 0 1px 3px var(--sombra);
+  box-shadow: var(--sombra-tarjeta), inset 0 0 0 1px var(--contorno);
 }
 
+/* Chips: pastilla blanca con relieve dentro de un enlace de 48 px. */
 .chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--objetivo-tactil);
+  min-width: var(--objetivo-tactil);
+  padding: 0 2px;
+  text-decoration: none;
+  color: var(--sobre-superficie);
+}
+
+.chip__pastilla {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1);
+  height: 36px;
+  padding: 0 var(--espacio-3) 0 var(--espacio-2);
+  border-radius: var(--radio-completo);
+  background: var(--superficie);
+  box-shadow: 0 2px 0 var(--contorno), inset 0 0 0 1px var(--contorno);
+  font-weight: var(--peso-fuerte);
+  font-size: var(--tam-letra-s);
+  font-variant-numeric: tabular-nums;
+  transition: transform var(--duracion-corta) var(--curva), box-shadow var(--duracion-corta);
+}
+
+.chip:active .chip__pastilla {
+  transform: translateY(2px);
+  box-shadow: inset 0 0 0 1px var(--contorno);
+}
+
+.chip__icono {
+  display: inline-flex;
+  color: var(--racha);
+}
+
+.chip__icono--apagado {
+  color: var(--texto-suave);
+}
+
+.chip--racha {
   display: inline-flex;
   align-items: center;
   gap: var(--espacio-1);
   min-height: 36px;
   padding: 0 var(--espacio-3);
   border-radius: var(--radio-completo);
-  font-weight: var(--peso-fuerte);
-  font-size: var(--tam-letra-s);
-  background: var(--superficie-2);
-  color: var(--sobre-superficie);
-}
-
-.chip--racha {
   background: var(--racha-contenedor);
   color: var(--sobre-racha-contenedor);
+  font-weight: var(--peso-fuerte);
+  font-size: var(--tam-letra-s);
 }
 
 .chip--racha .icono {
   color: var(--racha);
-}
-
-.chip--apagado {
-  background: var(--superficie-2);
-  color: var(--texto-suave);
-}
-
-.chip--apagado .icono {
-  color: var(--texto-suave);
 }
 
 .etiqueta {

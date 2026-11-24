@@ -1,10 +1,10 @@
-/* Camino de lecciones: unidades y nodos en zigzag. */
+/* Camino de lecciones: cabecera de nivel centrada con filetes, nodos redondos con relieve y sendero punteado. */
 
 .unidad {
   --unidad-color: var(--primario);
   display: flex;
   flex-direction: column;
-  gap: var(--espacio-5);
+  gap: var(--espacio-3);
 }
 
 .unidad[data-unidad="1"] { --unidad-color: var(--unidad-1); }
@@ -14,99 +14,146 @@
 .unidad[data-unidad="5"] { --unidad-color: var(--unidad-5); }
 
 .unidad__cabecera {
-  padding: var(--espacio-5);
-  border-radius: var(--radio-l);
-  background: linear-gradient(135deg, var(--unidad-color), color-mix(in srgb, var(--unidad-color) 70%, var(--sobre-primario)));
-  color: var(--sobre-primario);
-  box-shadow: 0 8px 24px var(--sombra);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--espacio-3);
+  text-align: center;
+  padding-top: var(--espacio-3);
+}
+
+.unidad__cabecera::before,
+.unidad__cabecera::after {
+  content: "";
+  height: 1.5px;
+  background: var(--contorno);
+  border-radius: 2px;
+}
+
+.unidad__titulos {
+  display: grid;
+  justify-items: center;
+  gap: var(--espacio-1);
 }
 
 .unidad__numero {
-  font-size: var(--tam-letra-xs);
+  display: grid;
+  place-items: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 var(--espacio-3);
+  border-radius: var(--radio-completo);
+  background: color-mix(in srgb, var(--unidad-color) 14%, var(--superficie));
+  color: var(--unidad-color);
+  font-size: var(--tam-letra-s);
   font-weight: var(--peso-fuerte);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .unidad__titulo {
   font-size: var(--tam-letra-xl);
-  font-weight: var(--peso-fuerte);
+  font-weight: var(--peso-medio);
+  letter-spacing: var(--tracking-titulo);
+  line-height: 1.1;
 }
 
 .unidad__descripcion {
+  color: var(--texto-suave);
   font-size: var(--tam-letra-s);
 }
 
 .camino {
+  position: relative;
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--espacio-5);
+  display: grid;
+  gap: var(--espacio-2);
+}
+
+/* Sendero punteado que une los nodos. */
+.camino::before {
+  content: "";
+  position: absolute;
+  left: 30px;
+  top: 30px;
+  bottom: 30px;
+  width: 4px;
+  background: radial-gradient(circle, var(--contorno-2) 1.6px, transparent 2px) 50% 0 / 4px 12px repeat-y;
 }
 
 .camino__nodo {
+  position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: var(--espacio-1);
-  width: 140px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.camino__nodo--derecha {
-  transform: translateX(72px);
-}
-
-.camino__nodo--izquierda {
-  transform: translateX(-72px);
-}
-
-.camino__nodo--actual {
-  padding-top: 44px;
+  gap: var(--espacio-4);
+  min-height: 80px;
+  padding: var(--espacio-2) var(--espacio-2) var(--espacio-2) 0;
+  border-radius: var(--radio-boton);
 }
 
 .camino__boton {
   position: relative;
+  flex: none;
   display: grid;
   place-items: center;
-  width: 76px;
-  height: 76px;
+  width: 64px;
+  height: 64px;
   padding: 0;
   border: 0;
   border-radius: var(--radio-completo);
-  font-size: var(--tam-letra-2xl);
+  font-size: 1.7rem;
   background: var(--superficie);
   color: var(--sobre-superficie);
-  box-shadow: 0 6px 0 var(--superficie-3), 0 8px 12px var(--sombra);
+  box-shadow: 0 0 0 3px var(--contorno), 0 var(--relieve-nodo) 0 3px var(--contorno-2);
   transition: transform var(--duracion-corta) var(--curva), box-shadow var(--duracion-corta) var(--curva);
+  cursor: pointer;
 }
 
 .camino__boton:active:not(:disabled) {
-  transform: translateY(4px);
-  box-shadow: 0 2px 0 var(--superficie-3), 0 4px 8px var(--sombra);
-}
-
-.camino__boton--completada {
-  background: var(--unidad-color);
-  color: var(--sobre-primario);
-  box-shadow: 0 6px 0 var(--sombra-fuerte), 0 8px 12px var(--sombra);
-}
-
-.camino__boton--actual {
-  background: var(--unidad-color);
-  color: var(--sobre-primario);
-  box-shadow: 0 6px 0 var(--sombra-fuerte), 0 8px 12px var(--sombra), 0 0 0 8px var(--superficie-2);
-  animation: pulso-nodo 2s ease-in-out infinite;
+  transform: translateY(3px);
+  box-shadow: 0 0 0 3px var(--contorno), 0 2px 0 3px var(--contorno-2);
 }
 
 .camino__boton--bloqueada {
-  background: var(--bloqueado);
+  background: var(--superficie-2);
   color: var(--sobre-bloqueado);
-  box-shadow: 0 6px 0 var(--contorno), 0 8px 12px var(--sombra);
+  box-shadow: 0 var(--relieve-nodo) 0 var(--contorno-2);
   cursor: not-allowed;
+}
+
+/* Nodo actual: anillo del color del nivel sobre un halo suave; el aro exterior respira. */
+.camino__boton--actual {
+  box-shadow: 0 0 0 4px var(--fondo), 0 0 0 8px var(--unidad-color), 0 10px 0 4px color-mix(in srgb, var(--unidad-color) 18%, var(--superficie));
+}
+
+.camino__boton--actual::after {
+  content: "";
+  position: absolute;
+  inset: -13px;
+  border-radius: var(--radio-completo);
+  border: 2px solid var(--unidad-color);
+  opacity: 0;
+  animation: halo 2.4s var(--curva) infinite;
+}
+
+/* Completada: anillo de oro y sello con la marca de hecho. */
+.camino__boton--completada {
+  box-shadow: 0 0 0 3px var(--oro), 0 var(--relieve-nodo) 0 3px var(--contorno-2);
+}
+
+.camino__sello {
+  position: absolute;
+  right: -8px;
+  bottom: -4px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radio-completo);
+  background: var(--oro);
+  color: var(--sobre-oro);
+  box-shadow: 0 0 0 3px var(--fondo);
 }
 
 .camino__candado {
@@ -114,62 +161,43 @@
   place-items: center;
 }
 
-.camino__burbuja {
-  position: absolute;
-  top: -44px;
-  left: 50%;
-  translate: -50% 0;
-  padding: var(--espacio-1) var(--espacio-3);
-  border-radius: var(--radio-s);
-  background: var(--superficie);
-  color: var(--unidad-color);
-  font-size: var(--tam-letra-xs);
-  font-weight: var(--peso-fuerte);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  box-shadow: 0 2px 8px var(--sombra);
-  white-space: nowrap;
-  animation: flotar 1.6s ease-in-out infinite;
-}
-
-.camino__burbuja::after {
-  content: "";
-  position: absolute;
-  bottom: -6px;
-  left: 50%;
-  translate: -50% 0;
-  border: 6px solid transparent;
-  border-top-color: var(--superficie);
-  border-bottom: 0;
+.camino__texto {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
 }
 
 .camino__titulo {
-  margin-top: var(--espacio-1);
-  font-size: var(--tam-letra-s);
+  font-size: 1.08rem;
   font-weight: var(--peso-medio);
-  color: var(--sobre-superficie);
+  line-height: 1.15;
 }
 
-.camino__boton--bloqueada + .camino__titulo {
+.camino__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  font-size: var(--tam-letra-s);
   color: var(--texto-suave);
 }
 
-@keyframes pulso-nodo {
-  0%,
-  100% {
-    box-shadow: 0 6px 0 var(--sombra-fuerte), 0 8px 12px var(--sombra), 0 0 0 8px var(--superficie-2);
-  }
-  50% {
-    box-shadow: 0 6px 0 var(--sombra-fuerte), 0 8px 12px var(--sombra), 0 0 0 14px var(--superficie-3);
-  }
+.camino__nodo--actual .camino__meta {
+  color: var(--sobre-primario-contenedor);
+  font-weight: var(--peso-fuerte);
 }
 
-@keyframes flotar {
-  0%,
-  100% {
-    transform: translateY(0);
+.camino__nodo--bloqueada .camino__titulo {
+  color: var(--texto-suave);
+}
+
+@keyframes halo {
+  0% {
+    opacity: 0.6;
+    transform: scale(0.92);
   }
-  50% {
-    transform: translateY(-4px);
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.12);
   }
 }

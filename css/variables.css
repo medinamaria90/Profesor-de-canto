@@ -1,57 +1,83 @@
-/* Tokens de diseño: único lugar donde se escriben colores y medidas. */
+/* Tokens de diseño: único lugar donde se escriben colores y medidas.
+   Sistema visual compartido con Mirada (relieve, chips, nodos) en paleta de cielo: azul, blanco y luz. */
+
+/* Outfit (OFL), variable en peso 300-600, subconjunto latino, servida con la app. */
+@font-face {
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 300 600;
+  font-display: swap;
+  src: url("../fuentes/outfit-latin-wght-normal.woff2") format("woff2");
+}
 
 :root {
   color-scheme: light;
 
-  /* Paleta (modo claro) */
-  --primario: #1769C4;
-  --sobre-primario: #FFFFFF;
-  --primario-contenedor: #D6E8FF;
-  --sobre-primario-contenedor: #0A3A73;
+  /* Paleta base: cielo claro, blanco, tinta azul noche. */
+  --fondo: #EEF5FC;
+  --superficie: #FFFFFF;
+  --superficie-1: #F6FAFE;
+  --superficie-2: #E3EEF9;
+  --superficie-3: #D3E3F3;
+  --sobre-superficie: #1B2A41;
+  --texto-suave: #5B6B80;
+  --contorno: #D8E4F0;
+  --contorno-fuerte: #5F738F;
+  --contorno-suave: #E6EEF7;
+  --contorno-2: #C3D3E4;
 
+  /* Protagonista: azul cielo intenso. Como texto, solo en su variante oscura. */
+  --primario: #2F7FE0;
+  --primario-sombra: #2466B8;
+  --sobre-primario: #FFFFFF;
+  --primario-contenedor: #E1EEFC;
+  --sobre-primario-contenedor: #1F5FAF;
+
+  /* Sol y oro: XP, estrellas, lo dominado. */
   --secundario: #8F5A00;
-  --secundario-contenedor: #FFE7B3;
+  --secundario-contenedor: #FFF0C2;
   --sobre-secundario-contenedor: #3F2A00;
+  --oro: #D9A93A;
+  --oro-texto: #7E5F17;
+  --sobre-oro: #1B2A41;
+  --estrella: #D9A93A;
+  --estrella-vacia: #CFDCEA;
 
   --acierto: #0F7A5C;
-  --acierto-contenedor: #C7F0DC;
+  --acierto-contenedor: #DCF3EA;
   --sobre-acierto-contenedor: #00392B;
-
   --aviso: #A35F00;
-  --aviso-contenedor: #FFE0B2;
+  --aviso-contenedor: #FFE8C2;
   --sobre-aviso-contenedor: #4A2A00;
-
   --error: #C2343E;
-  --error-contenedor: #FFDAD9;
+  --error-contenedor: #FFE1E1;
   --sobre-error-contenedor: #410006;
-
-  --racha: #D9641A;
-  --racha-contenedor: #FFE3D0;
+  --racha: #E0631A;
+  --racha-contenedor: #FFE6D6;
   --sobre-racha-contenedor: #5A1E00;
 
-  --fondo: #F2F8FF;
-  --superficie: #FFFFFF;
-  --superficie-1: #EAF3FF;
-  --superficie-2: #DCEBFC;
-  --superficie-3: #CDE1F7;
-  --sobre-superficie: #16233A;
-  --texto-suave: #4F607A;
-  --contorno: #B9CBE0;
-  --contorno-fuerte: #5F738F;
-  --contorno-suave: #E0EAF5;
+  --bloqueado: #E3EEF9;
+  --sobre-bloqueado: #7A8BA3;
+  --foco: #1B2A41;
 
-  --bloqueado: #D9E4F0;
-  --sobre-bloqueado: #657A96;
-  --estrella: #C98A00;
-  --estrella-vacia: #C9D8EA;
+  --sombra: rgba(27, 42, 65, 0.10);
+  --sombra-fuerte: rgba(27, 42, 65, 0.22);
+  --velo: rgba(27, 42, 65, 0.45);
+  --sombra-tarjeta: 0 1px 2px rgba(27, 42, 65, 0.05), 0 6px 18px -10px rgba(27, 42, 65, 0.16);
 
-  --sombra: rgba(22, 35, 58, 0.12);
-  --sombra-fuerte: rgba(22, 35, 58, 0.24);
-  --velo: rgba(22, 35, 58, 0.5);
-  --foco: #1769C4;
+  /* Relieve: sombra inferior sólida que se hunde al pulsar. */
+  --relieve: 4px;
+  --relieve-s: 3px;
+  --relieve-nodo: 5px;
+  --elevacion: 0 var(--relieve) 0 var(--contorno), inset 0 0 0 1.5px var(--contorno);
+  --elevacion-s: 0 var(--relieve-s) 0 var(--contorno), inset 0 0 0 1.5px var(--contorno);
+  --elevacion-pulsada: inset 0 0 0 1.5px var(--contorno);
 
-  --cielo-alto: #DDEFFF;
-  --cielo-bajo: #F2F8FF;
+  --unidad-1: #2F7FE0;
+  --unidad-2: #0E8A7A;
+  --unidad-3: #E0631A;
+  --unidad-4: #7A52C9;
+  --unidad-5: #C7446B;
 
   /* Escenario del vuelo de la alondra: cuatro fases del día que el juego mezcla con el tiempo */
   --juego-dia-cielo-alto: #5FB2FF;
@@ -84,12 +110,6 @@
   --alondra-ala: #A6692E;
   --alondra-pico: #FFC24A;
 
-  --unidad-1: #1769C4;
-  --unidad-2: #0E8A7A;
-  --unidad-3: #D9641A;
-  --unidad-4: #7A52C9;
-  --unidad-5: #C7446B;
-
   /* Espaciado */
   --espacio-1: 4px;
   --espacio-2: 8px;
@@ -101,32 +121,34 @@
   --espacio-8: 48px;
 
   /* Radios */
-  --radio-s: 8px;
+  --radio-s: 12px;
   --radio-m: 16px;
-  --radio-l: 24px;
-  --radio-xl: 28px;
+  --radio-l: 18px;
+  --radio-xl: 24px;
+  --radio-boton: 16px;
   --radio-completo: 999px;
 
-  /* Tipografía */
-  --fuente: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", sans-serif;
-  --tam-letra-xs: 0.75rem;
-  --tam-letra-s: 0.875rem;
+  /* Tipografía: Outfit en todo, pesos 400/500/600; titulares 500 con tracking negativo. */
+  --fuente: "Outfit", "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --tam-letra-xs: 0.78rem;
+  --tam-letra-s: 0.88rem;
   --tam-letra-m: 1rem;
-  --tam-letra-l: 1.25rem;
+  --tam-letra-l: 1.2rem;
   --tam-letra-xl: 1.5rem;
   --tam-letra-2xl: 2rem;
-  --tam-letra-3xl: 2.75rem;
-  --tam-letra-4xl: 3.5rem;
+  --tam-letra-3xl: 2.6rem;
+  --tam-letra-4xl: 3.4rem;
   --peso-normal: 400;
-  --peso-medio: 600;
-  --peso-fuerte: 700;
-  --interlineado: 1.45;
+  --peso-medio: 500;
+  --peso-fuerte: 600;
+  --interlineado: 1.5;
+  --tracking-titulo: -0.02em;
 
   /* Movimiento */
-  --duracion-corta: 150ms;
-  --duracion-media: 300ms;
+  --duracion-corta: 120ms;
+  --duracion-media: 250ms;
   --duracion-larga: 600ms;
-  --curva: cubic-bezier(0.2, 0, 0, 1);
+  --curva: cubic-bezier(0.2, 0.7, 0.2, 1);
   --curva-rebote: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Capas */
@@ -136,75 +158,10 @@
 
   /* Medidas */
   --objetivo-tactil: 48px;
-  --ancho-maximo: 600px;
+  --ancho-maximo: 560px;
   --ancho-rail: 96px;
   --alto-navegacion: 76px;
   --alto-visual: 220px;
   --alto-visual-grande: 280px;
   --punto-ancho: 840px;
-}
-
-/* Paleta nocturna: solo si algún día se activa a mano con data-tema="oscuro". */
-@media (prefers-color-scheme: dark) {
-  :root[data-tema="oscuro"] {
-    --primario: #8EC2FF;
-    --sobre-primario: #042B5C;
-    --primario-contenedor: #1F4F8F;
-    --sobre-primario-contenedor: #D6E8FF;
-
-    --secundario: #FFD37A;
-    --secundario-contenedor: #5C4300;
-    --sobre-secundario-contenedor: #FFE6A8;
-
-    --acierto: #6FD9B4;
-    --acierto-contenedor: #0C5A45;
-    --sobre-acierto-contenedor: #BFF0DE;
-
-    --aviso: #FFC078;
-    --aviso-contenedor: #5C3700;
-    --sobre-aviso-contenedor: #FFE0B2;
-
-    --error: #FFB3B3;
-    --error-contenedor: #8C1D27;
-    --sobre-error-contenedor: #FFDAD9;
-
-    --racha: #FF9A5C;
-    --racha-contenedor: #5A2A0A;
-    --sobre-racha-contenedor: #FFE1D1;
-
-    --fondo: #0B1630;
-    --superficie: #13213F;
-    --superficie-1: #182A4C;
-    --superficie-2: #1F3359;
-    --superficie-3: #273D68;
-    --sobre-superficie: #E8F0FB;
-    --texto-suave: #AEBFD8;
-    --contorno: #3A4F75;
-    --contorno-fuerte: #93A8C6;
-    --contorno-suave: #223457;
-
-    --bloqueado: #223457;
-    --sobre-bloqueado: #93A8C6;
-    --estrella: #FFD37A;
-    --estrella-vacia: #2F4569;
-
-    --sombra: rgba(0, 0, 0, 0.4);
-    --sombra-fuerte: rgba(0, 0, 0, 0.6);
-    --velo: rgba(0, 0, 0, 0.65);
-    --foco: #8EC2FF;
-
-    --cielo-alto: #0B1630;
-    --cielo-bajo: #122247;
-
-    --alondra-cuerpo: #E09A4E;
-    --alondra-vientre: #FFF3DD;
-    --alondra-ala: #A6692E;
-    --alondra-pico: #FFC24A;
-
-    --unidad-1: #8EC2FF;
-    --unidad-2: #5FD1B9;
-    --unidad-3: #FFA06A;
-    --unidad-4: #B9A3FF;
-    --unidad-5: #FF8FB0;
-  }
 }

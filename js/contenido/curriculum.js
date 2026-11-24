@@ -14,6 +14,7 @@ const reto = (cancionId) => ({ tipo: 'reto', cancionId });
 export const RUTINA_DIARIA = {
   id: 'rutina-diaria',
   titulo: 'Calentamiento diario',
+  icono: '🌬️',
   descripcion: 'Respiración, sirena, escala y una nota larga.',
   minutos: 3,
   ejercicios: [respiracion(2), sirena(), melodia(M.ESCALA_CINCO_IDA_VUELTA), nota(4, [4], 3)],

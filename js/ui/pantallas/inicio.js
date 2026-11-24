@@ -1,7 +1,6 @@
-// Pantalla principal: resumen del día, rutina de calentamiento y camino de lecciones.
+// Pantalla principal: cabecera con marca y chips, tarjetas del día y camino de lecciones.
 
 import { el, prefiereMenosMovimiento } from '../dom.js';
-import { crearBoton } from '../componentes/boton.js';
 import { icono } from '../componentes/iconos.js';
 import { crearAnilloProgreso } from '../componentes/anillo-progreso.js';
 import { crearEstrellas } from '../componentes/estrellas.js';
@@ -14,9 +13,22 @@ import { consumirAvisosPendientes } from '../../estado/sesion.js';
 import { mostrarAviso } from '../componentes/aviso.js';
 
 const T = TEXTOS.inicio;
-// Desplazamiento lateral de los nodos del camino, en ciclos de cuatro.
-const PATRON_ZIGZAG = ['centro', 'derecha', 'centro', 'izquierda'];
 const DURACION_AVISO_MS = 3500;
+const TAMANO_ANILLO_CHIP = 30;
+const GROSOR_ANILLO_CHIP = 4;
+
+function crearChip({ etiqueta, contenido, texto, apagado = false, destino = '/perfil' }) {
+  return el(
+    'a',
+    { clase: 'chip', href: `#${destino}`, 'aria-label': etiqueta },
+    el(
+      'span',
+      { clase: 'chip__pastilla', 'aria-hidden': 'true' },
+      el('span', { clase: `chip__icono ${apagado ? 'chip__icono--apagado' : ''}`.trim() }, contenido),
+      el('span', { texto }),
+    ),
+  );
+}
 
 function crearCabecera(estado, hoy) {
   const racha = rachaVigente(estado, hoy);
@@ -25,48 +37,93 @@ function crearCabecera(estado, hoy) {
   const anillo = crearAnilloProgreso({
     valor: xpDeHoy,
     maximo: estado.objetivoDiarioXp,
+    tamano: TAMANO_ANILLO_CHIP,
+    grosor: GROSOR_ANILLO_CHIP,
     etiqueta: T.xpHoyFormato(xpDeHoy, estado.objetivoDiarioXp),
-    contenido: icono(objetivoCumplido ? 'check' : 'rayo', { tamano: 22 }),
+    contenido: objetivoCumplido ? icono('check', { tamano: 14 }) : null,
   });
   return el(
     'header',
     { clase: 'inicio__cabecera' },
-    el(
-      'div',
-      { clase: 'inicio__saludo' },
-      el('h1', { clase: 'inicio__titulo', texto: T.saludo(estado.nombre) }),
-      el('p', { clase: 'inicio__subtitulo', texto: objetivoCumplido ? T.objetivoCumplido : T.xpHoyFormato(xpDeHoy, estado.objetivoDiarioXp) }),
-    ),
+    el('a', { clase: 'marca', href: '#/' }, icono('alondra', { tamano: 28 }), el('span', { texto: TEXTOS.app.nombre })),
     el(
       'div',
       { clase: 'inicio__indicadores' },
-      el(
-        'div',
-        { clase: `chip chip--racha ${racha === 0 ? 'chip--apagado' : ''}`.trim(), 'aria-label': `${T.rachaEtiqueta}: ${T.diasFormato(racha)}` },
-        icono('fuego', { tamano: 20 }),
-        el('span', { texto: String(racha), 'aria-hidden': 'true' }),
-      ),
-      anillo.elemento,
+      crearChip({
+        etiqueta: objetivoCumplido ? T.objetivoCumplido : T.xpHoyFormato(xpDeHoy, estado.objetivoDiarioXp),
+        contenido: anillo.elemento,
+        texto: String(xpDeHoy),
+      }),
+      crearChip({
+        etiqueta: `${T.rachaEtiqueta}: ${T.diasFormato(racha)}`,
+        contenido: icono('fuego', { tamano: 20 }),
+        texto: String(racha),
+        apagado: racha === 0,
+      }),
     ),
   );
 }
 
-function crearTarjetaRutina(estado, hoy) {
-  const hecha = rutinaHechaHoy(estado, hoy);
+function crearTarjetaAccion({ principal = false, icono: emoji, sobretitulo, titulo, detalle, estado, hecho = false, destino, etiqueta }) {
+  return el(
+    'button',
+    {
+      clase: `tarjeta-accion ${principal ? 'tarjeta-accion--principal' : ''}`.trim(),
+      type: 'button',
+      'aria-label': etiqueta,
+      onClick: () => navegar(destino),
+    },
+    el('span', { clase: 'tarjeta-accion__icono', 'aria-hidden': 'true', texto: emoji }),
+    el(
+      'span',
+      { clase: 'tarjeta-accion__texto' },
+      sobretitulo && el('span', { clase: 'tarjeta-accion__sobretitulo', texto: sobretitulo }),
+      el('span', { clase: 'tarjeta-accion__titulo', texto: titulo }),
+      detalle && el('span', { clase: 'tarjeta-accion__detalle', texto: detalle }),
+    ),
+    estado && el('span', { clase: `tarjeta-accion__estado ${hecho ? 'tarjeta-accion__estado--hecho' : ''}`.trim(), texto: estado }),
+    principal && el('span', { clase: 'tarjeta-accion__ir', 'aria-hidden': 'true' }, icono('reproducir', { tamano: 22 })),
+  );
+}
+
+function crearTarjetasDelDia(estado, hoy, leccionActual) {
+  const rutinaHecha = rutinaHechaHoy(estado, hoy);
+  const unidadActual = leccionActual && UNIDADES.find((unidad) => unidad.lecciones.some((leccion) => leccion.id === leccionActual.id));
   return el(
     'section',
-    { clase: `tarjeta tarjeta-rutina ${hecha ? 'tarjeta-rutina--hecha' : ''}`.trim(), 'aria-labelledby': 'rutina-titulo' },
-    el(
-      'div',
-      { clase: 'tarjeta-rutina__texto' },
-      el('h2', { clase: 'tarjeta-rutina__titulo', id: 'rutina-titulo', texto: T.rutinaTitulo }),
-      el('p', { clase: 'tarjeta-rutina__detalle', texto: hecha ? T.rutinaHecha : T.rutinaDetalle(RUTINA_DIARIA.minutos, XP_RUTINA_DIARIA) }),
-    ),
-    crearBoton(hecha ? T.rutinaRepetir : T.rutinaBoton, { variante: hecha ? 'tonal' : 'relleno', onClick: () => navegar(`/leccion/${RUTINA_DIARIA.id}`) }),
+    { clase: 'hoy', 'aria-label': T.hoy },
+    leccionActual &&
+      crearTarjetaAccion({
+        principal: true,
+        icono: leccionActual.icono,
+        sobretitulo: T.sigueCon,
+        titulo: leccionActual.titulo,
+        detalle: unidadActual && `${T.unidadFormato(unidadActual.numero)} · ${unidadActual.titulo}`,
+        destino: `/leccion/${leccionActual.id}`,
+        etiqueta: `${T.sigueCon} ${leccionActual.titulo}`,
+      }),
+    crearTarjetaAccion({
+      icono: RUTINA_DIARIA.icono,
+      titulo: T.rutinaTitulo,
+      detalle: T.rutinaDetalle(RUTINA_DIARIA.minutos, XP_RUTINA_DIARIA),
+      estado: rutinaHecha ? T.rutinaHecha : T.rutinaBoton,
+      hecho: rutinaHecha,
+      destino: `/leccion/${RUTINA_DIARIA.id}`,
+      etiqueta: `${T.rutinaTitulo}. ${rutinaHecha ? T.rutinaHecha : T.rutinaDetalle(RUTINA_DIARIA.minutos, XP_RUTINA_DIARIA)}`,
+    }),
+    !ultimoTestOido(estado) &&
+      crearTarjetaAccion({
+        icono: '👂',
+        titulo: TEXTOS.testOido.tarjetaTitulo,
+        detalle: TEXTOS.testOido.tarjetaTexto,
+        estado: TEXTOS.testOido.hacerTest,
+        destino: '/test-oido',
+        etiqueta: `${TEXTOS.testOido.tarjetaTitulo}. ${TEXTOS.testOido.tarjetaTexto}`,
+      }),
   );
 }
 
-function crearNodoLeccion(leccion, estado, esActual, posicion) {
+function crearNodoLeccion(leccion, estado, esActual) {
   const estrellas = estrellasLeccion(estado, leccion.id);
   const desbloqueada = leccionDesbloqueada(estado, leccion.id);
   const completada = estrellas > 0;
@@ -81,16 +138,25 @@ function crearNodoLeccion(leccion, estado, esActual, posicion) {
       'aria-label': `${leccion.titulo}. ${descripcion}`,
       onClick: () => navegar(`/leccion/${leccion.id}`),
     },
-    el('span', { clase: 'camino__icono', 'aria-hidden': 'true', texto: desbloqueada ? leccion.icono : '' }),
+    desbloqueada && el('span', { clase: 'camino__icono', 'aria-hidden': 'true', texto: leccion.icono }),
     !desbloqueada && el('span', { clase: 'camino__candado' }, icono('candado', { tamano: 22 })),
-    esActual && el('span', { clase: 'camino__burbuja', 'aria-hidden': 'true', texto: completada ? T.repetir : T.empezar }),
+    completada && !esActual && el('span', { clase: 'camino__sello', 'aria-hidden': 'true' }, icono('check', { tamano: 16 })),
   );
   return el(
     'li',
-    { clase: `camino__nodo camino__nodo--${posicion} ${esActual ? 'camino__nodo--actual' : ''}`.trim() },
+    { clase: `camino__nodo camino__nodo--${estadoNodo}` },
     boton,
-    el('span', { clase: 'camino__titulo', texto: leccion.titulo }),
-    desbloqueada && crearEstrellas(estrellas, { tamano: 's' }),
+    el(
+      'div',
+      { clase: 'camino__texto' },
+      el('span', { clase: 'camino__titulo', texto: leccion.titulo }),
+      el(
+        'span',
+        { clase: 'camino__meta' },
+        desbloqueada ? crearEstrellas(estrellas, { tamano: 's' }) : el('span', { texto: T.bloqueada }),
+        esActual && el('span', { texto: completada ? T.repetir : T.empezar }),
+      ),
+    ),
   );
 }
 
@@ -101,14 +167,18 @@ function crearUnidad(unidad, estado, leccionActual) {
     el(
       'header',
       { clase: 'unidad__cabecera' },
-      el('p', { clase: 'unidad__numero', texto: T.unidadFormato(unidad.numero) }),
-      el('h2', { clase: 'unidad__titulo', id: `unidad-${unidad.id}`, texto: unidad.titulo }),
-      el('p', { clase: 'unidad__descripcion', texto: unidad.descripcion }),
+      el(
+        'div',
+        { clase: 'unidad__titulos' },
+        el('p', { clase: 'unidad__numero', texto: T.unidadFormato(unidad.numero) }),
+        el('h2', { clase: 'unidad__titulo', id: `unidad-${unidad.id}`, texto: unidad.titulo }),
+        el('p', { clase: 'unidad__descripcion', texto: unidad.descripcion }),
+      ),
     ),
     el(
       'ol',
       { clase: 'camino' },
-      unidad.lecciones.map((leccion, indice) => crearNodoLeccion(leccion, estado, leccionActual?.id === leccion.id, PATRON_ZIGZAG[indice % PATRON_ZIGZAG.length])),
+      unidad.lecciones.map((leccion) => crearNodoLeccion(leccion, estado, leccionActual?.id === leccion.id)),
     ),
   );
 }
@@ -121,14 +191,7 @@ export function crearPantallaInicio() {
     'section',
     { clase: 'pantalla pantalla-inicio' },
     crearCabecera(estado, hoy),
-    crearTarjetaRutina(estado, hoy),
-    !ultimoTestOido(estado) &&
-      el(
-        'section',
-        { clase: 'tarjeta tarjeta-rutina', 'aria-labelledby': 'inicio-test-oido' },
-        el('div', { clase: 'tarjeta-rutina__texto' }, el('h2', { clase: 'tarjeta-rutina__titulo', id: 'inicio-test-oido', texto: TEXTOS.testOido.tarjetaTitulo }), el('p', { clase: 'tarjeta-rutina__detalle', texto: TEXTOS.testOido.tarjetaTexto })),
-        crearBoton(TEXTOS.testOido.hacerTest, { variante: 'tonal', onClick: () => navegar('/test-oido') }),
-      ),
+    crearTarjetasDelDia(estado, hoy, leccionActual),
     UNIDADES.map((unidad) => crearUnidad(unidad, estado, leccionActual)),
   );
   return {

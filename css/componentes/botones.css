@@ -1,28 +1,32 @@
-/* Botones: relleno, tonal, contorno, texto y peligro. */
+/* Botones con relieve: sombra inferior sólida que se hunde al pulsar. */
 
 .boton {
+  --boton-sombra: var(--contorno);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--espacio-2);
-  min-height: var(--objetivo-tactil);
+  min-height: 52px;
   padding: 0 var(--espacio-6);
-  border: 2px solid transparent;
-  border-radius: var(--radio-completo);
-  font-weight: var(--peso-medio);
-  font-size: var(--tam-letra-m);
+  border: 0;
+  border-radius: var(--radio-boton);
+  font-weight: var(--peso-fuerte);
+  font-size: 1.05rem;
   line-height: 1.2;
   text-decoration: none;
-  transition: transform var(--duracion-corta) var(--curva), box-shadow var(--duracion-corta) var(--curva), background-color var(--duracion-corta) var(--curva);
+  box-shadow: 0 var(--relieve) 0 var(--boton-sombra);
+  transition: transform var(--duracion-corta) var(--curva), box-shadow var(--duracion-corta) var(--curva), background-color var(--duracion-media), color var(--duracion-media);
+  -webkit-tap-highlight-color: transparent;
 }
 
-.boton:active {
-  transform: scale(0.97);
+.boton:active:not(:disabled) {
+  transform: translateY(var(--relieve));
+  box-shadow: 0 0 0 var(--boton-sombra);
 }
 
 .boton:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
+  opacity: 0.45;
 }
 
 .boton--ancho {
@@ -30,48 +34,63 @@
 }
 
 .boton--relleno {
+  --boton-sombra: var(--primario-sombra);
   background: var(--primario);
   color: var(--sobre-primario);
-  box-shadow: 0 2px 6px var(--sombra);
 }
 
 .boton--relleno:hover:not(:disabled) {
-  box-shadow: 0 4px 12px var(--sombra-fuerte);
+  background: color-mix(in srgb, var(--primario) 92%, var(--sobre-superficie));
 }
 
 .boton--tonal {
-  background: var(--primario-contenedor);
-  color: var(--sobre-primario-contenedor);
+  background: var(--superficie);
+  color: var(--sobre-superficie);
+  box-shadow: var(--elevacion);
+}
+
+.boton--tonal:hover:not(:disabled) {
+  background: var(--fondo);
+}
+
+.boton--tonal:active:not(:disabled) {
+  box-shadow: var(--elevacion-pulsada);
 }
 
 .boton--contorno {
-  background: transparent;
-  color: var(--primario);
-  border-color: var(--contorno-fuerte);
+  background: var(--superficie);
+  color: var(--sobre-primario-contenedor);
+  box-shadow: var(--elevacion);
 }
 
-.boton--texto {
+.boton--texto,
+.boton--peligro-texto {
   background: transparent;
-  color: var(--primario);
+  color: var(--texto-suave);
+  box-shadow: none;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
 }
 
-.boton--texto:hover:not(:disabled),
-.boton--contorno:hover:not(:disabled) {
-  background: var(--superficie-2);
+.boton--texto:hover:not(:disabled) {
+  color: var(--sobre-superficie);
+}
+
+.boton--texto:active:not(:disabled),
+.boton--peligro-texto:active:not(:disabled) {
+  transform: scale(0.97);
+  box-shadow: none;
 }
 
 .boton--peligro {
+  --boton-sombra: color-mix(in srgb, var(--error) 70%, var(--sobre-superficie));
   background: var(--error);
   color: var(--sobre-primario);
 }
 
 .boton--peligro-texto {
-  background: transparent;
   color: var(--error);
-}
-
-.boton--peligro-texto:hover:not(:disabled) {
-  background: var(--error-contenedor);
 }
 
 .boton__icono {
@@ -79,20 +98,18 @@
 }
 
 .boton-icono {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-grid;
+  place-items: center;
   width: var(--objetivo-tactil);
   height: var(--objetivo-tactil);
   padding: 0;
   border: 0;
   border-radius: var(--radio-completo);
   background: transparent;
-  color: var(--texto-suave);
-  transition: background-color var(--duracion-corta) var(--curva);
+  color: var(--sobre-superficie);
+  transition: background-color var(--duracion-media);
 }
 
 .boton-icono:hover {
   background: var(--superficie-2);
-  color: var(--sobre-superficie);
 }

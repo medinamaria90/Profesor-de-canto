@@ -14,9 +14,10 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
-  background: linear-gradient(180deg, var(--cielo-alto) 0, var(--cielo-bajo) 320px, var(--fondo) 100%) fixed;
+  background: var(--fondo);
   color: var(--sobre-superficie);
   font-family: var(--fuente);
+  font-variant-numeric: lining-nums;
   font-size: var(--tam-letra-m);
   line-height: var(--interlineado);
   -webkit-font-smoothing: antialiased;
@@ -45,8 +46,9 @@ canvas {
 }
 
 :focus-visible {
-  outline: 3px solid var(--foco);
-  outline-offset: 2px;
+  outline: 2.5px solid var(--foco);
+  outline-offset: 3px;
+  border-radius: 6px;
 }
 
 .app {
@@ -86,8 +88,9 @@ body.sin-navegacion .contenido {
 
 .pantalla__titulo {
   font-size: var(--tam-letra-2xl);
-  font-weight: var(--peso-fuerte);
-  letter-spacing: -0.01em;
+  font-weight: var(--peso-medio);
+  letter-spacing: var(--tracking-titulo);
+  line-height: 1.1;
 }
 
 .pantalla__subtitulo {

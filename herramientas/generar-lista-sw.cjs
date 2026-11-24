@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const RAIZ = path.join(__dirname, '..');
-const CARPETAS = ['css', 'js', 'iconos'];
+const CARPETAS = ['css', 'js', 'iconos', 'fuentes'];
 const SUELTOS = ['index.html', 'manifest.webmanifest'];
 
 function listar(carpeta) {

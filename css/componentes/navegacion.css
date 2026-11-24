@@ -1,4 +1,4 @@
-/* Barra de navegación inferior (móvil) y carril lateral (pantallas anchas). */
+/* Barra inferior: pestañas con icono y etiqueta; la activa en pastilla azul suave. */
 
 .barra-navegacion {
   position: fixed;
@@ -8,7 +8,7 @@
   justify-content: center;
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--superficie);
-  border-top: 1px solid var(--contorno-suave);
+  border-top: 1px solid var(--contorno);
 }
 
 .barra-navegacion:has(.navegacion[hidden]) {
@@ -16,48 +16,44 @@
 }
 
 .navegacion {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: var(--espacio-2);
   width: 100%;
   max-width: var(--ancho-maximo);
-  height: var(--alto-navegacion);
+  padding: var(--espacio-1) var(--espacio-3);
 }
 
 .navegacion__enlace {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--espacio-1);
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-height: 56px;
+  min-width: 72px;
+  padding: var(--espacio-2) var(--espacio-3) 6px;
   color: var(--texto-suave);
   text-decoration: none;
   font-size: var(--tam-letra-xs);
   font-weight: var(--peso-medio);
-  border-radius: var(--radio-m);
+  border-radius: var(--radio-boton);
+  transition: background-color var(--duracion-media), color var(--duracion-media);
 }
 
 .navegacion__icono {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 32px;
-  border-radius: var(--radio-completo);
-  transition: background-color var(--duracion-media) var(--curva), color var(--duracion-media) var(--curva);
 }
 
 .navegacion__enlace--activa {
-  color: var(--sobre-superficie);
-}
-
-.navegacion__enlace--activa .navegacion__icono {
-  background: var(--primario-contenedor);
   color: var(--sobre-primario-contenedor);
+  background: var(--primario-contenedor);
+  font-weight: var(--peso-fuerte);
 }
 
-.navegacion__enlace:hover .navegacion__icono {
-  background: var(--superficie-2);
+.navegacion__enlace:hover {
+  color: var(--sobre-superficie);
 }
 
 @media (min-width: 840px) {
@@ -66,15 +62,12 @@
     width: var(--ancho-rail);
     padding: var(--espacio-6) 0;
     border-top: 0;
-    border-right: 1px solid var(--contorno-suave);
+    border-right: 1px solid var(--contorno);
     align-items: flex-start;
   }
 
   .navegacion {
-    grid-auto-flow: row;
-    grid-auto-columns: auto;
-    grid-auto-rows: 72px;
-    height: auto;
-    gap: var(--espacio-2);
+    flex-direction: column;
+    padding: 0 var(--espacio-2);
   }
 }

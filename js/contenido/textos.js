@@ -68,6 +68,8 @@ export const TEXTOS = {
     rutinaBoton: 'Calentar',
     rutinaRepetir: 'Repetir',
     unidadFormato: (numero) => `Nivel ${numero}`,
+    sigueCon: 'Sigue con',
+    hoy: 'Hoy',
     empezar: 'Empezar',
     repetir: 'Repetir',
     bloqueada: 'Bloqueada',
