@@ -1,0 +1,106 @@
+/* Lista de logros y tarjeta de micrófono. */
+
+.logros {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--espacio-3);
+}
+
+.logro {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-4);
+  padding: var(--espacio-4);
+  border-radius: var(--radio-m);
+  background: var(--superficie);
+  box-shadow: 0 1px 3px var(--sombra);
+}
+
+.logro__icono {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radio-completo);
+  background: var(--secundario-contenedor);
+  font-size: var(--tam-letra-xl);
+}
+
+.logro--bloqueado .logro__icono {
+  background: var(--superficie-2);
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+
+.logro--bloqueado .logro__texto {
+  color: var(--texto-suave);
+}
+
+.logro__titulo {
+  font-weight: var(--peso-fuerte);
+}
+
+.logro__descripcion,
+.logro__sobretitulo {
+  font-size: var(--tam-letra-s);
+  color: var(--texto-suave);
+}
+
+.logro--nuevo {
+  background: var(--secundario-contenedor);
+  color: var(--sobre-secundario-contenedor);
+  animation: aparecer var(--duracion-larga) var(--curva-rebote) both;
+}
+
+.logro--nuevo .logro__icono {
+  background: var(--superficie);
+}
+
+.logro--nuevo .logro__sobretitulo {
+  color: var(--sobre-secundario-contenedor);
+  font-weight: var(--peso-medio);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: var(--tam-letra-xs);
+}
+
+.solicitud-micro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espacio-3);
+  text-align: center;
+  margin-top: var(--espacio-6);
+}
+
+.solicitud-micro__icono {
+  display: grid;
+  place-items: center;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radio-completo);
+  background: var(--primario-contenedor);
+  color: var(--sobre-primario-contenedor);
+}
+
+.solicitud-micro__titulo {
+  font-size: var(--tam-letra-xl);
+  font-weight: var(--peso-fuerte);
+}
+
+.solicitud-micro__texto {
+  color: var(--texto-suave);
+  margin-bottom: var(--espacio-2);
+}
+
+.solicitud-micro__error {
+  width: 100%;
+  padding: var(--espacio-3);
+  border-radius: var(--radio-m);
+  background: var(--error-contenedor);
+  color: var(--sobre-error-contenedor);
+  font-size: var(--tam-letra-s);
+}

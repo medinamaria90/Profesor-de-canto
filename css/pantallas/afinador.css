@@ -1,0 +1,77 @@
+/* Afinador libre y medición del rango vocal. */
+
+.afinador__area,
+.rango__area {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-4);
+}
+
+.afinador__lectura {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espacio-2);
+}
+
+.afinador__nota {
+  font-size: var(--tam-letra-4xl);
+  font-weight: var(--peso-fuerte);
+  line-height: 1;
+  color: var(--primario);
+  font-variant-numeric: tabular-nums;
+}
+
+.afinador__cents {
+  color: var(--texto-suave);
+  font-weight: var(--peso-medio);
+}
+
+.afinador__medidor {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  height: 56px;
+  overflow: hidden;
+}
+
+.afinador__escala {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, transparent calc(50% - 1px), var(--sobre-superficie) calc(50% - 1px), var(--sobre-superficie) calc(50% + 1px), transparent calc(50% + 1px)),
+    repeating-linear-gradient(to right, var(--contorno) 0 1px, transparent 1px 10%);
+  background-size: 100% 100%, 100% 40%;
+  background-repeat: no-repeat;
+  background-position: center, center bottom;
+  opacity: 0.7;
+}
+
+.afinador__aguja {
+  --angulo: 0deg;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 4px;
+  height: 52px;
+  margin-left: -2px;
+  border-radius: var(--radio-completo);
+  background: var(--texto-suave);
+  transform-origin: bottom center;
+  transform: rotate(var(--angulo));
+  transition: transform var(--duracion-corta) var(--curva), background-color var(--duracion-corta) var(--curva);
+}
+
+.afinador__medidor[data-estado="afinado"] .afinador__aguja {
+  background: var(--acierto);
+}
+
+.afinador__medidor[data-estado="desviado"] .afinador__aguja {
+  background: var(--aviso);
+}
+
+.rango__acciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+}

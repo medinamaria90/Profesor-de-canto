@@ -1,0 +1,98 @@
+/* Botones: relleno, tonal, contorno, texto y peligro. */
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-2);
+  min-height: var(--objetivo-tactil);
+  padding: 0 var(--espacio-6);
+  border: 2px solid transparent;
+  border-radius: var(--radio-completo);
+  font-weight: var(--peso-medio);
+  font-size: var(--tam-letra-m);
+  line-height: 1.2;
+  text-decoration: none;
+  transition: transform var(--duracion-corta) var(--curva), box-shadow var(--duracion-corta) var(--curva), background-color var(--duracion-corta) var(--curva);
+}
+
+.boton:active {
+  transform: scale(0.97);
+}
+
+.boton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.boton--ancho {
+  width: 100%;
+}
+
+.boton--relleno {
+  background: var(--primario);
+  color: var(--sobre-primario);
+  box-shadow: 0 2px 6px var(--sombra);
+}
+
+.boton--relleno:hover:not(:disabled) {
+  box-shadow: 0 4px 12px var(--sombra-fuerte);
+}
+
+.boton--tonal {
+  background: var(--primario-contenedor);
+  color: var(--sobre-primario-contenedor);
+}
+
+.boton--contorno {
+  background: transparent;
+  color: var(--primario);
+  border-color: var(--contorno);
+}
+
+.boton--texto {
+  background: transparent;
+  color: var(--primario);
+}
+
+.boton--texto:hover:not(:disabled),
+.boton--contorno:hover:not(:disabled) {
+  background: var(--superficie-2);
+}
+
+.boton--peligro {
+  background: var(--error);
+  color: var(--sobre-primario);
+}
+
+.boton--peligro-texto {
+  background: transparent;
+  color: var(--error);
+}
+
+.boton--peligro-texto:hover:not(:disabled) {
+  background: var(--error-contenedor);
+}
+
+.boton__icono {
+  display: inline-flex;
+}
+
+.boton-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--objetivo-tactil);
+  height: var(--objetivo-tactil);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radio-completo);
+  background: transparent;
+  color: var(--texto-suave);
+  transition: background-color var(--duracion-corta) var(--curva);
+}
+
+.boton-icono:hover {
+  background: var(--superficie-2);
+  color: var(--sobre-superficie);
+}

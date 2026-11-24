@@ -1,0 +1,12 @@
+{
+  "name": "Alondra · Aprende a cantar",
+  "short_name": "Alondra",
+  "description": "Aprende a cantar paso a paso: ejercicios diarios, entonación y melodías con recompensas.",
+  "lang": "es",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FDFBFF",
+  "theme_color": "#6A4DF5",
+  "icons": [{ "src": "iconos/icono.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

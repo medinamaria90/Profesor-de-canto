@@ -1,0 +1,63 @@
+/* Pantalla de perfil. */
+
+.perfil__cabecera {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-4);
+}
+
+.perfil__avatar {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radio-completo);
+  background: var(--primario);
+  color: var(--sobre-primario);
+  font-size: var(--tam-letra-xl);
+  font-weight: var(--peso-fuerte);
+}
+
+.perfil__estadisticas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: var(--espacio-3);
+}
+
+.perfil__seccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-3);
+  align-items: flex-start;
+}
+
+.perfil__seccion .opciones {
+  width: 100%;
+}
+
+.perfil__fila {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.perfil__subtitulo {
+  font-size: var(--tam-letra-l);
+  font-weight: var(--peso-fuerte);
+}
+
+.perfil__texto {
+  color: var(--texto-suave);
+}
+
+.perfil__contador {
+  color: var(--texto-suave);
+  font-weight: var(--peso-medio);
+}
+
+.perfil__peligro {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--espacio-4);
+}

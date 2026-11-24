@@ -1,0 +1,82 @@
+/* Pantalla de lección: cabecera con progreso, área del ejercicio y pie de acciones/feedback. */
+
+.pantalla-leccion {
+  min-height: calc(100dvh - var(--espacio-8));
+}
+
+.leccion__cabecera {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+}
+
+.leccion__area {
+  flex: 1;
+}
+
+.leccion__pie {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-3);
+  margin: 0 calc(-1 * var(--espacio-4));
+  padding: var(--espacio-4) var(--espacio-4) calc(var(--espacio-4) + env(safe-area-inset-bottom));
+  background: var(--fondo);
+  border-top: 1px solid var(--contorno-suave);
+}
+
+.leccion__pie--vacio {
+  display: none;
+}
+
+.leccion__pie--feedback {
+  border-top: 0;
+  border-radius: var(--radio-l) var(--radio-l) 0 0;
+  animation: subir var(--duracion-media) var(--curva) both;
+}
+
+.leccion__pie--excelente {
+  background: var(--acierto-contenedor);
+  color: var(--sobre-acierto-contenedor);
+}
+
+.leccion__pie--bien {
+  background: var(--primario-contenedor);
+  color: var(--sobre-primario-contenedor);
+}
+
+.leccion__pie--regular {
+  background: var(--aviso-contenedor);
+  color: var(--sobre-aviso-contenedor);
+}
+
+.leccion__pie--flojo {
+  background: var(--error-contenedor);
+  color: var(--sobre-error-contenedor);
+}
+
+.leccion__feedback-titulo {
+  font-size: var(--tam-letra-xl);
+  font-weight: var(--peso-fuerte);
+}
+
+.leccion__feedback-detalle {
+  font-weight: var(--peso-medio);
+}
+
+.leccion__feedback-consejo {
+  font-size: var(--tam-letra-s);
+  opacity: 0.9;
+}
+
+@keyframes subir {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}

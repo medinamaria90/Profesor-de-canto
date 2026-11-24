@@ -1,0 +1,131 @@
+/* Barra lineal, anillo circular y estrellas. */
+
+.barra-progreso {
+  width: 100%;
+  height: 12px;
+  border-radius: var(--radio-completo);
+  background: var(--superficie-3);
+  overflow: hidden;
+}
+
+.barra-progreso__relleno {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: var(--primario);
+  transition: width var(--duracion-media) var(--curva);
+}
+
+.barra-progreso--captura {
+  height: 8px;
+}
+
+.barra-progreso--captura .barra-progreso__relleno {
+  background: var(--acierto);
+  transition: width var(--duracion-corta) linear;
+}
+
+.anillo {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+}
+
+.anillo__svg {
+  position: absolute;
+  inset: 0;
+}
+
+.anillo__pista {
+  fill: none;
+  stroke: var(--superficie-3);
+}
+
+.anillo__avance {
+  fill: none;
+  stroke: var(--primario);
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--duracion-larga) var(--curva);
+}
+
+.anillo--completo .anillo__avance {
+  stroke: var(--acierto);
+}
+
+.anillo__contenido {
+  position: relative;
+  display: grid;
+  place-items: center;
+  color: var(--primario);
+  font-weight: var(--peso-fuerte);
+}
+
+.anillo--completo .anillo__contenido {
+  color: var(--acierto);
+}
+
+.estrellas {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.estrellas__estrella {
+  display: inline-flex;
+  color: var(--estrella-vacia);
+}
+
+.estrellas__estrella--llena {
+  color: var(--estrella);
+}
+
+.estrellas--s .icono {
+  width: 16px;
+  height: 16px;
+}
+
+.estrellas--m .icono {
+  width: 24px;
+  height: 24px;
+}
+
+.estrellas--l {
+  gap: var(--espacio-2);
+}
+
+.estrellas--l .icono {
+  width: 56px;
+  height: 56px;
+}
+
+.estrellas--l .estrellas__estrella:nth-child(2) {
+  transform: translateY(-10px);
+}
+
+.estrellas--animadas .estrellas__estrella--llena {
+  animation: estrella-entra var(--duracion-larga) var(--curva-rebote) both;
+}
+
+@keyframes estrella-entra {
+  from {
+    transform: scale(0) rotate(-30deg);
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.estrellas--animadas .estrellas__estrella--llena:nth-child(2) {
+  animation-name: estrella-entra-centro;
+}
+
+@keyframes estrella-entra-centro {
+  from {
+    transform: translateY(-10px) scale(0) rotate(-30deg);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(-10px) scale(1);
+    opacity: 1;
+  }
+}

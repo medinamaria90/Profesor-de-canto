@@ -1,0 +1,267 @@
+/* Elementos comunes de los ejercicios: cabecera, estado, visores, nota objetivo, opciones y respiración. */
+
+.ejercicio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-4);
+  animation: aparecer var(--duracion-media) var(--curva) both;
+}
+
+.ejercicio__cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-1);
+}
+
+.ejercicio__tipo {
+  font-size: var(--tam-letra-xs);
+  font-weight: var(--peso-fuerte);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primario);
+}
+
+.ejercicio__instruccion {
+  font-size: var(--tam-letra-xl);
+  font-weight: var(--peso-fuerte);
+  line-height: 1.25;
+}
+
+.ejercicio__estado {
+  min-height: 1.5em;
+  text-align: center;
+  color: var(--texto-suave);
+  font-weight: var(--peso-medio);
+}
+
+.ejercicio--grabando .ejercicio__estado {
+  color: var(--acierto);
+}
+
+.ejercicio--grabando .ejercicio__estado::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: var(--espacio-2);
+  border-radius: var(--radio-completo);
+  background: var(--acierto);
+  animation: latido 1s ease-in-out infinite;
+}
+
+@keyframes latido {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.6;
+  }
+}
+
+.afinador-visual,
+.piano-roll {
+  height: var(--alto-visual);
+  border-radius: var(--radio-l);
+  background: var(--superficie-1);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--contorno-suave);
+}
+
+.afinador-visual__canvas,
+.piano-roll__canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.nota-objetivo {
+  align-self: center;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: var(--espacio-2) var(--espacio-5);
+  border-radius: var(--radio-completo);
+  background: var(--primario-contenedor);
+  color: var(--sobre-primario-contenedor);
+}
+
+.nota-objetivo__nombre {
+  font-size: var(--tam-letra-2xl);
+  font-weight: var(--peso-fuerte);
+}
+
+.nota-objetivo__octava {
+  font-size: var(--tam-letra-m);
+  font-weight: var(--peso-medio);
+}
+
+.melodia__titulo {
+  align-self: center;
+  padding: var(--espacio-1) var(--espacio-4);
+  border-radius: var(--radio-completo);
+  background: var(--secundario-contenedor);
+  color: var(--sobre-secundario-contenedor);
+  font-weight: var(--peso-medio);
+}
+
+/* Opciones de respuesta (oído, objetivo diario) */
+.opciones {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--espacio-3);
+}
+
+.opciones--vertical {
+  grid-template-columns: 1fr;
+}
+
+.opcion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-1);
+  min-height: 64px;
+  padding: var(--espacio-3) var(--espacio-4);
+  border: 2px solid var(--contorno);
+  border-radius: var(--radio-m);
+  background: var(--superficie);
+  font-weight: var(--peso-medio);
+  transition: border-color var(--duracion-corta) var(--curva), background-color var(--duracion-corta) var(--curva), transform var(--duracion-corta) var(--curva);
+}
+
+.opcion:hover:not(:disabled) {
+  border-color: var(--primario);
+}
+
+.opcion:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.opcion:disabled {
+  cursor: default;
+  color: var(--texto-suave);
+}
+
+.opcion__detalle {
+  font-size: var(--tam-letra-s);
+  color: var(--texto-suave);
+  font-weight: var(--peso-normal);
+}
+
+.opcion[aria-checked="true"] {
+  border-color: var(--primario);
+  background: var(--primario-contenedor);
+  color: var(--sobre-primario-contenedor);
+}
+
+.opcion[aria-checked="true"] .opcion__detalle {
+  color: var(--sobre-primario-contenedor);
+}
+
+.opcion--correcta {
+  border-color: var(--acierto);
+  background: var(--acierto-contenedor);
+  color: var(--sobre-acierto-contenedor);
+}
+
+.opcion--incorrecta {
+  border-color: var(--error);
+  background: var(--error-contenedor);
+  color: var(--sobre-error-contenedor);
+}
+
+.escucha__fichas {
+  display: flex;
+  justify-content: center;
+  gap: var(--espacio-6);
+  padding: var(--espacio-6) 0;
+}
+
+.escucha__ficha {
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  border-radius: var(--radio-l);
+  background: var(--superficie-2);
+  color: var(--texto-suave);
+  font-weight: var(--peso-fuerte);
+  transition: background-color var(--duracion-media) var(--curva), color var(--duracion-media) var(--curva), transform var(--duracion-media) var(--curva-rebote);
+}
+
+.escucha__ficha--sonando {
+  background: var(--primario);
+  color: var(--sobre-primario);
+  transform: scale(1.08);
+}
+
+/* Respiración */
+.respiracion {
+  display: grid;
+  place-items: center;
+  min-height: var(--alto-visual-grande);
+}
+
+.respiracion__circulo {
+  --duracion-fase: 4s;
+  display: grid;
+  place-items: center;
+  width: 150px;
+  height: 150px;
+  border-radius: var(--radio-completo);
+  background: var(--primario-contenedor);
+  color: var(--sobre-primario-contenedor);
+  box-shadow: 0 0 0 12px var(--superficie-2);
+  transform: scale(1);
+  transition: transform var(--duracion-fase) ease-in-out, background-color var(--duracion-media) var(--curva);
+}
+
+.respiracion__circulo[data-fase="inhalar"] {
+  transform: scale(1.5);
+}
+
+.respiracion__circulo[data-fase="retener"] {
+  transform: scale(1.5);
+  background: var(--secundario-contenedor);
+  color: var(--sobre-secundario-contenedor);
+}
+
+.respiracion__circulo[data-fase="exhalar"] {
+  transform: scale(1);
+  background: var(--acierto-contenedor);
+  color: var(--sobre-acierto-contenedor);
+}
+
+.respiracion__fase {
+  font-weight: var(--peso-fuerte);
+  font-size: var(--tam-letra-l);
+}
+
+.respiracion__cuenta {
+  font-size: var(--tam-letra-2xl);
+  font-weight: var(--peso-fuerte);
+  line-height: 1;
+}
+
+.respiracion__fase,
+.respiracion__cuenta {
+  grid-area: 1 / 1;
+}
+
+.respiracion__fase {
+  transform: translateY(-26px);
+}
+
+.respiracion__cuenta {
+  transform: translateY(14px);
+}
+
+@media (min-width: 600px) {
+  .afinador-visual,
+  .piano-roll {
+    height: var(--alto-visual-grande);
+  }
+}

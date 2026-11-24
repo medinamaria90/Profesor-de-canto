@@ -1,0 +1,103 @@
+/* Pantalla de resultados. */
+
+.pantalla-resultados {
+  position: relative;
+  align-items: center;
+  text-align: center;
+  padding-top: var(--espacio-6);
+}
+
+.resultados__escenario {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confeti {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.resultados__sobretitulo {
+  font-size: var(--tam-letra-xs);
+  font-weight: var(--peso-fuerte);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primario);
+}
+
+.resultados__titulo {
+  font-size: var(--tam-letra-2xl);
+  font-weight: var(--peso-fuerte);
+  margin-top: calc(-1 * var(--espacio-3));
+}
+
+.resultados__tarjetas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--espacio-3);
+  width: 100%;
+}
+
+.resultados__tarjeta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-2);
+  min-height: 170px;
+}
+
+.resultados__tarjeta--xp {
+  background: linear-gradient(160deg, var(--secundario-contenedor), var(--superficie));
+}
+
+.resultados__etiqueta {
+  font-size: var(--tam-letra-xs);
+  font-weight: var(--peso-fuerte);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.resultados__xp {
+  font-size: var(--tam-letra-3xl);
+  font-weight: var(--peso-fuerte);
+  color: var(--secundario);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.resultados__bonus {
+  font-size: var(--tam-letra-xs);
+  color: var(--sobre-secundario-contenedor);
+  font-weight: var(--peso-medio);
+}
+
+.resultados__porcentaje {
+  font-size: var(--tam-letra-l);
+}
+
+.resultados__objetivo {
+  padding: var(--espacio-2) var(--espacio-4);
+  border-radius: var(--radio-completo);
+  background: var(--acierto-contenedor);
+  color: var(--sobre-acierto-contenedor);
+  font-weight: var(--peso-medio);
+}
+
+.resultados__logros {
+  display: grid;
+  gap: var(--espacio-3);
+  width: 100%;
+  text-align: left;
+}
+
+.resultados__acciones {
+  width: 100%;
+  margin-top: auto;
+  padding-top: var(--espacio-4);
+}

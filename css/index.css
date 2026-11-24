@@ -1,0 +1,20 @@
+/* Orden de carga: tokens, base, componentes y pantallas. */
+
+@import url("variables.css");
+@import url("base.css");
+
+@import url("componentes/botones.css");
+@import url("componentes/tarjetas.css");
+@import url("componentes/navegacion.css");
+@import url("componentes/progreso.css");
+@import url("componentes/dialogo.css");
+@import url("componentes/ejercicio.css");
+@import url("componentes/camino.css");
+@import url("componentes/logros.css");
+
+@import url("pantallas/inicio.css");
+@import url("pantallas/leccion.css");
+@import url("pantallas/resultados.css");
+@import url("pantallas/perfil.css");
+@import url("pantallas/afinador.css");
+@import url("pantallas/bienvenida.css");

@@ -1,0 +1,55 @@
+/* Pantalla de inicio. */
+
+.inicio__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+}
+
+.inicio__titulo {
+  font-size: var(--tam-letra-2xl);
+  font-weight: var(--peso-fuerte);
+  letter-spacing: -0.01em;
+}
+
+.inicio__subtitulo {
+  color: var(--texto-suave);
+  font-size: var(--tam-letra-s);
+}
+
+.inicio__indicadores {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  flex-shrink: 0;
+}
+
+.tarjeta-rutina {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-4);
+  background: linear-gradient(135deg, var(--secundario-contenedor), var(--superficie));
+}
+
+.tarjeta-rutina--hecha {
+  background: linear-gradient(135deg, var(--acierto-contenedor), var(--superficie));
+}
+
+.tarjeta-rutina__titulo {
+  font-size: var(--tam-letra-l);
+  font-weight: var(--peso-fuerte);
+}
+
+.tarjeta-rutina__detalle {
+  color: var(--texto-suave);
+  font-size: var(--tam-letra-s);
+}
+
+@media (max-width: 380px) {
+  .tarjeta-rutina {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
