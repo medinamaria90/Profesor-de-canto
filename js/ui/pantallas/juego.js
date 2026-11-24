@@ -5,7 +5,7 @@ import { crearBoton } from '../componentes/boton.js';
 import { icono } from '../componentes/iconos.js';
 import { crearSolicitudMicrofono } from '../componentes/solicitud-microfono.js';
 import { crearVistaBolaCantora } from '../../juegos/bola-cantora-vista.js';
-import { crearPartida, empezar, fijarVoz, avanzar, puertaSiguiente, xpDePartida, VIDAS_INICIALES } from '../../juegos/bola-cantora-logica.js';
+import { crearPartida, empezar, fijarVoz, avanzar, puertaSiguiente, xpDePartida, VIDAS_INICIALES, X_BOLA_RELATIVA } from '../../juegos/bola-cantora-logica.js';
 import { nombreNota } from '../../musica/notas.js';
 import { GANANCIA_ACOMPANAMIENTO } from '../../audio/sintetizador.js';
 import { TEXTOS } from '../../contenido/textos.js';
@@ -91,10 +91,16 @@ export function crearPantallaJuego() {
     capa.hidden = true;
     empezar(partida);
     vista.dibujar(partida);
+    lector ??= audio.crearLector((lectura) => {
+      vozActual = lectura.voz ? lectura.midi : null;
+    });
+    lector.iniciar();
     animacion = requestAnimationFrame(bucle);
   }
 
   function terminarPartida() {
+    lector?.detener();
+    vozActual = null;
     const puertas = partida.puertasSuperadas;
     const xp = xpDePartida(puertas);
     const hoy = fechaClave();
@@ -138,12 +144,9 @@ export function crearPantallaJuego() {
         const { ancho, alto } = vista.medidas();
         partida.ancho = ancho;
         partida.alto = alto;
+        partida.bola.x = ancho * X_BOLA_RELATIVA;
       }
     });
-    lector = audio.crearLector((lectura) => {
-      vozActual = lectura.voz ? lectura.midi : null;
-    });
-    lector.iniciar();
   }
 
   return {

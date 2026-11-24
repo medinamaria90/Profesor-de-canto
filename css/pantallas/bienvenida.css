@@ -49,7 +49,15 @@
   font-size: var(--tam-letra-l);
 }
 
+.bienvenida__pista {
+  font-size: var(--tam-letra-s);
+  color: var(--texto-suave);
+}
+
 .bienvenida__pie {
+  position: sticky;
+  bottom: 0;
+  background: var(--fondo);
   display: flex;
   flex-direction: column;
   gap: var(--espacio-2);

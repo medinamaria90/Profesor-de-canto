@@ -36,7 +36,3 @@ export function notaMasCercana(frecuencia) {
   const midi = Math.round(midiFlotante);
   return { midi, cents: (midiFlotante - midi) * CENTS_POR_SEMITONO };
 }
-
-export function limitar(valor, minimo, maximo) {
-  return Math.min(maximo, Math.max(minimo, valor));
-}

@@ -89,10 +89,6 @@ export function obtenerLeccion(leccionId) {
   return leccionesOrdenadas().find((leccion) => leccion.id === leccionId) ?? null;
 }
 
-export function obtenerUnidadDeLeccion(leccionId) {
-  return UNIDADES.find((unidad) => unidad.lecciones.some((leccion) => leccion.id === leccionId)) ?? null;
-}
-
 // Una lección se desbloquea cuando la anterior tiene al menos una estrella. La primera siempre está abierta.
 export function leccionDesbloqueada(estado, leccionId) {
   const lista = leccionesOrdenadas();

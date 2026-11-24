@@ -6,6 +6,8 @@ export const VELOCIDAD_INICIAL = 120; // píxeles por segundo
 export const VELOCIDAD_MAXIMA = 260;
 export const INCREMENTO_VELOCIDAD_POR_PUERTA = 6;
 export const SEPARACION_PUERTAS = 320; // píxeles entre puertas
+export const DISTANCIA_PRIMERA_PUERTA = 110; // la primera puerta aparece enseguida
+const PUERTAS_INICIALES = 4;
 export const ANCHO_PUERTA = 28;
 export const ALTO_HUECO_RELATIVO = 0.22; // fracción del alto del escenario
 export const RADIO_BOLA = 14;
@@ -66,7 +68,7 @@ export function crearPartida(rango, { aleatorio = Math.random, ancho = 360, alto
     invulnerableHasta: 0,
     tiempo: 0,
   };
-  for (let i = 1; i <= 4; i++) anadirPuerta(partida, ancho + i * SEPARACION_PUERTAS);
+  for (let i = 0; i < PUERTAS_INICIALES; i++) anadirPuerta(partida, ancho + DISTANCIA_PRIMERA_PUERTA + i * SEPARACION_PUERTAS);
   return partida;
 }
 

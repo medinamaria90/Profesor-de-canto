@@ -63,6 +63,7 @@ function montar(pantalla, camino) {
   pantallaActual = pantalla;
   contenedor.replaceChildren(pantalla.elemento);
   window.scrollTo(0, 0);
+  contenedor.focus({ preventScroll: true });
   for (const oyente of oyentesCambio) oyente(camino);
   // montado() se llama con la pantalla ya en el documento, para que los canvas tengan tamaño.
   pantalla.montado?.();

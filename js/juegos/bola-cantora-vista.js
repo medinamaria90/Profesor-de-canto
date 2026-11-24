@@ -7,6 +7,7 @@ import { ANCHO_PUERTA, RADIO_BOLA, huecoDePuerta, xDePuerta, puertaSiguiente } f
 const LONGITUD_ESTELA = 18;
 const RADIO_ESQUINA_PUERTA = 8;
 const FRECUENCIA_PARPADEO = 12;
+const OPACIDAD_GUIA = 0.45;
 
 export function crearVistaBolaCantora() {
   const canvas = el('canvas', { clase: 'juego__canvas' });
@@ -26,7 +27,7 @@ export function crearVistaBolaCantora() {
       bola: leerVariableCss('--racha'),
       bolaBrillo: leerVariableCss('--sobre-primario'),
       estela: leerVariableCss('--racha-contenedor'),
-      linea: leerVariableCss('--contorno-suave'),
+      linea: leerVariableCss('--primario'),
     };
   }
 
@@ -94,12 +95,15 @@ export function crearVistaBolaCantora() {
     if (partida.alturaObjetivo === null) return;
     const y = partida.alto - partida.alturaObjetivo * partida.alto;
     contexto.strokeStyle = paleta.linea;
+    contexto.globalAlpha = OPACIDAD_GUIA;
+    contexto.lineWidth = 2;
     contexto.setLineDash([6, 6]);
     contexto.beginPath();
     contexto.moveTo(0, y);
     contexto.lineTo(ancho, y);
     contexto.stroke();
     contexto.setLineDash([]);
+    contexto.globalAlpha = 1;
   }
 
   return {

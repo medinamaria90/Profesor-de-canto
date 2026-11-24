@@ -28,6 +28,7 @@ export function crearEjercicioEscucha(ejercicio, { contenedor, alTerminar, fijar
     el('div', { clase: 'escucha__ficha', 'aria-hidden': 'true' }, icono('nota', { tamano: 28 }), el('span', { texto: String(indice + 1) })),
   );
   let respondido = false;
+  const temporizadores = [];
 
   const botones = OPCIONES_POR_VARIANTE[ejercicio.variante].map((opcion) =>
     el(
@@ -52,7 +53,7 @@ export function crearEjercicioEscucha(ejercicio, { contenedor, alTerminar, fijar
     fichas.forEach((ficha) => ficha.classList.remove('escucha__ficha--sonando'));
     const promesa = reproducirGuia(ejercicio.notas);
     ejercicio.notas.forEach((_, indice) => {
-      setTimeout(() => fichas[indice]?.classList.add('escucha__ficha--sonando'), indice * SEGUNDOS_ENTRE_NOTAS_GUIA * MS_POR_SEGUNDO);
+      temporizadores.push(setTimeout(() => fichas[indice]?.classList.add('escucha__ficha--sonando'), indice * SEGUNDOS_ENTRE_NOTAS_GUIA * MS_POR_SEGUNDO));
     });
     await promesa;
     if (respondido) return;
@@ -79,6 +80,7 @@ export function crearEjercicioEscucha(ejercicio, { contenedor, alTerminar, fijar
     iniciar: reproducir,
     destruir() {
       respondido = true;
+      temporizadores.forEach(clearTimeout);
     },
   };
 }

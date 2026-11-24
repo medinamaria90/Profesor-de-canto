@@ -4,6 +4,16 @@ import { detectarTono, calcularRms } from './deteccion-tono.js';
 import { frecuenciaAMidi, midiAFrecuencia } from '../musica/notas.js';
 
 const TAMANO_MEDIANA = 5;
+// Se promedian pares de muestras antes de detectar: la voz cabe de sobra en la mitad de la frecuencia
+// de muestreo y la autocorrelación cuesta cuatro veces menos.
+const FACTOR_DIEZMADO = 2;
+
+function diezmar(buffer, destino) {
+  for (let i = 0; i < destino.length; i++) {
+    destino[i] = (buffer[i * FACTOR_DIEZMADO] + buffer[i * FACTOR_DIEZMADO + 1]) / 2;
+  }
+  return destino;
+}
 
 function mediana(valores) {
   const ordenados = [...valores].sort((a, b) => a - b);
@@ -14,10 +24,12 @@ function mediana(valores) {
 export function crearLectorTono(entrada, alLeer) {
   let animacion = null;
   const historial = [];
+  let reducido = null;
 
   function paso() {
     const buffer = entrada.leer();
-    const deteccion = detectarTono(buffer, entrada.frecuenciaMuestreo);
+    reducido ??= new Float32Array(Math.floor(buffer.length / FACTOR_DIEZMADO));
+    const deteccion = detectarTono(diezmar(buffer, reducido), entrada.frecuenciaMuestreo / FACTOR_DIEZMADO);
     if (deteccion) {
       historial.push(frecuenciaAMidi(deteccion.frecuencia));
       if (historial.length > TAMANO_MEDIANA) historial.shift();

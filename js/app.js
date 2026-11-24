@@ -13,6 +13,8 @@ import { crearPantallaRangoVocal } from './ui/pantallas/rango-vocal.js';
 import { crearPantallaNoEncontrada } from './ui/pantallas/no-encontrada.js';
 import { obtenerEstado } from './estado/tienda.js';
 import { TEXTOS } from './contenido/textos.js';
+import { audioDisponible } from './audio/contexto.js';
+import { el } from './ui/dom.js';
 
 const RUTAS_SIN_NAVEGACION = ['/leccion', '/resultados', '/bienvenida', '/rango'];
 const RUTAS_DE_BIENVENIDA = ['/bienvenida', '/rango'];
@@ -26,6 +28,10 @@ function guardia(camino) {
 
 function arrancar() {
   const contenedor = document.getElementById('contenido');
+  if (!audioDisponible()) {
+    contenedor.replaceChildren(el('section', { clase: 'pantalla pantalla-vacia' }, el('p', { clase: 'pantalla-vacia__texto', texto: TEXTOS.errores.audioNoDisponible })));
+    return;
+  }
   const navegacion = crearNavegacion([
     { camino: '/', texto: TEXTOS.navegacion.aprender, icono: 'nota' },
     { camino: '/jugar', texto: TEXTOS.navegacion.jugar, icono: 'mando' },

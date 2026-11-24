@@ -14,26 +14,47 @@ const T = TEXTOS.bienvenida;
 const TOTAL_PASOS = 3;
 const LONGITUD_MAXIMA_NOMBRE = 24;
 
+const TECLAS_SIGUIENTE = new Set(['ArrowDown', 'ArrowRight']);
+const TECLAS_ANTERIOR = new Set(['ArrowUp', 'ArrowLeft']);
+
+// Grupo de radios accesible: un solo tabulador entra al grupo y las flechas cambian la opción.
 export function crearSelectorObjetivo(valorInicial, alCambiar) {
   let seleccionado = valorInicial;
-  const botones = OBJETIVOS_DIARIOS.map((objetivo) =>
-    el(
-      'button',
-      {
-        clase: 'opcion opcion--objetivo',
-        type: 'button',
-        role: 'radio',
-        'aria-checked': String(objetivo.xp === seleccionado),
-        onClick: () => {
-          seleccionado = objetivo.xp;
-          botones.forEach((boton, indice) => boton.setAttribute('aria-checked', String(OBJETIVOS_DIARIOS[indice].xp === seleccionado)));
-          alCambiar(seleccionado);
+  const botones = [];
+
+  function seleccionar(indice, enfocar = false) {
+    seleccionado = OBJETIVOS_DIARIOS[indice].xp;
+    botones.forEach((boton, i) => {
+      boton.setAttribute('aria-checked', String(i === indice));
+      boton.tabIndex = i === indice ? 0 : -1;
+    });
+    if (enfocar) botones[indice].focus();
+    alCambiar(seleccionado);
+  }
+
+  OBJETIVOS_DIARIOS.forEach((objetivo, indice) => {
+    botones.push(
+      el(
+        'button',
+        {
+          clase: 'opcion opcion--objetivo',
+          type: 'button',
+          role: 'radio',
+          'aria-checked': String(objetivo.xp === seleccionado),
+          tabindex: objetivo.xp === seleccionado ? '0' : '-1',
+          onClick: () => seleccionar(indice),
+          onKeydown: (evento) => {
+            if (TECLAS_SIGUIENTE.has(evento.key)) seleccionar((indice + 1) % OBJETIVOS_DIARIOS.length, true);
+            else if (TECLAS_ANTERIOR.has(evento.key)) seleccionar((indice - 1 + OBJETIVOS_DIARIOS.length) % OBJETIVOS_DIARIOS.length, true);
+            else return;
+            evento.preventDefault();
+          },
         },
-      },
-      el('span', { clase: 'opcion__texto', texto: T.objetivos[objetivo.id] }),
-      el('span', { clase: 'opcion__detalle', texto: `${T.minutosFormato(objetivo.minutos)} · ${T.xpFormato(objetivo.xp)}` }),
-    ),
-  );
+        el('span', { clase: 'opcion__texto', texto: T.objetivos[objetivo.id] }),
+        el('span', { clase: 'opcion__detalle', texto: `${T.minutosFormato(objetivo.minutos)} · ${T.xpFormato(objetivo.xp)}` }),
+      ),
+    );
+  });
   return el('div', { clase: 'opciones opciones--vertical', role: 'radiogroup', 'aria-label': T.objetivoTitulo }, botones);
 }
 
@@ -86,7 +107,9 @@ export function crearPantallaBienvenida() {
       el('p', { clase: 'bienvenida__texto', texto: T.subtitulo }),
       el('label', { clase: 'etiqueta', for: 'campo-nombre', texto: T.nombreEtiqueta }),
       campo,
+      el('p', { clase: 'bienvenida__pista', id: 'campo-nombre-pista', texto: T.nombrePista }),
     );
+    campo.setAttribute('aria-describedby', 'campo-nombre-pista');
     pie.replaceChildren(crearBoton(T.siguiente, { ancho: true, onClick: () => irA(2) }));
     campo.focus();
   }
@@ -99,7 +122,7 @@ export function crearPantallaBienvenida() {
         objetivo = valor;
       }),
     );
-    pie.replaceChildren(crearBoton(T.siguiente, { ancho: true, onClick: () => irA(3) }));
+    pie.replaceChildren(crearBoton(T.siguiente, { ancho: true, onClick: () => irA(3) }), crearBoton(T.atras, { variante: 'texto', ancho: true, onClick: () => irA(1) }));
   }
 
   function pasoRango() {
@@ -111,6 +134,7 @@ export function crearPantallaBienvenida() {
     pie.replaceChildren(
       crearBoton(T.medirRango, { ancho: true, onClick: () => terminar(true) }),
       crearBoton(T.saltarRango, { variante: 'texto', ancho: true, onClick: () => terminar(false) }),
+      crearBoton(T.atras, { variante: 'texto', ancho: true, onClick: () => irA(2) }),
     );
   }
 

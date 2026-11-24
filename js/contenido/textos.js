@@ -28,6 +28,8 @@ export const TEXTOS = {
     subtitulo: 'Tres minutos al día bastan para afinar. Empezamos por conocerte.',
     nombreEtiqueta: '¿Cómo te llamamos?',
     nombreMarcador: 'Tu nombre',
+    nombrePista: 'Puedes dejarlo vacío si prefieres.',
+    atras: 'Atrás',
     objetivoTitulo: 'Tu objetivo diario',
     objetivoSubtitulo: 'Cada ejercicio suma XP. Elige cuánto quieres sumar al día.',
     objetivos: { tranquilo: 'Tranquilo', constante: 'Constante', intenso: 'Intenso' },
@@ -72,7 +74,6 @@ export const TEXTOS = {
     salir: 'Salir de la lección',
     progresoFormato: (actual, total) => `Ejercicio ${actual} de ${total}`,
     continuar: 'Continuar',
-    comprobar: 'Comprobar',
     reintentar: 'Reintentar',
     saltar: 'Saltar',
     empezar: 'Empezar',
@@ -164,13 +165,11 @@ export const TEXTOS = {
   afinador: {
     titulo: 'Afinador',
     subtitulo: 'Canta cualquier nota y mira cómo de cerca estás.',
-    escuchando: 'Escuchando…',
     silencio: 'Canta una nota',
     centsFormato: (cents) => `${cents > 0 ? '+' : ''}${cents} cents`,
     afinado: 'Afinado',
     alto: 'Un poco alto',
     bajo: 'Un poco bajo',
-    activar: 'Activar micrófono',
   },
 
   perfil: {

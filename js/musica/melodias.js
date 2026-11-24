@@ -63,10 +63,6 @@ export const DEBAJO_UN_BOTON = {
   notas: [[4, 0.5], [4, 0.5], [4, 1], [5, 0.5], [4, 0.5], [2, 1], [2, 0.5], [2, 0.5], [2, 1], [4, 0.5], [2, 0.5], [0, 1]],
 };
 
-export function duracionTotalPulsos(melodia) {
-  return melodia.notas.reduce((acumulado, [, pulsos]) => acumulado + pulsos, 0);
-}
-
 export function gradosDeMelodia(melodia) {
   return melodia.notas.filter(([grado]) => grado !== null).map(([grado]) => grado);
 }
