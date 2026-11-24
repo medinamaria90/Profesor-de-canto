@@ -149,6 +149,11 @@ export const TEXTOS = {
     },
     tecnica: {
       titulo: 'Técnica',
+      queEs: 'Qué quiere decir',
+      comoSeHace: 'Cómo se hace',
+      errores: 'Errores típicos',
+      escuchar: 'Escuchar ejemplo',
+      parar: 'Parar',
       consejo: 'Consejo',
       entendido: 'Lo tengo',
       aprendida: 'Técnica aprendida',

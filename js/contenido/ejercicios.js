@@ -137,7 +137,7 @@ export function instanciarEjercicios(plantillas, rango, opciones = {}) {
       case 'tecnica': {
         const tecnica = obtenerTecnica(plantilla.tecnicaId);
         if (!tecnica) throw new Error(`Técnica desconocida: ${plantilla.tecnicaId}`);
-        return { ...comun, ...tecnica };
+        return { ...comun, ...tecnica, rango };
       }
       case 'reto': {
         const cancion = instanciarCancion(plantilla, base);

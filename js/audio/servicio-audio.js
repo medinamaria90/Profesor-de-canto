@@ -6,6 +6,7 @@ import { crearEntradaSimulada } from './entrada-simulada.js';
 import { crearLectorTono, fotogramasPorSegundoDelDetector } from './lector-tono.js';
 import { crearVentanaGuia } from './ventana-guia.js';
 import { cargarPiano } from './piano-muestras.js';
+import { reproducirEjemplo } from './ejemplos-voz.js';
 import * as sintetizador from './sintetizador.js';
 import { reproducirAcompanamiento } from './acompanamiento.js';
 import { CONFIGURACION } from '../nucleo/configuracion.js';
@@ -153,6 +154,28 @@ export const audio = {
 
   clickMetronomo(cuando, acento) {
     sintetizador.clickMetronomo(obtenerContexto(), cuando, acento);
+  },
+
+  // Ejemplo sonoro de técnica (siseo, trino de labios, vocales…) en la nota dada. Devuelve { duracion, detener() }.
+  reproducirEjemplo(id, midi) {
+    const contexto = obtenerContexto();
+    const ejemplo = reproducirEjemplo(contexto, id, { cuando: contexto.currentTime + 0.05, midi });
+    const control = {
+      duracion: ejemplo.duracion,
+      detener() {
+        for (const nodo of ejemplo.nodos) {
+          try {
+            nodo.stop();
+          } catch (error) {
+            if (error.name !== 'InvalidStateError') throw error;
+          }
+        }
+        ejemplo.salida.disconnect();
+        acompanamientosActivos.delete(control);
+      },
+    };
+    acompanamientosActivos.add(control);
+    return control;
   },
 
   reproducirAcompanamiento(acompanamiento, opciones) {

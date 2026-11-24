@@ -283,12 +283,39 @@
   font-weight: var(--peso-medio);
 }
 
-.tecnica__pasos {
+.tecnica__seccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+}
+
+.tecnica__seccion-titulo {
+  font-size: var(--tam-letra-xs);
+  font-weight: var(--peso-fuerte);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.tecnica__texto {
+  color: var(--sobre-superficie);
+}
+
+.tecnica__pasos,
+.tecnica__errores {
   margin: 0;
   padding-left: var(--espacio-5);
   display: flex;
   flex-direction: column;
   gap: var(--espacio-2);
+}
+
+.tecnica__errores {
+  color: var(--texto-suave);
+}
+
+.tecnica__ejemplo {
+  display: flex;
 }
 
 .tecnica__consejo {
