@@ -11,6 +11,9 @@ const TAMANO_ALONDRA = 52;
 const LONGITUD_ESTELA = 16;
 const RADIO_ESQUINA_PUERTA = 10;
 const FRECUENCIA_PARPADEO = 12;
+const ALTO_GUIA_NOTA = 10;
+const OPACIDAD_GUIA_NOTA = 0.35;
+const OPACIDAD_GUIA_NOTA_PASADA = 0.15;
 const OPACIDAD_GUIA = 0.4;
 const PARTICULAS_POR_PUERTA = 14;
 const VIDA_PARTICULA_SEGUNDOS = 0.7;
@@ -198,7 +201,24 @@ export function crearVistaBolaCantora() {
     contexto.fill();
   }
 
+  // Guía de duración: una banda suave a la altura de la nota, desde el poste hasta donde acaba la nota.
+  function dibujarGuiasDeNota(contexto, paleta, partida, ancho) {
+    for (const puerta of partida.puertas) {
+      if (!puerta.largo) continue;
+      const x = xDePuerta(partida, puerta) + puerta.ancho;
+      const largo = puerta.largo - puerta.ancho;
+      if (x > ancho || x + largo < 0 || largo <= 0) continue;
+      const centro = huecoDePuerta(partida, puerta).centro;
+      contexto.globalAlpha = puerta.superada || puerta.chocada ? OPACIDAD_GUIA_NOTA_PASADA : OPACIDAD_GUIA_NOTA;
+      contexto.fillStyle = paleta.guia;
+      rectanguloRedondeado(contexto, x, centro - ALTO_GUIA_NOTA / 2, largo, ALTO_GUIA_NOTA, ALTO_GUIA_NOTA / 2);
+      contexto.fill();
+      contexto.globalAlpha = 1;
+    }
+  }
+
   function dibujarPuertas(contexto, paleta, partida, ancho) {
+    dibujarGuiasDeNota(contexto, paleta, partida, ancho);
     const siguiente = puertaSiguiente(partida);
     contexto.font = '600 14px system-ui, sans-serif';
     contexto.textAlign = 'center';

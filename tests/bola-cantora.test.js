@@ -83,7 +83,8 @@ test('con partitura cada nota es una puerta tan ancha como dura, en su momento, 
   const partida = crearPartida(RANGO, { aleatorio: aleatorioFijo, partitura, velocidad: 200 });
   empezar(partida);
   assert.equal(partida.puertas.length, 3);
-  assert.equal(partida.puertas[2].ancho, 400);
+  assert.equal(partida.puertas[2].ancho, ANCHO_PUERTA);
+  assert.equal(partida.puertas[2].largo, 400);
   assert.equal(partida.puertas[1].x - partida.puertas[0].x, 100);
   // Quien canta se adelanta un poco al cambio de nota: la voz sigue a la puerta que está a punto de llegar.
   const ANTICIPACION_PIXELES = 40;
@@ -103,8 +104,9 @@ test('salir del hueco un instante no cuesta vida; salir más tiempo, sí', () =>
   const larga = crearPartida(RANGO, { aleatorio: aleatorioFijo, partitura, velocidad: 200 });
   empezar(breve);
   empezar(larga);
-  simularHasta(breve, 5, (p) => (p.tiempo > 1.5 && p.tiempo < 1.65 ? null : 60));
-  simularHasta(larga, 5, (p) => (p.tiempo > 1.5 && p.tiempo < 2.6 ? null : 60));
+  // La puerta pasa por la bola en el segundo 0,5: desafinar un instante justo ahí se perdona; desafinar antes y durante, no.
+  simularHasta(breve, 3, (p) => (p.tiempo > 0.46 && p.tiempo < 0.5 ? 48 : 60));
+  simularHasta(larga, 3, (p) => (p.tiempo > 0.2 && p.tiempo < 0.9 ? 48 : 60));
   assert.equal(breve.vidas, VIDAS_INICIALES);
   assert.equal(larga.vidas, VIDAS_INICIALES - 1);
 });

@@ -23,9 +23,9 @@ export const GRAVEDAD_SILENCIO = 220; // píxeles por segundo² cuando no hay vo
 export const MARGEN_SEMITONOS_RANGO = 1;
 export const SEGUNDOS_INVULNERABLE = 1.2;
 // Salir del hueco un momento (el cambio de nota, un parpadeo del detector) no cuenta como choque:
-// se tolera hasta este tiempo, y nunca más de una fracción de lo que dura la puerta.
+// se tolera hasta este tiempo, y nunca más de la mitad de lo que tarda la bola en cruzar la puerta.
 export const TOLERANCIA_FUERA_SEGUNDOS = 0.3;
-const FRACCION_TOLERANCIA_PUERTA = 0.6;
+const FRACCION_TOLERANCIA_CRUCE = 0.5;
 export const XP_POR_PUERTA = 2;
 export const XP_MAXIMO_PARTIDA = 40;
 export const PUERTAS_PARA_SUBIR_DIFICULTAD = 4;
@@ -74,8 +74,9 @@ export function elegirNotaPuerta(notaAnterior, rango, puertasSuperadas, aleatori
   return nota;
 }
 
-// partitura: lista opcional [{ midi, inicio, duracion }] en segundos. Si se da, cada nota es una puerta tan ancha
-// como dura, colocada para llegar a la bola justo en su momento a la velocidad dada, y la partida termina al acabarla.
+// partitura: lista opcional [{ midi, inicio, duracion }] en segundos. Si se da, cada nota es una puerta fina que
+// llega a la bola justo cuando empieza la nota (a la velocidad dada) y lleva una guía tan larga como dura la nota;
+// la partida termina al acabarla.
 export function crearPartida(rango, { aleatorio = Math.random, ancho = 360, alto = 480, partitura = null, velocidad = VELOCIDAD_INICIAL } = {}) {
   const notaInicial = Math.round((rango.minimo + rango.maximo) / 2);
   const partida = {
@@ -105,9 +106,9 @@ export function crearPartida(rango, { aleatorio = Math.random, ancho = 360, alto
   return partida;
 }
 
-function crearPuerta(partida, x, nota, ancho) {
+function crearPuerta(partida, x, nota, ancho, largo = 0) {
   partida.puertasCreadas++;
-  partida.puertas.push({ x, nota, ancho, huecoRelativo: dificultad(nivelDePartida(partida)).huecoRelativo, superada: false, chocada: false, fueraDesde: null });
+  partida.puertas.push({ x, nota, ancho, largo, huecoRelativo: dificultad(nivelDePartida(partida)).huecoRelativo, superada: false, chocada: false, fueraDesde: null });
 }
 
 function anadirPuerta(partida, x) {
@@ -116,10 +117,11 @@ function anadirPuerta(partida, x) {
   crearPuerta(partida, x, nota, dificultad(nivelDePartida(partida)).anchoPuerta);
 }
 
-// La puerta de una nota: su borde izquierdo llega a la bola cuando empieza la nota y es tan ancha como dura.
+// La puerta de una nota: un poste fino cuyo centro pasa por la bola cuando empieza la nota; `largo` es lo que
+// dura la nota en píxeles, solo para dibujar la guía.
 function anadirPuertaDePartitura(partida, nota) {
-  const x = partida.bola.x + RADIO_BOLA + nota.inicio * partida.velocidad;
-  crearPuerta(partida, x, nota.midi, Math.max(ANCHO_PUERTA, nota.duracion * partida.velocidad));
+  const x = partida.bola.x - ANCHO_PUERTA / 2 + nota.inicio * partida.velocidad;
+  crearPuerta(partida, x, nota.midi, ANCHO_PUERTA, nota.duracion * partida.velocidad);
 }
 
 export function empezar(partida) {
@@ -155,7 +157,8 @@ function moverBola(partida, dt) {
 }
 
 function toleranciaDePuerta(partida, puerta) {
-  return Math.min(TOLERANCIA_FUERA_SEGUNDOS, (FRACCION_TOLERANCIA_PUERTA * puerta.ancho) / partida.velocidad);
+  const cruce = (puerta.ancho + 2 * RADIO_BOLA) / partida.velocidad;
+  return Math.min(TOLERANCIA_FUERA_SEGUNDOS, FRACCION_TOLERANCIA_CRUCE * cruce);
 }
 
 function perderVida(partida) {
