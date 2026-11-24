@@ -84,7 +84,7 @@ test('con partitura cada nota es una puerta tan ancha como dura, en su momento, 
   empezar(partida);
   assert.equal(partida.puertas.length, 3);
   assert.equal(partida.puertas[2].ancho, ANCHO_PUERTA);
-  assert.equal(partida.puertas[2].largo, 400);
+  assert.equal(partida.guias[2].largo, 400);
   assert.equal(partida.puertas[1].x - partida.puertas[0].x, 100);
   // Quien canta se adelanta un poco al cambio de nota: la voz sigue a la puerta que está a punto de llegar.
   const ANTICIPACION_PIXELES = 40;
@@ -165,4 +165,21 @@ test('con partitura la dificultad no sube', () => {
   assert.ok(partida.puertasSuperadas >= 10);
   assert.equal(partida.velocidad, VELOCIDAD_INICIAL);
   assert.ok(partida.puertas.every((puerta) => puerta.huecoRelativo === ALTO_HUECO_RELATIVO));
+});
+
+test('las notas sin puerta solo dejan guía: se cantan libres y no cuentan', () => {
+  const partitura = [
+    { midi: 55, inicio: 1, duracion: 0.5, puerta: true },
+    { midi: 57, inicio: 1.5, duracion: 0.5, puerta: false },
+    { midi: 60, inicio: 2, duracion: 2, puerta: true },
+  ];
+  const partida = crearPartida(RANGO, { aleatorio: aleatorioFijo, partitura, velocidad: 200 });
+  assert.equal(partida.puertas.length, 2);
+  assert.equal(partida.guias.length, 3);
+  empezar(partida);
+  // Se canta mal la nota libre y bien las dos con puerta: no se pierde vida.
+  // Quien canta vuelve a la nota buena un poco antes de llegar al poste.
+  simularHasta(partida, 6, (p) => (p.tiempo > 1.3 && p.tiempo < 1.6 ? 48 : p.tiempo < 1.6 ? 55 : 60));
+  assert.equal(partida.vidas, VIDAS_INICIALES);
+  assert.equal(partida.puertasSuperadas, 2);
 });

@@ -58,10 +58,12 @@ test('los identificadores de lección son únicos y se encuentran', () => {
 
 test('el reto convierte la canción en partitura: notas repetidas fundidas, inicios y duraciones en pulsos', async () => {
   const { partituraDeNotas } = await import('../js/contenido/ejercicios.js');
-  const partitura = partituraDeNotas([{ midi: 60, pulsos: 0.5 }, { midi: 60, pulsos: 0.5 }, { midi: 62, pulsos: 1 }, { midi: 60, pulsos: 2 }]);
+  const partitura = partituraDeNotas([{ midi: 60, pulsos: 0.5 }, { midi: 60, pulsos: 0.5 }, { midi: 62, pulsos: 1 }, { midi: 60, pulsos: 2 }, { midi: 64, pulsos: 1 }], { pulsosPorCompas: 3, anacrusa: 1 });
+  // Puerta solo en el primer tiempo de cada compás (tras la anacrusa) y en las notas largas.
   assert.deepEqual(partitura, [
-    { midi: 60, inicio: 0, duracion: 1 },
-    { midi: 62, inicio: 1, duracion: 1 },
-    { midi: 60, inicio: 2, duracion: 2 },
+    { midi: 60, inicio: 0, duracion: 1, puerta: false },
+    { midi: 62, inicio: 1, duracion: 1, puerta: true },
+    { midi: 60, inicio: 2, duracion: 2, puerta: true },
+    { midi: 64, inicio: 4, duracion: 1, puerta: true },
   ]);
 });

@@ -40,8 +40,12 @@ function instanciarCancion(plantilla, base) {
   };
 }
 
-// Puertas del reto: cada nota con su inicio y duración en pulsos; las repetidas seguidas se funden en una.
-export function partituraDeNotas(notas) {
+// Una nota lleva poste si cae en el primer tiempo del compás o dura al menos esto; las demás se cantan libres.
+const PULSOS_NOTA_LARGA = 2;
+
+// Partitura del reto: cada nota con su inicio y duración en pulsos (las repetidas seguidas se funden en una) y si
+// lleva puerta. Así se canta con libertad y el esfuerzo se concentra en las notas clave.
+export function partituraDeNotas(notas, { pulsosPorCompas = 4, anacrusa = 0 } = {}) {
   const partitura = [];
   let cursor = 0;
   for (const nota of notas) {
@@ -49,6 +53,10 @@ export function partituraDeNotas(notas) {
     if (ultima && ultima.midi === nota.midi && ultima.inicio + ultima.duracion === cursor) ultima.duracion += nota.pulsos;
     else partitura.push({ midi: nota.midi, inicio: cursor, duracion: nota.pulsos });
     cursor += nota.pulsos;
+  }
+  for (const nota of partitura) {
+    const enPrimerTiempo = nota.inicio >= anacrusa && (nota.inicio - anacrusa) % pulsosPorCompas === 0;
+    nota.puerta = enPrimerTiempo || nota.duracion >= PULSOS_NOTA_LARGA;
   }
   return partitura;
 }
@@ -141,7 +149,8 @@ export function instanciarEjercicios(plantillas, rango, opciones = {}) {
       }
       case 'reto': {
         const cancion = instanciarCancion(plantilla, base);
-        return { ...comun, ...cancion, rango, partitura: partituraDeNotas(cancion.notas) };
+        const { pulsosPorCompas, anacrusa } = cancion.acompanamiento;
+        return { ...comun, ...cancion, rango, partitura: partituraDeNotas(cancion.notas, { pulsosPorCompas, anacrusa }) };
       }
       case 'escucha':
         return { ...comun, ...instanciarEscucha(plantilla, rango, aleatorio, nivelOido) };

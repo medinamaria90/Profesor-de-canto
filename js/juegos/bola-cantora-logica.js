@@ -74,9 +74,9 @@ export function elegirNotaPuerta(notaAnterior, rango, puertasSuperadas, aleatori
   return nota;
 }
 
-// partitura: lista opcional [{ midi, inicio, duracion }] en segundos. Si se da, cada nota es una puerta fina que
-// llega a la bola justo cuando empieza la nota (a la velocidad dada) y lleva una guía tan larga como dura la nota;
-// la partida termina al acabarla.
+// partitura: lista opcional [{ midi, inicio, duracion, puerta }] en segundos. Si se da, cada nota se dibuja como
+// una guía tan larga como dura y, si lleva puerta, es un poste fino que llega a la bola justo cuando empieza la nota
+// (a la velocidad dada); la partida termina al acabarla.
 export function crearPartida(rango, { aleatorio = Math.random, ancho = 360, alto = 480, partitura = null, velocidad = VELOCIDAD_INICIAL } = {}) {
   const notaInicial = Math.round((rango.minimo + rango.maximo) / 2);
   const partida = {
@@ -94,6 +94,7 @@ export function crearPartida(rango, { aleatorio = Math.random, ancho = 360, alto
     bola: { x: ancho * X_BOLA_RELATIVA, y: alto / 2, velocidadY: 0 },
     alturaObjetivo: null,
     puertas: [],
+    guias: [],
     ultimaNota: notaInicial,
     invulnerableHasta: 0,
     tiempo: 0,
@@ -106,9 +107,9 @@ export function crearPartida(rango, { aleatorio = Math.random, ancho = 360, alto
   return partida;
 }
 
-function crearPuerta(partida, x, nota, ancho, largo = 0) {
+function crearPuerta(partida, x, nota, ancho) {
   partida.puertasCreadas++;
-  partida.puertas.push({ x, nota, ancho, largo, huecoRelativo: dificultad(nivelDePartida(partida)).huecoRelativo, superada: false, chocada: false, fueraDesde: null });
+  partida.puertas.push({ x, nota, ancho, huecoRelativo: dificultad(nivelDePartida(partida)).huecoRelativo, superada: false, chocada: false, fueraDesde: null });
 }
 
 function anadirPuerta(partida, x) {
@@ -117,11 +118,12 @@ function anadirPuerta(partida, x) {
   crearPuerta(partida, x, nota, dificultad(nivelDePartida(partida)).anchoPuerta);
 }
 
-// La puerta de una nota: un poste fino cuyo centro pasa por la bola cuando empieza la nota; `largo` es lo que
-// dura la nota en píxeles, solo para dibujar la guía.
+// Cada nota deja una guía (su altura y lo que dura, en píxeles) y, si lleva puerta, un poste fino cuyo centro
+// pasa por la bola justo cuando empieza la nota.
 function anadirPuertaDePartitura(partida, nota) {
   const x = partida.bola.x - ANCHO_PUERTA / 2 + nota.inicio * partida.velocidad;
-  crearPuerta(partida, x, nota.midi, ANCHO_PUERTA, nota.duracion * partida.velocidad);
+  partida.guias.push({ x, nota: nota.midi, largo: nota.duracion * partida.velocidad });
+  if (nota.puerta !== false) crearPuerta(partida, x, nota.midi, ANCHO_PUERTA);
 }
 
 export function empezar(partida) {

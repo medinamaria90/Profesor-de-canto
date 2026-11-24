@@ -23,7 +23,7 @@ const GANANCIA_MELODIA = 0.12;
 export function crearEjercicioReto(ejercicio, { contenedor, alTerminar, fijarAcciones }) {
   const cabecera = crearCabeceraEjercicio(T.titulo, T.instruccion(ejercicio.titulo));
   const vista = crearVistaBolaCantora();
-  const total = ejercicio.partitura.length;
+  const total = ejercicio.partitura.filter((nota) => nota.puerta).length;
   const marcador = el('span', { clase: 'juego__marcador-valor', texto: `0/${total}` });
   const corazones = el('span', { clase: 'juego__vidas', role: 'img' });
   const estado = crearEstadoEjercicio();

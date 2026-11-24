@@ -12,6 +12,7 @@ const LONGITUD_ESTELA = 16;
 const RADIO_ESQUINA_PUERTA = 10;
 const FRECUENCIA_PARPADEO = 12;
 const ALTO_GUIA_NOTA = 10;
+const MARGEN_GUIA_NOTA = 3;
 const OPACIDAD_GUIA_NOTA = 0.35;
 const OPACIDAD_GUIA_NOTA_PASADA = 0.15;
 const OPACIDAD_GUIA = 0.4;
@@ -201,15 +202,14 @@ export function crearVistaBolaCantora() {
     contexto.fill();
   }
 
-  // Guía de duración: una banda suave a la altura de la nota, desde el poste hasta donde acaba la nota.
+  // Guía de cada nota: una banda suave a su altura, tan larga como dura; más tenue cuando ya ha pasado.
   function dibujarGuiasDeNota(contexto, paleta, partida, ancho) {
-    for (const puerta of partida.puertas) {
-      if (!puerta.largo) continue;
-      const x = xDePuerta(partida, puerta) + puerta.ancho;
-      const largo = puerta.largo - puerta.ancho;
+    for (const guia of partida.guias) {
+      const x = xDePuerta(partida, guia) + MARGEN_GUIA_NOTA;
+      const largo = guia.largo - MARGEN_GUIA_NOTA * 2;
       if (x > ancho || x + largo < 0 || largo <= 0) continue;
-      const centro = huecoDePuerta(partida, puerta).centro;
-      contexto.globalAlpha = puerta.superada || puerta.chocada ? OPACIDAD_GUIA_NOTA_PASADA : OPACIDAD_GUIA_NOTA;
+      const centro = huecoDePuerta(partida, guia).centro;
+      contexto.globalAlpha = x + largo < partida.bola.x ? OPACIDAD_GUIA_NOTA_PASADA : OPACIDAD_GUIA_NOTA;
       contexto.fillStyle = paleta.guia;
       rectanguloRedondeado(contexto, x, centro - ALTO_GUIA_NOTA / 2, largo, ALTO_GUIA_NOTA, ALTO_GUIA_NOTA / 2);
       contexto.fill();
