@@ -55,3 +55,13 @@ test('los identificadores de lección son únicos y se encuentran', () => {
   assert.equal(obtenerLeccion(RUTINA_DIARIA.id), RUTINA_DIARIA);
   assert.equal(obtenerLeccion('no-existe'), null);
 });
+
+test('el reto convierte la canción en partitura: notas repetidas fundidas, inicios y duraciones en pulsos', async () => {
+  const { partituraDeNotas } = await import('../js/contenido/ejercicios.js');
+  const partitura = partituraDeNotas([{ midi: 60, pulsos: 0.5 }, { midi: 60, pulsos: 0.5 }, { midi: 62, pulsos: 1 }, { midi: 60, pulsos: 2 }]);
+  assert.deepEqual(partitura, [
+    { midi: 60, inicio: 0, duracion: 1 },
+    { midi: 62, inicio: 1, duracion: 1 },
+    { midi: 60, inicio: 2, duracion: 2 },
+  ]);
+});

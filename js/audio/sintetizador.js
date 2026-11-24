@@ -2,6 +2,9 @@
 
 import { midiAFrecuencia } from '../musica/notas.js';
 import { vozGuia, piano } from './instrumentos.js';
+import { segundosPorPulso } from '../musica/tempo.js';
+
+export { segundosPorPulso };
 
 const MARGEN_PARADA_SEGUNDOS = 0.05;
 export const GANANCIA_GUIA = 0.22;
@@ -10,7 +13,6 @@ const GANANCIA_CLICK = 0.12;
 const FRECUENCIA_CLICK = 1000;
 const FRECUENCIA_CLICK_ACENTO = 1500;
 const DURACION_CLICK_SEGUNDOS = 0.04;
-const SEGUNDOS_POR_MINUTO = 60;
 
 const vocesActivas = new Set();
 let ultimaFrecuencia = null;
@@ -53,10 +55,6 @@ export function clickMetronomo(contexto, cuando, acento = false) {
   oscilador.connect(envolvente).connect(contexto.destination);
   oscilador.start(cuando);
   oscilador.stop(cuando + DURACION_CLICK_SEGUNDOS + MARGEN_PARADA_SEGUNDOS);
-}
-
-export function segundosPorPulso(tempo) {
-  return SEGUNDOS_POR_MINUTO / tempo;
 }
 
 // Programa una secuencia de notas [{ midi, pulsos }] y devuelve cuándo empieza y cuánto dura.

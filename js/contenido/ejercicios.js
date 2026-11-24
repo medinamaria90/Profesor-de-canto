@@ -40,6 +40,19 @@ function instanciarCancion(plantilla, base) {
   };
 }
 
+// Puertas del reto: cada nota con su inicio y duración en pulsos; las repetidas seguidas se funden en una.
+export function partituraDeNotas(notas) {
+  const partitura = [];
+  let cursor = 0;
+  for (const nota of notas) {
+    const ultima = partitura[partitura.length - 1];
+    if (ultima && ultima.midi === nota.midi && ultima.inicio + ultima.duracion === cursor) ultima.duracion += nota.pulsos;
+    else partitura.push({ midi: nota.midi, inicio: cursor, duracion: nota.pulsos });
+    cursor += nota.pulsos;
+  }
+  return partitura;
+}
+
 // Elige la nota base de la lección: centra el conjunto de grados en el rango sin salirse de él.
 export function calcularNotaBase(plantillas, rango) {
   const grados = plantillas.flatMap(gradosDePlantilla);
@@ -127,11 +140,8 @@ export function instanciarEjercicios(plantillas, rango, opciones = {}) {
         return { ...comun, ...tecnica };
       }
       case 'reto': {
-        const cancion = obtenerCancion(plantilla.cancionId);
-        if (!cancion) throw new Error(`Canción desconocida: ${plantilla.cancionId}`);
-        // Las notas repetidas seguidas se funden: una puerta por cambio de nota.
-        const notas = cancion.notas.map(([grado]) => base + grado).filter((midi, indice, lista) => indice === 0 || midi !== lista[indice - 1]);
-        return { ...comun, titulo: cancion.titulo, notas, rango };
+        const cancion = instanciarCancion(plantilla, base);
+        return { ...comun, ...cancion, rango, partitura: partituraDeNotas(cancion.notas) };
       }
       case 'escucha':
         return { ...comun, ...instanciarEscucha(plantilla, rango, aleatorio, nivelOido) };

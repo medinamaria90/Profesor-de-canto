@@ -74,18 +74,39 @@ test('las puertas se reciclan manteniendo la separación', () => {
   assert.ok(partida.puertas.every((puerta) => puerta.nota >= RANGO.minimo && puerta.nota <= RANGO.maximo));
 });
 
-test('en modo secuencia las puertas siguen las notas y la partida termina al acabarlas', () => {
-  const secuencia = [55, 57, 59, 60, 59, 57, 55];
-  const partida = crearPartida(RANGO, { aleatorio: aleatorioFijo, secuencia });
+test('con partitura cada nota es una puerta tan ancha como dura, en su momento, y la partida termina al acabarla', () => {
+  const partitura = [
+    { midi: 55, inicio: 1, duracion: 0.5 },
+    { midi: 57, inicio: 1.5, duracion: 0.5 },
+    { midi: 60, inicio: 2, duracion: 2 },
+  ];
+  const partida = crearPartida(RANGO, { aleatorio: aleatorioFijo, partitura, velocidad: 200 });
   empezar(partida);
-  assert.deepEqual(partida.puertas.map((puerta) => puerta.nota), secuencia.slice(0, 4));
-  const eventos = simularHasta(partida, 40, (p) => {
-    const siguiente = p.puertas.find((puerta) => !puerta.superada && !puerta.chocada);
+  assert.equal(partida.puertas.length, 3);
+  assert.equal(partida.puertas[2].ancho, 400);
+  assert.equal(partida.puertas[1].x - partida.puertas[0].x, 100);
+  // Quien canta se adelanta un poco al cambio de nota: la voz sigue a la puerta que está a punto de llegar.
+  const ANTICIPACION_PIXELES = 40;
+  const eventos = simularHasta(partida, 6, (p) => {
+    const siguiente = p.puertas.find((puerta) => puerta.x - p.desplazamiento + puerta.ancho > p.bola.x + ANTICIPACION_PIXELES);
     return siguiente ? siguiente.nota : null;
   });
-  assert.equal(eventos.filter((evento) => evento.tipo === 'puerta').length, secuencia.length);
+  assert.equal(eventos.filter((evento) => evento.tipo === 'puerta').length, 3);
   assert.equal(partida.estado, 'terminada');
   assert.equal(partida.vidas, VIDAS_INICIALES);
+  assert.equal(partida.velocidad, 200);
+});
+
+test('salir del hueco un instante no cuesta vida; salir más tiempo, sí', () => {
+  const partitura = [{ midi: 60, inicio: 0.5, duracion: 3 }];
+  const breve = crearPartida(RANGO, { aleatorio: aleatorioFijo, partitura, velocidad: 200 });
+  const larga = crearPartida(RANGO, { aleatorio: aleatorioFijo, partitura, velocidad: 200 });
+  empezar(breve);
+  empezar(larga);
+  simularHasta(breve, 5, (p) => (p.tiempo > 1.5 && p.tiempo < 1.65 ? null : 60));
+  simularHasta(larga, 5, (p) => (p.tiempo > 1.5 && p.tiempo < 2.6 ? null : 60));
+  assert.equal(breve.vidas, VIDAS_INICIALES);
+  assert.equal(larga.vidas, VIDAS_INICIALES - 1);
 });
 
 test('el hueco de una puerta está centrado en la altura de su nota', () => {
@@ -126,8 +147,7 @@ test('desafinar un semitono y medio pasa al principio pero no con el hueco estre
   estrecha.puertas.push({ x: 300, nota: 58, ancho: ANCHO_PUERTA_MAXIMO, huecoRelativo: ALTO_HUECO_MINIMO_RELATIVO, superada: false, chocada: false });
   abierta.puertas = [{ x: 300, nota: 58, ancho: ANCHO_PUERTA, huecoRelativo: ALTO_HUECO_RELATIVO, superada: false, chocada: false }];
   for (const partida of [abierta, estrecha]) {
-    partida.secuencia = [58];
-    partida.indiceSecuencia = 1;
+    partida.partitura = [];
     empezar(partida);
     simularHasta(partida, 6, () => 58 + 1.5);
   }
@@ -135,11 +155,12 @@ test('desafinar un semitono y medio pasa al principio pero no con el hueco estre
   assert.equal(estrecha.vidas, VIDAS_INICIALES - 1);
 });
 
-test('en modo secuencia la dificultad no sube', () => {
-  const partida = crearPartida(RANGO, { aleatorio: aleatorioFijo, secuencia: Array.from({ length: 20 }, () => 58) });
+test('con partitura la dificultad no sube', () => {
+  const partitura = Array.from({ length: 20 }, (_, i) => ({ midi: 58, inicio: 0.5 + i, duracion: 0.5 }));
+  const partida = crearPartida(RANGO, { aleatorio: aleatorioFijo, partitura, velocidad: VELOCIDAD_INICIAL });
   empezar(partida);
-  simularHasta(partida, 40, () => 58);
+  simularHasta(partida, 25, () => 58);
   assert.ok(partida.puertasSuperadas >= 10);
   assert.equal(partida.velocidad, VELOCIDAD_INICIAL);
-  assert.ok(partida.puertas.every((puerta) => puerta.ancho === ANCHO_PUERTA && puerta.huecoRelativo === ALTO_HUECO_RELATIVO));
+  assert.ok(partida.puertas.every((puerta) => puerta.huecoRelativo === ALTO_HUECO_RELATIVO));
 });

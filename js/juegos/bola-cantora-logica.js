@@ -22,6 +22,10 @@ export const SUAVIZADO_ALTURA = 8; // cuanto mayor, más rápido sigue la bola a
 export const GRAVEDAD_SILENCIO = 220; // píxeles por segundo² cuando no hay voz
 export const MARGEN_SEMITONOS_RANGO = 1;
 export const SEGUNDOS_INVULNERABLE = 1.2;
+// Salir del hueco un momento (el cambio de nota, un parpadeo del detector) no cuenta como choque:
+// se tolera hasta este tiempo, y nunca más de una fracción de lo que dura la puerta.
+export const TOLERANCIA_FUERA_SEGUNDOS = 0.3;
+const FRACCION_TOLERANCIA_PUERTA = 0.6;
 export const XP_POR_PUERTA = 2;
 export const XP_MAXIMO_PARTIDA = 40;
 export const PUERTAS_PARA_SUBIR_DIFICULTAD = 4;
@@ -29,7 +33,7 @@ const SEMITONOS_ENTRE_PUERTAS_INICIAL = 4;
 const SEMITONOS_ENTRE_PUERTAS_MAXIMO = 12;
 
 // Dificultad según las puertas superadas: más rápido, puertas más anchas, huecos más estrechos y saltos mayores.
-// En modo secuencia (lecciones) no sube: la dificultad la pone la melodía.
+// Con partitura (lecciones) no sube: la dificultad la pone la canción.
 export function dificultad(puertasSuperadas) {
   return {
     velocidad: Math.min(VELOCIDAD_MAXIMA, VELOCIDAD_INICIAL + puertasSuperadas * INCREMENTO_VELOCIDAD_POR_PUERTA),
@@ -40,7 +44,7 @@ export function dificultad(puertasSuperadas) {
 }
 
 function nivelDePartida(partida) {
-  return partida.secuencia ? 0 : partida.puertasSuperadas;
+  return partida.partitura ? 0 : partida.puertasSuperadas;
 }
 
 // Convierte una nota MIDI en altura relativa (0 = abajo, 1 = arriba) dentro del rango vocal.
@@ -70,21 +74,21 @@ export function elegirNotaPuerta(notaAnterior, rango, puertasSuperadas, aleatori
   return nota;
 }
 
-// secuencia: lista opcional de notas MIDI; si se da, las puertas las siguen en orden y la partida termina al acabarla.
-export function crearPartida(rango, { aleatorio = Math.random, ancho = 360, alto = 480, secuencia = null } = {}) {
+// partitura: lista opcional [{ midi, inicio, duracion }] en segundos. Si se da, cada nota es una puerta tan ancha
+// como dura, colocada para llegar a la bola justo en su momento a la velocidad dada, y la partida termina al acabarla.
+export function crearPartida(rango, { aleatorio = Math.random, ancho = 360, alto = 480, partitura = null, velocidad = VELOCIDAD_INICIAL } = {}) {
   const notaInicial = Math.round((rango.minimo + rango.maximo) / 2);
   const partida = {
     rango,
     ancho,
     alto,
     aleatorio,
-    secuencia,
-    indiceSecuencia: 0,
+    partitura,
     puertasCreadas: 0,
     estado: 'lista', // lista | jugando | terminada
     vidas: VIDAS_INICIALES,
     puertasSuperadas: 0,
-    velocidad: VELOCIDAD_INICIAL,
+    velocidad: partitura ? velocidad : VELOCIDAD_INICIAL,
     desplazamiento: 0,
     bola: { x: ancho * X_BOLA_RELATIVA, y: alto / 2, velocidadY: 0 },
     alturaObjetivo: null,
@@ -93,22 +97,29 @@ export function crearPartida(rango, { aleatorio = Math.random, ancho = 360, alto
     invulnerableHasta: 0,
     tiempo: 0,
   };
-  for (let i = 0; i < PUERTAS_INICIALES; i++) anadirPuerta(partida, ancho + DISTANCIA_PRIMERA_PUERTA + i * SEPARACION_PUERTAS);
+  if (partitura) {
+    for (const nota of partitura) anadirPuertaDePartitura(partida, nota);
+  } else {
+    for (let i = 0; i < PUERTAS_INICIALES; i++) anadirPuerta(partida, ancho + DISTANCIA_PRIMERA_PUERTA + i * SEPARACION_PUERTAS);
+  }
   return partida;
 }
 
-function anadirPuerta(partida, x) {
-  let nota;
-  if (partida.secuencia) {
-    if (partida.indiceSecuencia >= partida.secuencia.length) return;
-    nota = partida.secuencia[partida.indiceSecuencia++];
-  } else {
-    nota = elegirNotaPuerta(partida.ultimaNota, partida.rango, partida.puertasSuperadas, partida.aleatorio);
-  }
-  partida.ultimaNota = nota;
+function crearPuerta(partida, x, nota, ancho) {
   partida.puertasCreadas++;
-  const { anchoPuerta, huecoRelativo } = dificultad(nivelDePartida(partida));
-  partida.puertas.push({ x, nota, ancho: anchoPuerta, huecoRelativo, superada: false, chocada: false });
+  partida.puertas.push({ x, nota, ancho, huecoRelativo: dificultad(nivelDePartida(partida)).huecoRelativo, superada: false, chocada: false, fueraDesde: null });
+}
+
+function anadirPuerta(partida, x) {
+  const nota = elegirNotaPuerta(partida.ultimaNota, partida.rango, partida.puertasSuperadas, partida.aleatorio);
+  partida.ultimaNota = nota;
+  crearPuerta(partida, x, nota, dificultad(nivelDePartida(partida)).anchoPuerta);
+}
+
+// La puerta de una nota: su borde izquierdo llega a la bola cuando empieza la nota y es tan ancha como dura.
+function anadirPuertaDePartitura(partida, nota) {
+  const x = partida.bola.x + RADIO_BOLA + nota.inicio * partida.velocidad;
+  crearPuerta(partida, x, nota.midi, Math.max(ANCHO_PUERTA, nota.duracion * partida.velocidad));
 }
 
 export function empezar(partida) {
@@ -143,6 +154,10 @@ function moverBola(partida, dt) {
   bola.y = Math.min(partida.alto - RADIO_BOLA, Math.max(RADIO_BOLA, bola.y));
 }
 
+function toleranciaDePuerta(partida, puerta) {
+  return Math.min(TOLERANCIA_FUERA_SEGUNDOS, (FRACCION_TOLERANCIA_PUERTA * puerta.ancho) / partida.velocidad);
+}
+
 function perderVida(partida) {
   partida.vidas--;
   partida.invulnerableHasta = partida.tiempo + SEGUNDOS_INVULNERABLE;
@@ -159,14 +174,19 @@ function comprobarPuertas(partida) {
       if (!puerta.superada && !puerta.chocada && xPuerta + puerta.ancho < bola.x - RADIO_BOLA) {
         puerta.superada = true;
         partida.puertasSuperadas++;
-        partida.velocidad = dificultad(nivelDePartida(partida)).velocidad;
+        if (!partida.partitura) partida.velocidad = dificultad(nivelDePartida(partida)).velocidad;
         eventos.push({ tipo: 'puerta', nota: puerta.nota });
       }
       continue;
     }
     const hueco = huecoDePuerta(partida, puerta);
     const dentroDelHueco = bola.y - RADIO_BOLA >= hueco.arriba && bola.y + RADIO_BOLA <= hueco.abajo;
-    if (dentroDelHueco) continue;
+    if (dentroDelHueco) {
+      puerta.fueraDesde = null;
+      continue;
+    }
+    puerta.fueraDesde ??= partida.tiempo;
+    if (partida.tiempo - puerta.fueraDesde < toleranciaDePuerta(partida, puerta)) continue;
     puerta.chocada = true;
     // Durante la invulnerabilidad se atraviesa la pared sin perder vida, pero la puerta no cuenta.
     if (partida.tiempo >= partida.invulnerableHasta) {
@@ -178,14 +198,15 @@ function comprobarPuertas(partida) {
 }
 
 function reciclarPuertas(partida) {
+  // Con partitura, la partida termina cuando todas las puertas han quedado atrás.
+  if (partida.partitura) {
+    if (partida.puertas.every((puerta) => puerta.superada || puerta.chocada)) partida.estado = 'terminada';
+    return;
+  }
   while (partida.puertas.length && partida.puertas[0].x - partida.desplazamiento < -partida.puertas[0].ancho * 2) {
     const ultima = partida.puertas[partida.puertas.length - 1];
     partida.puertas.shift();
     anadirPuerta(partida, ultima.x + SEPARACION_PUERTAS);
-  }
-  // En modo secuencia, la partida termina cuando todas las puertas han quedado atrás.
-  if (partida.secuencia && partida.indiceSecuencia >= partida.secuencia.length && partida.puertas.every((puerta) => puerta.superada || puerta.chocada)) {
-    partida.estado = 'terminada';
   }
 }
 

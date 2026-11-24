@@ -1,5 +1,5 @@
 // Generado por herramientas/generar-lista-sw.cjs; no editar a mano.
-self.VERSION_ARCHIVOS = 'mwuzs2x9';
+self.VERSION_ARCHIVOS = 'mwv0738b';
 self.ARCHIVOS_APP = [
   "./css/apaisado.css",
   "./css/base.css",
@@ -69,6 +69,7 @@ self.ARCHIVOS_APP = [
   "./js/musica/arreglos.js",
   "./js/musica/melodias.js",
   "./js/musica/notas.js",
+  "./js/musica/tempo.js",
   "./js/nucleo/configuracion.js",
   "./js/nucleo/router.js",
   "./js/ui/componentes/afinador-visual.js",

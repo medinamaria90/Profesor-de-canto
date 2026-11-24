@@ -1,24 +1,30 @@
-// Reto: la Bola cantora dentro de una lección, con las puertas siguiendo las notas de la canción.
+// Reto: la alondra vuela por una canción al ritmo real. Las puertas son las notas (anchas lo que dura cada una),
+// suena el piano con la canción y un pulso de percusión marca el tempo. El tiempo del juego es el del audio.
 
 import { el } from '../ui/dom.js';
 import { icono } from '../ui/componentes/iconos.js';
 import { crearVistaBolaCantora } from '../juegos/bola-cantora-vista.js';
 import { crearPartida, empezar, fijarVoz, avanzar, puertaSiguiente, VIDAS_INICIALES } from '../juegos/bola-cantora-logica.js';
 import { nombreNota } from '../musica/notas.js';
-import { GANANCIA_ACOMPANAMIENTO } from '../audio/sintetizador.js';
+import { segundosPorPulso } from '../musica/tempo.js';
 import { audio } from '../audio/servicio-audio.js';
 import { crearCabeceraEjercicio, crearEstadoEjercicio } from './comun.js';
 import { PUNTUACION_MAXIMA } from './puntuacion.js';
 import { TEXTOS } from '../contenido/textos.js';
 
 const T = TEXTOS.ejercicios.reto;
-const PASO_MAXIMO_SEGUNDOS = 0.05;
-const DURACION_NOTA_GUIA_SEGUNDOS = 0.5;
+const PASO_MAXIMO_SEGUNDOS = 0.5;
+const RETARDO_INICIO_SEGUNDOS = 0.2;
+// Cuánto avanza el escenario por cada pulso de la canción.
+const PIXELES_POR_PULSO = 130;
+const GANANCIA_ACOMPANAMIENTO = 0.8;
+const GANANCIA_MELODIA = 0.12;
 
 export function crearEjercicioReto(ejercicio, { contenedor, alTerminar, fijarAcciones }) {
   const cabecera = crearCabeceraEjercicio(T.titulo, T.instruccion(ejercicio.titulo));
   const vista = crearVistaBolaCantora();
-  const marcador = el('span', { clase: 'juego__marcador-valor', texto: `0/${ejercicio.notas.length}` });
+  const total = ejercicio.partitura.length;
+  const marcador = el('span', { clase: 'juego__marcador-valor', texto: `0/${total}` });
   const corazones = el('span', { clase: 'juego__vidas', role: 'img' });
   const estado = crearEstadoEjercicio();
   contenedor.append(
@@ -28,11 +34,17 @@ export function crearEjercicioReto(ejercicio, { contenedor, alTerminar, fijarAcc
     estado,
   );
 
+  const pulso = segundosPorPulso(ejercicio.tempo);
+  const { pulsosPorCompas, anacrusa, compases } = ejercicio.acompanamiento;
+  // Un compás de entrada con pulso antes de la primera nota (menos la anacrusa, que ya es canción).
+  const entradaSegundos = (pulsosPorCompas - anacrusa) * pulso;
+  const velocidad = PIXELES_POR_PULSO / pulso;
+
   let partida = null;
   let lector = null;
   let animacion = null;
-  let ultimoTiempo = null;
-  let ultimaNotaGuiada = null;
+  let inicioAudio = null;
+  let ultimaPuertaAnunciada = null;
   let vozActual = null;
   let destruido = false;
 
@@ -41,17 +53,24 @@ export function crearEjercicioReto(ejercicio, { contenedor, alTerminar, fijarAcc
     corazones.setAttribute('aria-label', `${TEXTOS.juego.vidas}: ${vidas}`);
   }
 
-  function guiarNota(puerta) {
-    if (!puerta || puerta === ultimaNotaGuiada) return;
-    ultimaNotaGuiada = puerta;
+  function anunciarNota(puerta) {
+    if (!puerta || puerta === ultimaPuertaAnunciada) return;
+    ultimaPuertaAnunciada = puerta;
     estado.textContent = TEXTOS.juego.siguienteNota(nombreNota(puerta.nota));
-    audio.reproducirNota(puerta.nota, DURACION_NOTA_GUIA_SEGUNDOS, { ganancia: GANANCIA_ACOMPANAMIENTO });
+  }
+
+  // Piano con la canción, melodía de fondo y un clic en cada pulso (acentuado al empezar el compás).
+  function programarMusica() {
+    const pulsosTotales = pulsosPorCompas + compases * pulsosPorCompas;
+    for (let indice = 0; indice < pulsosTotales; indice++) audio.clickMetronomo(inicioAudio + indice * pulso, indice % pulsosPorCompas === 0);
+    audio.reproducirAcompanamiento(ejercicio.acompanamiento, { cuando: inicioAudio + pulsosPorCompas * pulso, ganancia: GANANCIA_ACOMPANAMIENTO });
+    audio.reproducirSecuencia(ejercicio.notas, ejercicio.tempo, { cuando: inicioAudio + entradaSegundos, instrumento: 'piano', ganancia: GANANCIA_MELODIA });
   }
 
   function terminar() {
     lector?.detener();
+    audio.detenerTodo();
     const superadas = partida.puertasSuperadas;
-    const total = ejercicio.notas.length;
     alTerminar({
       puntuacion: Math.round((superadas / total) * PUNTUACION_MAXIMA),
       titulo: superadas === total ? T.perfecto : undefined,
@@ -59,17 +78,17 @@ export function crearEjercicioReto(ejercicio, { contenedor, alTerminar, fijarAcc
     });
   }
 
-  function bucle(ahora) {
+  function bucle() {
     if (!partida || destruido) return;
-    const dt = ultimoTiempo === null ? 0 : Math.min(PASO_MAXIMO_SEGUNDOS, (ahora - ultimoTiempo) / 1000);
-    ultimoTiempo = ahora;
+    const tiempo = audio.ahora() - inicioAudio;
+    const dt = Math.max(0, Math.min(PASO_MAXIMO_SEGUNDOS, tiempo - partida.tiempo));
     fijarVoz(partida, vozActual);
     const eventos = avanzar(partida, dt);
     for (const evento of eventos) {
-      if (evento.tipo === 'puerta') marcador.textContent = `${partida.puertasSuperadas}/${ejercicio.notas.length}`;
+      if (evento.tipo === 'puerta') marcador.textContent = `${partida.puertasSuperadas}/${total}`;
       if (evento.tipo === 'choque') pintarVidas(partida.vidas);
     }
-    guiarNota(puertaSiguiente(partida));
+    anunciarNota(puertaSiguiente(partida));
     vista.dibujar(partida);
     if (partida.estado === 'terminada') {
       terminar();
@@ -78,16 +97,21 @@ export function crearEjercicioReto(ejercicio, { contenedor, alTerminar, fijarAcc
     animacion = requestAnimationFrame(bucle);
   }
 
-  function comenzar() {
+  async function comenzar() {
     fijarAcciones([]);
+    await audio.prepararPiano();
+    if (destruido) return;
     const { ancho, alto } = vista.medidas();
-    partida = crearPartida(ejercicio.rango, { ancho, alto, secuencia: ejercicio.notas });
+    const partitura = ejercicio.partitura.map((nota) => ({ midi: nota.midi, inicio: entradaSegundos + nota.inicio * pulso, duracion: nota.duracion * pulso }));
+    partida = crearPartida(ejercicio.rango, { ancho, alto, partitura, velocidad });
     pintarVidas(VIDAS_INICIALES);
     lector = audio.crearLector((lectura) => {
       if (lectura.guia) return;
       vozActual = lectura.voz ? lectura.midi : null;
     });
     lector.iniciar();
+    inicioAudio = audio.ahora() + RETARDO_INICIO_SEGUNDOS;
+    programarMusica();
     empezar(partida);
     animacion = requestAnimationFrame(bucle);
   }
@@ -103,6 +127,7 @@ export function crearEjercicioReto(ejercicio, { contenedor, alTerminar, fijarAcc
       destruido = true;
       if (animacion !== null) cancelAnimationFrame(animacion);
       lector?.detener();
+      audio.detenerTodo();
       vista.destruir();
     },
   };
