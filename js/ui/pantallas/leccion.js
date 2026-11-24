@@ -43,7 +43,10 @@ export function crearPantallaLeccion({ id }) {
 
   const esRutina = leccion.id === RUTINA_DIARIA.id;
   const enCurso = leerLeccionEnCurso(leccion.id);
-  let ejercicios = enCurso?.ejercicios ?? instanciarEjercicios(leccion.ejercicios, rangoVocalEfectivo(obtenerEstado()));
+  let ejercicios = enCurso?.ejercicios ?? instanciarEjercicios(leccion.ejercicios, rangoVocalEfectivo(obtenerEstado()), {
+    nivelOido: habilidadOido(obtenerEstado()).nivel,
+    oidoDominado: oidoDominado(obtenerEstado()),
+  });
   const puntuaciones = enCurso?.puntuaciones ?? [];
   let indice = enCurso?.indice ?? 0;
   let ejercicioActual = null;

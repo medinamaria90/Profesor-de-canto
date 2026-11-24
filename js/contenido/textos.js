@@ -137,6 +137,8 @@ export const TEXTOS = {
     },
     escucha: {
       titulo: 'Oído',
+      tituloNivel: (nivel) => `Oído · nivel ${nivel}`,
+      pista: 'Están muy cerca: afina el oído.',
       preguntaAgudo: '¿Cuál de las dos notas es más aguda?',
       preguntaIgual: '¿Las dos notas son iguales o diferentes?',
       primera: 'La primera',

@@ -1,12 +1,13 @@
 // Convierte las plantillas de una lección (grados relativos) en ejercicios concretos adaptados al rango vocal.
 
 import { gradosDeMelodia } from '../musica/melodias.js';
+import { SEMITONOS_POR_NIVEL_OIDO, NIVEL_OIDO_MINIMO } from '../estado/progreso.js';
 
 export const DURACION_SIRENA_SEGUNDOS = 12;
 export const DURACION_NOTA_POR_DEFECTO = 3;
-export const INTERVALO_MINIMO_ESCUCHA = 2;
-export const INTERVALO_MAXIMO_ESCUCHA = 7;
-export const INTERVALO_MAXIMO_ESCUCHA_IGUAL = 3;
+// Nivel 1: intervalos de 2 a 7 semitonos; a partir del 2 el intervalo es fijo y cada vez más pequeño.
+export const INTERVALO_MAXIMO_ESCUCHA_NIVEL_1 = 7;
+const GRADOS_PARA_SUSTITUIR_OIDO = [0, 2, 4, 5, 7];
 export const RESPIRACION_POR_DEFECTO = { inhalar: 4, retener: 4, exhalar: 6 };
 
 function gradosDePlantilla(plantilla) {
@@ -34,28 +35,46 @@ function enteroAleatorio(aleatorio, minimo, maximo) {
   return minimo + Math.floor(aleatorio() * (maximo - minimo + 1));
 }
 
-function instanciarEscucha(plantilla, rango, aleatorio) {
+// Intervalo entre las dos notas según el nivel de oído: amplio y variable al principio, fijo y diminuto después.
+function intervaloDeOido(nivel, aleatorio) {
+  const minimo = SEMITONOS_POR_NIVEL_OIDO[nivel] ?? SEMITONOS_POR_NIVEL_OIDO[NIVEL_OIDO_MINIMO];
+  if (nivel <= NIVEL_OIDO_MINIMO) return enteroAleatorio(aleatorio, minimo, INTERVALO_MAXIMO_ESCUCHA_NIVEL_1);
+  return minimo;
+}
+
+function instanciarEscucha(plantilla, rango, aleatorio, nivelOido) {
   const centro = Math.round((rango.minimo + rango.maximo) / 2);
+  const intervalo = intervaloDeOido(nivelOido, aleatorio);
   if (plantilla.variante === 'igual') {
     const sonIguales = aleatorio() < 0.5;
     const primera = enteroAleatorio(aleatorio, centro - 4, centro + 2);
-    const salto = sonIguales ? 0 : enteroAleatorio(aleatorio, 1, INTERVALO_MAXIMO_ESCUCHA_IGUAL) * (aleatorio() < 0.5 ? -1 : 1);
-    return { tipo: 'escucha', variante: 'igual', notas: [primera, primera + salto], respuestaCorrecta: sonIguales ? 'iguales' : 'diferentes' };
+    const salto = sonIguales ? 0 : intervalo * (aleatorio() < 0.5 ? -1 : 1);
+    return { tipo: 'escucha', variante: 'igual', nivel: nivelOido, notas: [primera, primera + salto], respuestaCorrecta: sonIguales ? 'iguales' : 'diferentes' };
   }
   const grave = enteroAleatorio(aleatorio, centro - 5, centro + 1);
-  const agudo = grave + enteroAleatorio(aleatorio, INTERVALO_MINIMO_ESCUCHA, INTERVALO_MAXIMO_ESCUCHA);
+  const agudo = grave + intervalo;
   const agudaPrimero = aleatorio() < 0.5;
   return {
     tipo: 'escucha',
     variante: 'agudo',
+    nivel: nivelOido,
     notas: agudaPrimero ? [agudo, grave] : [grave, agudo],
     respuestaCorrecta: agudaPrimero ? 'primera' : 'segunda',
   };
 }
 
-export function instanciarEjercicios(plantillas, rango, aleatorio = Math.random) {
-  const base = calcularNotaBase(plantillas, rango);
-  return plantillas.map((plantilla, indice) => {
+// Cuando el oído está dominado, el ejercicio de escucha se convierte en cantar una nota tras oír dos.
+function sustituirEscuchaPorCanto(plantilla, aleatorio) {
+  const grado = GRADOS_PARA_SUSTITUIR_OIDO[Math.floor(aleatorio() * GRADOS_PARA_SUSTITUIR_OIDO.length)];
+  return { tipo: 'nota', grado, escuchar: [0, grado], duracion: DURACION_NOTA_POR_DEFECTO };
+}
+
+// opciones: { aleatorio, nivelOido, oidoDominado }
+export function instanciarEjercicios(plantillas, rango, opciones = {}) {
+  const { aleatorio = Math.random, nivelOido = NIVEL_OIDO_MINIMO, oidoDominado = false } = typeof opciones === 'function' ? { aleatorio: opciones } : opciones;
+  const definitivas = plantillas.map((plantilla) => (plantilla.tipo === 'escucha' && oidoDominado ? sustituirEscuchaPorCanto(plantilla, aleatorio) : plantilla));
+  const base = calcularNotaBase(definitivas, rango);
+  return definitivas.map((plantilla, indice) => {
     const comun = { id: `${plantilla.tipo}-${indice}`, tipo: plantilla.tipo };
     switch (plantilla.tipo) {
       case 'respiracion':
@@ -77,7 +96,7 @@ export function instanciarEjercicios(plantillas, rango, aleatorio = Math.random)
           notas: plantilla.melodia.notas.map(([grado, pulsos]) => ({ midi: grado === null ? null : base + grado, pulsos })),
         };
       case 'escucha':
-        return { ...comun, ...instanciarEscucha(plantilla, rango, aleatorio) };
+        return { ...comun, ...instanciarEscucha(plantilla, rango, aleatorio, nivelOido) };
       default:
         throw new Error(`Tipo de ejercicio desconocido: ${plantilla.tipo}`);
     }

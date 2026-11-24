@@ -30,6 +30,15 @@ test('todas las lecciones del camino caben en el rango estándar', () => {
   }
 });
 
+test('el nivel de oído estrecha el intervalo y, dominado, sustituye el oído por canto', () => {
+  const [facil] = instanciarEjercicios([{ tipo: 'escucha', variante: 'agudo' }], RANGO, { aleatorio: aleatorioFijo([0.2, 0.9, 0.1]), nivelOido: 1 });
+  assert.ok(Math.abs(facil.notas[0] - facil.notas[1]) >= 2);
+  const [fino] = instanciarEjercicios([{ tipo: 'escucha', variante: 'agudo' }], RANGO, { aleatorio: aleatorioFijo([0.2, 0.9, 0.1]), nivelOido: 4 });
+  assert.equal(Math.abs(fino.notas[0] - fino.notas[1]), 0.25);
+  const [cantado] = instanciarEjercicios([{ tipo: 'escucha', variante: 'agudo' }], RANGO, { aleatorio: aleatorioFijo([0.2]), oidoDominado: true });
+  assert.equal(cantado.tipo, 'nota');
+});
+
 test('los ejercicios de oído tienen respuesta coherente con las notas', () => {
   const [agudo] = instanciarEjercicios([{ tipo: 'escucha', variante: 'agudo' }], RANGO, aleatorioFijo([0.2, 0.9, 0.1]));
   const masAguda = agudo.notas[0] > agudo.notas[1] ? 'primera' : 'segunda';

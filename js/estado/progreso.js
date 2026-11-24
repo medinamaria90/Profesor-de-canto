@@ -35,7 +35,42 @@ export const ESTADO_INICIAL = Object.freeze({
   historialRango: [],
   logros: {},
   juegos: {},
+  oido: { nivel: 1, racha: 0, aciertos: 0, intentos: 0 },
 });
+
+export const NIVEL_OIDO_MINIMO = 1;
+export const NIVEL_OIDO_MAXIMO = 4;
+// Intervalo mínimo entre las dos notas, en semitonos, por nivel de oído.
+export const SEMITONOS_POR_NIVEL_OIDO = { 1: 2, 2: 1, 3: 0.5, 4: 0.25 };
+export const ACIERTOS_PARA_SUBIR_NIVEL = 3;
+// Con el nivel máximo y esta racha, el oído ya no se pregunta: se cambia por cantar.
+export const RACHA_PARA_DEJAR_DE_PREGUNTAR = 3;
+
+export function habilidadOido(estado) {
+  return estado.oido ?? ESTADO_INICIAL.oido;
+}
+
+// Escalera adaptativa: tres aciertos seguidos suben de nivel, un fallo baja uno.
+export function registrarRespuestaOido(estado, acierto) {
+  const actual = habilidadOido(estado);
+  let nivel = actual.nivel;
+  let racha = acierto ? actual.racha + 1 : 0;
+  if (acierto && racha >= ACIERTOS_PARA_SUBIR_NIVEL && nivel < NIVEL_OIDO_MAXIMO) {
+    nivel++;
+    racha = 0;
+  } else if (!acierto) {
+    nivel = Math.max(NIVEL_OIDO_MINIMO, nivel - 1);
+  }
+  return {
+    ...estado,
+    oido: { nivel, racha, aciertos: actual.aciertos + (acierto ? 1 : 0), intentos: actual.intentos + 1 },
+  };
+}
+
+export function oidoDominado(estado) {
+  const { nivel, racha } = habilidadOido(estado);
+  return nivel >= NIVEL_OIDO_MAXIMO && racha >= RACHA_PARA_DEJAR_DE_PREGUNTAR;
+}
 
 export function fechaClave(fecha = new Date()) {
   const anio = fecha.getFullYear();

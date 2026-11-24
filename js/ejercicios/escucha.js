@@ -5,6 +5,8 @@ import { icono } from '../ui/componentes/iconos.js';
 import { crearCabeceraEjercicio, crearEstadoEjercicio, reproducirGuia, SEGUNDOS_ENTRE_NOTAS_GUIA } from './comun.js';
 import { PUNTUACION_MAXIMA } from './puntuacion.js';
 import { TEXTOS } from '../contenido/textos.js';
+import { actualizarEstado } from '../estado/tienda.js';
+import { registrarRespuestaOido } from '../estado/progreso.js';
 
 const T = TEXTOS.ejercicios.escucha;
 const MS_POR_SEGUNDO = 1000;
@@ -22,7 +24,7 @@ const OPCIONES_POR_VARIANTE = {
 
 export function crearEjercicioEscucha(ejercicio, { contenedor, alTerminar, fijarAcciones }) {
   const pregunta = ejercicio.variante === 'agudo' ? T.preguntaAgudo : T.preguntaIgual;
-  const cabecera = crearCabeceraEjercicio(T.titulo, pregunta);
+  const cabecera = crearCabeceraEjercicio(T.tituloNivel(ejercicio.nivel ?? 1), ejercicio.nivel >= 2 ? `${pregunta} ${T.pista}` : pregunta);
   const estado = crearEstadoEjercicio();
   const fichas = ejercicio.notas.map((_, indice) =>
     el('div', { clase: 'escucha__ficha', 'aria-hidden': 'true' }, icono('nota', { tamano: 28 }), el('span', { texto: String(indice + 1) })),
@@ -67,6 +69,7 @@ export function crearEjercicioEscucha(ejercicio, { contenedor, alTerminar, fijar
     if (respondido) return;
     respondido = true;
     const acierto = valor === ejercicio.respuestaCorrecta;
+    actualizarEstado((estado) => registrarRespuestaOido(estado, acierto));
     botones.forEach((boton, indice) => {
       boton.disabled = true;
       const opcion = OPCIONES_POR_VARIANTE[ejercicio.variante][indice];

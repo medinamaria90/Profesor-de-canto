@@ -14,6 +14,10 @@ import {
   XP_RUTINA_DIARIA,
   guardarRangoVocal,
   mejoraDelRango,
+  registrarRespuestaOido,
+  habilidadOido,
+  oidoDominado,
+  NIVEL_OIDO_MAXIMO,
 } from '../js/estado/progreso.js';
 import { evaluarLogros } from '../js/contenido/logros.js';
 import { leccionDesbloqueada } from '../js/contenido/curriculum.js';
@@ -85,6 +89,19 @@ test('el rango medido se apunta en el historial, una entrada por día', () => {
   assert.deepEqual(estado.rangoVocal, { minimo: 48, maximo: 64 });
   assert.equal(mejoraDelRango(estado), 4);
   assert.equal(mejoraDelRango(ESTADO_INICIAL), 0);
+});
+
+test('el oído sube de nivel con tres aciertos seguidos y baja con un fallo', () => {
+  let estado = ESTADO_INICIAL;
+  for (let i = 0; i < 3; i++) estado = registrarRespuestaOido(estado, true);
+  assert.equal(habilidadOido(estado).nivel, 2);
+  assert.equal(habilidadOido(estado).racha, 0);
+  estado = registrarRespuestaOido(estado, false);
+  assert.equal(habilidadOido(estado).nivel, 1);
+  for (let i = 0; i < 12; i++) estado = registrarRespuestaOido(estado, true);
+  assert.equal(habilidadOido(estado).nivel, NIVEL_OIDO_MAXIMO);
+  assert.equal(oidoDominado(estado), true);
+  assert.equal(habilidadOido(estado).intentos, 16);
 });
 
 test('migrar completa estados antiguos o corruptos', () => {
