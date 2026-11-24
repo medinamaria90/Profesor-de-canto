@@ -18,6 +18,17 @@ export function creditoMuestra(cents) {
   return (TOLERANCIA_CENTS_AMPLIA - desvio) / (TOLERANCIA_CENTS_AMPLIA - TOLERANCIA_CENTS_AFINADO);
 }
 
+// Fracción de muestras que se tiene en cuenta cuando se puntúa con tolerancia a las transiciones.
+export const FRACCION_MEJORES_MUESTRAS = 0.75;
+
+// Descarta las muestras más desviadas (ataques, cambios de nota) y puntúa con el resto.
+export function puntuarMuestrasTolerante(centsMuestras, fraccion = FRACCION_MEJORES_MUESTRAS) {
+  if (!centsMuestras.length) return puntuarMuestras(centsMuestras);
+  const ordenadas = [...centsMuestras].sort((a, b) => Math.abs(a) - Math.abs(b));
+  const cuantas = Math.max(1, Math.round(ordenadas.length * fraccion));
+  return puntuarMuestras(ordenadas.slice(0, cuantas));
+}
+
 export function puntuarMuestras(centsMuestras) {
   if (!centsMuestras.length) {
     return { puntuacion: 0, porcentajeAfinado: 0, errorMedio: null };

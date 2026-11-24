@@ -4,7 +4,7 @@ import { el } from '../ui/dom.js';
 import { nombreNota, CENTS_POR_SEMITONO } from '../musica/notas.js';
 import { crearAfinadorVisual } from '../ui/componentes/afinador-visual.js';
 import { crearBarraProgreso } from '../ui/componentes/barra-progreso.js';
-import { puntuarMuestras } from './puntuacion.js';
+import { puntuarMuestrasTolerante } from './puntuacion.js';
 import { crearCabeceraEjercicio, crearEstadoEjercicio, reproducirGuia, capturarTrasVoz } from './comun.js';
 import { TEXTOS } from '../contenido/textos.js';
 
@@ -66,7 +66,7 @@ export function crearEjercicioNota(ejercicio, { contenedor, alTerminar, fijarAcc
       }
       estado.textContent = '';
       const cents = resultado.muestras.map((muestra) => (muestra.midi - ejercicio.midi) * CENTS_POR_SEMITONO);
-      const puntuacion = puntuarMuestras(cents);
+      const puntuacion = puntuarMuestrasTolerante(cents);
       alTerminar({
         puntuacion: puntuacion.puntuacion,
         detalle: TEXTOS.leccion.precisionFormato(puntuacion.porcentajeAfinado),

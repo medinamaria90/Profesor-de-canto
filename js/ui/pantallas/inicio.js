@@ -1,6 +1,6 @@
 // Pantalla principal: resumen del día, rutina de calentamiento y camino de lecciones.
 
-import { el } from '../dom.js';
+import { el, prefiereMenosMovimiento } from '../dom.js';
 import { crearBoton } from '../componentes/boton.js';
 import { icono } from '../componentes/iconos.js';
 import { crearAnilloProgreso } from '../componentes/anillo-progreso.js';
@@ -130,6 +130,10 @@ export function crearPantallaInicio() {
     elemento,
     montado() {
       consumirAvisosPendientes().forEach((texto, indice) => mostrarAviso(texto, { retrasoMs: indice * DURACION_AVISO_MS }));
+      const nodoActual = elemento.querySelector('.camino__boton--actual');
+      if (nodoActual) {
+        requestAnimationFrame(() => nodoActual.scrollIntoView({ block: 'center', behavior: prefiereMenosMovimiento() ? 'auto' : 'smooth' }));
+      }
     },
   };
 }

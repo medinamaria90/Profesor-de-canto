@@ -106,8 +106,9 @@ export function capturarEnTiempo({ inicioAudio, duracion, alTiempo, alMuestra })
     resolverPromesa(resultado);
   };
 
+  const latencia = audio.latenciaSegundos();
   const lector = audio.crearLector((lectura) => {
-    const tiempo = audio.ahora() - inicioAudio;
+    const tiempo = audio.ahora() - inicioAudio - latencia;
     alTiempo?.(tiempo);
     if (tiempo >= 0 && lectura.voz) {
       muestras.push({ tiempo, midi: lectura.midi });

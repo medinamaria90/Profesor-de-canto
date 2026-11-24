@@ -5,7 +5,7 @@ import { audio } from '../audio/servicio-audio.js';
 import { segundosPorPulso, GANANCIA_ACOMPANAMIENTO } from '../audio/sintetizador.js';
 import { CENTS_POR_SEMITONO } from '../musica/notas.js';
 import { crearPianoRoll } from '../ui/componentes/piano-roll.js';
-import { puntuarMuestras, puntuarMelodia, UMBRAL_DOS_ESTRELLAS } from './puntuacion.js';
+import { puntuarMuestras, puntuarMuestrasTolerante, puntuarMelodia, UMBRAL_DOS_ESTRELLAS } from './puntuacion.js';
 import { crearCabeceraEjercicio, crearEstadoEjercicio, capturarEnTiempo } from './comun.js';
 import { TEXTOS } from '../contenido/textos.js';
 
@@ -13,7 +13,7 @@ const T = TEXTOS.ejercicios.melodia;
 const PULSOS_CUENTA_ATRAS = 2;
 const RETARDO_INICIO_SEGUNDOS = 0.15;
 // El arranque de cada nota se ignora para no penalizar el tiempo de reacción.
-const FRACCION_INICIO_IGNORADA = 0.2;
+const FRACCION_INICIO_IGNORADA = 0.3;
 const COLA_TRAS_MELODIA_SEGUNDOS = 0.3;
 
 export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijarAcciones }) {
@@ -94,7 +94,7 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
       const cents = muestras
         .filter((muestra) => muestra.tiempo >= desde && muestra.tiempo < segmento.fin)
         .map((muestra) => (muestra.midi - segmento.midi) * CENTS_POR_SEMITONO);
-      const { puntuacion } = puntuarMuestras(cents);
+      const { puntuacion } = puntuarMuestrasTolerante(cents);
       puntuaciones.push(puntuacion);
       todosLosCents.push(...cents);
       if (puntuacion >= UMBRAL_DOS_ESTRELLAS) afinadas++;

@@ -6,6 +6,10 @@ import { crearEntradaSimulada } from './entrada-simulada.js';
 import { crearLectorTono } from './lector-tono.js';
 import * as sintetizador from './sintetizador.js';
 import { CONFIGURACION } from '../nucleo/configuracion.js';
+import { TAMANO_BLOQUE } from './microfono.js';
+
+// Si el navegador no informa de su latencia de salida, se asume la típica de un móvil.
+const LATENCIA_SALIDA_POR_DEFECTO_SEGUNDOS = 0.08;
 
 let entrada = null;
 let aperturaPendiente = null;
@@ -58,6 +62,15 @@ export const audio = {
 
   ahora() {
     return obtenerContexto().currentTime;
+  },
+
+  // Desfase entre el instante programado de un sonido y el momento en que la voz que lo sigue
+  // llega analizada: lo que tarda el altavoz, lo que tarda el micrófono y medio bloque de análisis.
+  latenciaSegundos() {
+    const contexto = obtenerContexto();
+    const salida = contexto.outputLatency || LATENCIA_SALIDA_POR_DEFECTO_SEGUNDOS;
+    const entrada = contexto.baseLatency || 0;
+    return salida + entrada + TAMANO_BLOQUE / contexto.sampleRate / 2;
   },
 
   reproducirNota(midi, duracion, opciones) {

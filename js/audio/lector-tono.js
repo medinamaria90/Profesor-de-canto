@@ -3,7 +3,7 @@
 import { detectarTono, calcularRms } from './deteccion-tono.js';
 import { frecuenciaAMidi, midiAFrecuencia } from '../musica/notas.js';
 
-const TAMANO_MEDIANA = 5;
+const TAMANO_MEDIANA = 3;
 // Se promedian pares de muestras antes de detectar: la voz cabe de sobra en la mitad de la frecuencia
 // de muestreo y la autocorrelación cuesta cuatro veces menos.
 const FACTOR_DIEZMADO = 2;

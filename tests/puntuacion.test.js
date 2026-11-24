@@ -1,11 +1,18 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { puntuarMuestras, puntuarSirena, puntuarMelodia, calcularEstrellas, calificarResultado, creditoMuestra } from '../js/ejercicios/puntuacion.js';
+import { puntuarMuestras, puntuarMuestrasTolerante, puntuarSirena, puntuarMelodia, calcularEstrellas, calificarResultado, creditoMuestra } from '../js/ejercicios/puntuacion.js';
 
 test('muestras afinadas dan 100 y fuera de tolerancia dan 0', () => {
   assert.equal(puntuarMuestras([0, 10, -20, 49]).puntuacion, 100);
   assert.equal(puntuarMuestras([150, -200, 300]).puntuacion, 0);
   assert.equal(puntuarMuestras([]).puntuacion, 0);
+});
+
+test('la puntuación tolerante ignora el cuarto de muestras más desviado', () => {
+  const muestras = [0, 5, -10, 20, 300, 400, 10, -15];
+  assert.ok(puntuarMuestras(muestras).puntuacion < 80);
+  assert.equal(puntuarMuestrasTolerante(muestras).puntuacion, 100);
+  assert.equal(puntuarMuestrasTolerante([]).puntuacion, 0);
 });
 
 test('el crédito decrece linealmente entre 50 y 100 cents', () => {
