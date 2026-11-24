@@ -6,6 +6,7 @@ import { crearPantallaInicio } from './ui/pantallas/inicio.js';
 import { crearPantallaLeccion } from './ui/pantallas/leccion.js';
 import { crearPantallaResultados } from './ui/pantallas/resultados.js';
 import { crearPantallaAfinador } from './ui/pantallas/afinador.js';
+import { crearPantallaJuego } from './ui/pantallas/juego.js';
 import { crearPantallaPerfil } from './ui/pantallas/perfil.js';
 import { crearPantallaBienvenida } from './ui/pantallas/bienvenida.js';
 import { crearPantallaRangoVocal } from './ui/pantallas/rango-vocal.js';
@@ -27,6 +28,7 @@ function arrancar() {
   const contenedor = document.getElementById('contenido');
   const navegacion = crearNavegacion([
     { camino: '/', texto: TEXTOS.navegacion.aprender, icono: 'nota' },
+    { camino: '/jugar', texto: TEXTOS.navegacion.jugar, icono: 'mando' },
     { camino: '/afinador', texto: TEXTOS.navegacion.afinador, icono: 'ecualizador' },
     { camino: '/perfil', texto: TEXTOS.navegacion.perfil, icono: 'persona' },
   ]);
@@ -35,6 +37,7 @@ function arrancar() {
   registrarRuta('/', crearPantallaInicio);
   registrarRuta('/leccion/:id', crearPantallaLeccion);
   registrarRuta('/resultados', crearPantallaResultados);
+  registrarRuta('/jugar', crearPantallaJuego);
   registrarRuta('/afinador', crearPantallaAfinador);
   registrarRuta('/perfil', crearPantallaPerfil);
   registrarRuta('/bienvenida', crearPantallaBienvenida);

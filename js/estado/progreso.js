@@ -33,6 +33,7 @@ export const ESTADO_INICIAL = Object.freeze({
   rutinasDiarias: {},
   rangoVocal: null,
   logros: {},
+  juegos: {},
 });
 
 export function fechaClave(fecha = new Date()) {
@@ -99,6 +100,22 @@ export function registrarLeccion(estado, { leccionId, puntuacion, estrellas, xp,
 export function registrarRutina(estado, puntuacion, hoy) {
   const conActividad = registrarActividad(estado, XP_RUTINA_DIARIA, hoy);
   return { ...conActividad, rutinasDiarias: { ...estado.rutinasDiarias, [hoy]: puntuacion } };
+}
+
+// Guarda el resultado de una partida de un minijuego: partidas jugadas y mejor marca.
+export function registrarPartida(estado, { juegoId, puntuacion, xp, hoy }) {
+  const anterior = estado.juegos[juegoId];
+  const registro = {
+    partidas: (anterior?.partidas ?? 0) + 1,
+    mejorPuntuacion: Math.max(anterior?.mejorPuntuacion ?? 0, puntuacion),
+    ultimaFecha: hoy,
+  };
+  const conActividad = registrarActividad(estado, xp, hoy);
+  return { ...conActividad, juegos: { ...estado.juegos, [juegoId]: registro } };
+}
+
+export function mejorPuntuacionJuego(estado, juegoId) {
+  return estado.juegos[juegoId]?.mejorPuntuacion ?? 0;
 }
 
 export function xpHoy(estado, hoy) {

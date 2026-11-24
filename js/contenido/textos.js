@@ -3,7 +3,25 @@
 export const TEXTOS = {
   app: { nombre: 'Alondra', eslogan: 'Aprende a cantar paso a paso' },
 
-  navegacion: { aprender: 'Aprender', afinador: 'Afinador', perfil: 'Perfil' },
+  navegacion: { aprender: 'Aprender', jugar: 'Jugar', afinador: 'Afinador', perfil: 'Perfil' },
+
+  juego: {
+    titulo: 'Bola cantora',
+    subtitulo: 'Tu voz mueve la bola: grave para bajar, agudo para subir. Pasa por el hueco de cada puerta.',
+    recordFormato: (puertas) => `Récord: ${puertas} puertas`,
+    sinRecord: 'Aún sin récord',
+    jugar: 'Jugar',
+    otraVez: 'Jugar otra vez',
+    volver: 'Volver',
+    vidas: 'Vidas',
+    puertas: 'Puertas',
+    siguienteNota: (nombre) => `Siguiente: ${nombre}`,
+    preparado: 'Canta para empezar a volar',
+    finTitulo: 'Fin de la partida',
+    finPuertas: (puertas) => (puertas === 1 ? '1 puerta superada' : `${puertas} puertas superadas`),
+    finXp: (xp) => `+${xp} XP`,
+    nuevoRecord: '¡Nuevo récord!',
+  },
 
   bienvenida: {
     titulo: 'Hola, voz nueva',

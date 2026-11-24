@@ -10,6 +10,8 @@ const RACHA_LOGRO_LARGA = 7;
 const LECCIONES_PERFECTAS_OBJETIVO = 5;
 const RUTINAS_OBJETIVO = 5;
 const PUNTUACION_RUISENOR = 95;
+const PUERTAS_LOGRO_BOLA = 10;
+export const JUEGO_BOLA_CANTORA = 'bola-cantora';
 
 export const LOGROS = [
   {
@@ -81,6 +83,13 @@ export const LOGROS = [
     titulo: 'Ruiseñor',
     descripcion: `Logra ${PUNTUACION_RUISENOR} o más en una lección.`,
     condicion: (estado) => Object.values(estado.lecciones).some((l) => l.mejorPuntuacion >= PUNTUACION_RUISENOR),
+  },
+  {
+    id: 'bola-10',
+    icono: '🎈',
+    titulo: 'Bola voladora',
+    descripcion: `Pasa ${PUERTAS_LOGRO_BOLA} puertas seguidas en la Bola cantora.`,
+    condicion: (estado) => (estado.juegos?.[JUEGO_BOLA_CANTORA]?.mejorPuntuacion ?? 0) >= PUERTAS_LOGRO_BOLA,
   },
 ];
 
