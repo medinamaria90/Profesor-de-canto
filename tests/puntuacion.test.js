@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { puntuarMuestras, puntuarMuestrasTolerante, puntuarSirena, puntuarMelodia, calcularEstrellas, calificarResultado, creditoMuestra } from '../js/ejercicios/puntuacion.js';
+import { puntuarMuestras, puntuarMuestrasTolerante, puntuarSirena, puntuarMelodia, calcularEstrellas, calificarResultado, creditoMuestra, estimarDesfase } from '../js/ejercicios/puntuacion.js';
 
 test('muestras afinadas dan 100 y fuera de tolerancia dan 0', () => {
   assert.equal(puntuarMuestras([0, 10, -20, 49]).puntuacion, 100);
@@ -33,6 +33,22 @@ test('sirena: siete semitonos es el máximo y debe subir de grave a agudo', () =
   const descendente = puntuarSirena([67, 65, 62, 60]);
   assert.equal(descendente.ascendente, false);
   assert.equal(descendente.puntuacion, 50);
+});
+
+test('el desfase estimado recupera el retraso con el que se cantó la melodía', () => {
+  const segmentos = [
+    { inicio: 0, fin: 1, midi: 60 },
+    { inicio: 1, fin: 2, midi: 64 },
+    { inicio: 2, fin: 3, midi: 67 },
+  ];
+  const retraso = 0.4;
+  const muestras = [];
+  for (let t = 0; t < 3; t += 0.05) {
+    const segmento = segmentos.find((s) => t >= s.inicio && t < s.fin);
+    muestras.push({ tiempo: t + retraso, midi: segmento.midi + 0.1 });
+  }
+  assert.ok(Math.abs(estimarDesfase(muestras, segmentos) - retraso) <= 0.02);
+  assert.equal(estimarDesfase([], segmentos), 0);
 });
 
 test('melodía es la media de sus notas', () => {

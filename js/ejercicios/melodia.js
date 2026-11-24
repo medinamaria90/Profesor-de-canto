@@ -5,7 +5,7 @@ import { audio } from '../audio/servicio-audio.js';
 import { segundosPorPulso, GANANCIA_ACOMPANAMIENTO } from '../audio/sintetizador.js';
 import { CENTS_POR_SEMITONO } from '../musica/notas.js';
 import { crearPianoRoll } from '../ui/componentes/piano-roll.js';
-import { puntuarMuestras, puntuarMuestrasTolerante, puntuarMelodia, UMBRAL_DOS_ESTRELLAS } from './puntuacion.js';
+import { puntuarMuestras, puntuarMuestrasTolerante, puntuarMelodia, estimarDesfase, UMBRAL_DOS_ESTRELLAS } from './puntuacion.js';
 import { crearCabeceraEjercicio, crearEstadoEjercicio, capturarEnTiempo } from './comun.js';
 import { TEXTOS } from '../contenido/textos.js';
 
@@ -84,7 +84,14 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
     });
   }
 
-  function evaluar(muestras) {
+  function evaluar(muestrasCrudas) {
+    // La voz llega con retraso (auriculares, altavoz, reacción): se alinea con la melodía antes de puntuar.
+    const desfase = estimarDesfase(muestrasCrudas, rollo.segmentos);
+    const muestras = muestrasCrudas.map((muestra) => ({ ...muestra, tiempo: muestra.tiempo - desfase }));
+    if (desfase > 0) {
+      audio.aprenderLatencia(desfase);
+      rollo.reemplazarEstela(muestras);
+    }
     const puntuaciones = [];
     const todosLosCents = [];
     let afinadas = 0;

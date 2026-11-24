@@ -1,5 +1,7 @@
 // Reglas de puntuación de los ejercicios. Lógica pura, sin pantalla ni audio.
 
+import { CENTS_POR_SEMITONO } from '../musica/notas.js';
+
 export const TOLERANCIA_CENTS_AFINADO = 50;
 export const TOLERANCIA_CENTS_AMPLIA = 100;
 export const PUNTUACION_MAXIMA = 100;
@@ -70,6 +72,33 @@ export function puntuarSirena(midiMuestras, semitonosObjetivo = SEMITONOS_SIRENA
   const base = Math.min(1, amplitud / semitonosObjetivo) * PUNTUACION_MAXIMA;
   const puntuacion = Math.round(ascendente ? base : base * FACTOR_PENALIZACION_SIRENA_DESCENDENTE);
   return { puntuacion, amplitud, ascendente };
+}
+
+export const DESFASE_MAXIMO_SEGUNDOS = 0.9;
+export const PASO_DESFASE_SEGUNDOS = 0.02;
+
+function segmentoEn(segmentos, tiempo) {
+  return segmentos.find((segmento) => tiempo >= segmento.inicio && tiempo < segmento.fin) ?? null;
+}
+
+// Busca el retraso (en segundos) con el que la voz encaja mejor con la melodía: absorbe la latencia
+// de auriculares Bluetooth, del altavoz y del tiempo de reacción. Empates: el desfase menor.
+export function estimarDesfase(muestras, segmentos, { desfaseMaximo = DESFASE_MAXIMO_SEGUNDOS, paso = PASO_DESFASE_SEGUNDOS } = {}) {
+  let mejorDesfase = 0;
+  let mejorCredito = -1;
+  for (let desfase = 0; desfase <= desfaseMaximo + 1e-9; desfase += paso) {
+    let credito = 0;
+    for (const muestra of muestras) {
+      const segmento = segmentoEn(segmentos, muestra.tiempo - desfase);
+      if (!segmento || segmento.midi === null) continue;
+      credito += creditoMuestra((muestra.midi - segmento.midi) * CENTS_POR_SEMITONO);
+    }
+    if (credito > mejorCredito + 1e-9) {
+      mejorCredito = credito;
+      mejorDesfase = desfase;
+    }
+  }
+  return Math.round(mejorDesfase * 1000) / 1000;
 }
 
 export function puntuarMelodia(puntuacionesNotas) {

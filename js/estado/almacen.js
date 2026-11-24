@@ -2,6 +2,7 @@
 
 const CLAVE_PROGRESO = 'alondra.progreso.v1';
 const CLAVE_MICROFONO = 'alondra.microfono-permitido';
+const CLAVE_LATENCIA = 'alondra.latencia-aprendida';
 
 let copiaEnMemoria = null;
 
@@ -41,11 +42,30 @@ export function guardarPermisoMicrofono() {
   }
 }
 
+export function leerLatenciaAprendida() {
+  try {
+    const valor = Number(window.localStorage.getItem(CLAVE_LATENCIA));
+    return Number.isFinite(valor) ? valor : 0;
+  } catch (error) {
+    console.warn('No se pudo leer la latencia aprendida.', error);
+    return 0;
+  }
+}
+
+export function guardarLatenciaAprendida(segundos) {
+  try {
+    window.localStorage.setItem(CLAVE_LATENCIA, String(segundos));
+  } catch (error) {
+    console.warn('No se pudo guardar la latencia aprendida.', error);
+  }
+}
+
 export function borrarProgreso() {
   copiaEnMemoria = null;
   try {
     window.localStorage.removeItem(CLAVE_PROGRESO);
     window.localStorage.removeItem(CLAVE_MICROFONO);
+    window.localStorage.removeItem(CLAVE_LATENCIA);
   } catch (error) {
     console.warn('No se pudo borrar el progreso guardado.', error);
   }

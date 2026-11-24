@@ -7,7 +7,10 @@ import { crearLectorTono } from './lector-tono.js';
 import * as sintetizador from './sintetizador.js';
 import { CONFIGURACION } from '../nucleo/configuracion.js';
 import { TAMANO_BLOQUE } from './microfono.js';
-import { leerPermisoMicrofono, guardarPermisoMicrofono } from '../estado/almacen.js';
+import { leerPermisoMicrofono, guardarPermisoMicrofono, leerLatenciaAprendida, guardarLatenciaAprendida } from '../estado/almacen.js';
+
+// La latencia aprendida se actualiza con suavidad para no saltar con una sola melodía rara.
+const PESO_LATENCIA_NUEVA = 0.5;
 
 // Si el navegador no informa de su latencia de salida, se asume la típica de un móvil.
 const LATENCIA_SALIDA_POR_DEFECTO_SEGUNDOS = 0.08;
@@ -86,7 +89,14 @@ export const audio = {
     const contexto = obtenerContexto();
     const salida = contexto.outputLatency || LATENCIA_SALIDA_POR_DEFECTO_SEGUNDOS;
     const entrada = contexto.baseLatency || 0;
-    return salida + entrada + TAMANO_BLOQUE / contexto.sampleRate / 2;
+    return salida + entrada + TAMANO_BLOQUE / contexto.sampleRate / 2 + leerLatenciaAprendida();
+  },
+
+  // Tras una melodía, el desfase sobrante que se detectó se incorpora a la latencia aprendida.
+  aprenderLatencia(desfaseSobrante) {
+    const actual = leerLatenciaAprendida();
+    const nueva = Math.max(0, actual + desfaseSobrante * PESO_LATENCIA_NUEVA);
+    guardarLatenciaAprendida(Math.round(nueva * 1000) / 1000);
   },
 
   reproducirNota(midi, duracion, opciones) {

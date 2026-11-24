@@ -153,6 +153,11 @@ export function crearPianoRoll(notas, tempo, { etiqueta } = {}) {
       const cents = segmento && segmento.midi !== null ? (midi - segmento.midi) * 100 : 0;
       estela.push({ tiempo: tiempoMuestra, midi, cents });
     },
+    // Sustituye la estela por muestras ya alineadas en el tiempo.
+    reemplazarEstela(muestras) {
+      estela.length = 0;
+      for (const muestra of muestras) this.registrarMuestra(muestra.tiempo, muestra.midi);
+    },
     marcarNota(indice, puntuacion) {
       segmentos[indice].estado = puntuacion;
       dibujar();
