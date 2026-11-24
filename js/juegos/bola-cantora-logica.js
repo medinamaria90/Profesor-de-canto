@@ -3,13 +3,19 @@
 
 export const VIDAS_INICIALES = 3;
 export const VELOCIDAD_INICIAL = 120; // píxeles por segundo
-export const VELOCIDAD_MAXIMA = 260;
-export const INCREMENTO_VELOCIDAD_POR_PUERTA = 6;
+export const VELOCIDAD_MAXIMA = 380;
+export const INCREMENTO_VELOCIDAD_POR_PUERTA = 9;
 export const SEPARACION_PUERTAS = 320; // píxeles entre puertas
 export const DISTANCIA_PRIMERA_PUERTA = 110; // la primera puerta aparece enseguida
 const PUERTAS_INICIALES = 4;
+// La puerta se va ensanchando: hay que aguantar la nota afinada mientras se cruza.
 export const ANCHO_PUERTA = 28;
+export const ANCHO_PUERTA_MAXIMO = 120;
+export const INCREMENTO_ANCHO_POR_PUERTA = 4;
+// El hueco se va estrechando: cada vez hace falta afinar más fino.
 export const ALTO_HUECO_RELATIVO = 0.26; // fracción del alto del escenario
+export const ALTO_HUECO_MINIMO_RELATIVO = 0.1;
+export const ESTRECHAMIENTO_POR_PUERTA = 0.0065;
 export const RADIO_BOLA = 14;
 export const X_BOLA_RELATIVA = 0.25;
 export const SUAVIZADO_ALTURA = 8; // cuanto mayor, más rápido sigue la bola a la voz
@@ -20,7 +26,22 @@ export const XP_POR_PUERTA = 2;
 export const XP_MAXIMO_PARTIDA = 40;
 export const PUERTAS_PARA_SUBIR_DIFICULTAD = 4;
 const SEMITONOS_ENTRE_PUERTAS_INICIAL = 4;
-const SEMITONOS_ENTRE_PUERTAS_MAXIMO = 7;
+const SEMITONOS_ENTRE_PUERTAS_MAXIMO = 12;
+
+// Dificultad según las puertas superadas: más rápido, puertas más anchas, huecos más estrechos y saltos mayores.
+// En modo secuencia (lecciones) no sube: la dificultad la pone la melodía.
+export function dificultad(puertasSuperadas) {
+  return {
+    velocidad: Math.min(VELOCIDAD_MAXIMA, VELOCIDAD_INICIAL + puertasSuperadas * INCREMENTO_VELOCIDAD_POR_PUERTA),
+    anchoPuerta: Math.min(ANCHO_PUERTA_MAXIMO, ANCHO_PUERTA + puertasSuperadas * INCREMENTO_ANCHO_POR_PUERTA),
+    huecoRelativo: Math.max(ALTO_HUECO_MINIMO_RELATIVO, ALTO_HUECO_RELATIVO - puertasSuperadas * ESTRECHAMIENTO_POR_PUERTA),
+    saltoMaximo: Math.min(SEMITONOS_ENTRE_PUERTAS_MAXIMO, SEMITONOS_ENTRE_PUERTAS_INICIAL + Math.floor(puertasSuperadas / PUERTAS_PARA_SUBIR_DIFICULTAD)),
+  };
+}
+
+function nivelDePartida(partida) {
+  return partida.secuencia ? 0 : partida.puertasSuperadas;
+}
 
 // Convierte una nota MIDI en altura relativa (0 = abajo, 1 = arriba) dentro del rango vocal.
 export function alturaDeMidi(midi, rango) {
@@ -41,7 +62,7 @@ function enteroAleatorio(aleatorio, minimo, maximo) {
 
 // La nota de cada puerta se aleja de la anterior como mucho unos semitonos, para que sea cantable.
 export function elegirNotaPuerta(notaAnterior, rango, puertasSuperadas, aleatorio) {
-  const salto = Math.min(SEMITONOS_ENTRE_PUERTAS_MAXIMO, SEMITONOS_ENTRE_PUERTAS_INICIAL + Math.floor(puertasSuperadas / PUERTAS_PARA_SUBIR_DIFICULTAD));
+  const salto = dificultad(puertasSuperadas).saltoMaximo;
   const minimo = Math.max(rango.minimo, notaAnterior - salto);
   const maximo = Math.min(rango.maximo, notaAnterior + salto);
   let nota = enteroAleatorio(aleatorio, minimo, maximo);
@@ -86,7 +107,8 @@ function anadirPuerta(partida, x) {
   }
   partida.ultimaNota = nota;
   partida.puertasCreadas++;
-  partida.puertas.push({ x, nota, superada: false, chocada: false });
+  const { anchoPuerta, huecoRelativo } = dificultad(nivelDePartida(partida));
+  partida.puertas.push({ x, nota, ancho: anchoPuerta, huecoRelativo, superada: false, chocada: false });
 }
 
 export function empezar(partida) {
@@ -104,7 +126,7 @@ export function yDeAltura(partida, altura) {
 
 export function huecoDePuerta(partida, puerta) {
   const centro = yDeAltura(partida, alturaDeMidi(puerta.nota, partida.rango));
-  const mitad = (ALTO_HUECO_RELATIVO * partida.alto) / 2;
+  const mitad = (puerta.huecoRelativo * partida.alto) / 2;
   return { arriba: centro - mitad, abajo: centro + mitad, centro };
 }
 
@@ -132,12 +154,12 @@ function comprobarPuertas(partida) {
   const eventos = [];
   for (const puerta of partida.puertas) {
     const xPuerta = puerta.x - partida.desplazamiento;
-    const dentroEnX = bola.x + RADIO_BOLA > xPuerta && bola.x - RADIO_BOLA < xPuerta + ANCHO_PUERTA;
+    const dentroEnX = bola.x + RADIO_BOLA > xPuerta && bola.x - RADIO_BOLA < xPuerta + puerta.ancho;
     if (!dentroEnX || puerta.superada || puerta.chocada) {
-      if (!puerta.superada && !puerta.chocada && xPuerta + ANCHO_PUERTA < bola.x - RADIO_BOLA) {
+      if (!puerta.superada && !puerta.chocada && xPuerta + puerta.ancho < bola.x - RADIO_BOLA) {
         puerta.superada = true;
         partida.puertasSuperadas++;
-        partida.velocidad = Math.min(VELOCIDAD_MAXIMA, partida.velocidad + INCREMENTO_VELOCIDAD_POR_PUERTA);
+        partida.velocidad = dificultad(nivelDePartida(partida)).velocidad;
         eventos.push({ tipo: 'puerta', nota: puerta.nota });
       }
       continue;
@@ -156,7 +178,7 @@ function comprobarPuertas(partida) {
 }
 
 function reciclarPuertas(partida) {
-  while (partida.puertas.length && partida.puertas[0].x - partida.desplazamiento < -ANCHO_PUERTA * 2) {
+  while (partida.puertas.length && partida.puertas[0].x - partida.desplazamiento < -partida.puertas[0].ancho * 2) {
     const ultima = partida.puertas[partida.puertas.length - 1];
     partida.puertas.shift();
     anadirPuerta(partida, ultima.x + SEPARACION_PUERTAS);
@@ -183,7 +205,7 @@ export function xDePuerta(partida, puerta) {
 }
 
 export function puertaSiguiente(partida) {
-  return partida.puertas.find((puerta) => !puerta.superada && !puerta.chocada && xDePuerta(partida, puerta) + ANCHO_PUERTA >= partida.bola.x - RADIO_BOLA) ?? null;
+  return partida.puertas.find((puerta) => !puerta.superada && !puerta.chocada && xDePuerta(partida, puerta) + puerta.ancho >= partida.bola.x - RADIO_BOLA) ?? null;
 }
 
 export function xpDePartida(puertasSuperadas) {

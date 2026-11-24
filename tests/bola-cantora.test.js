@@ -12,6 +12,13 @@ import {
   VIDAS_INICIALES,
   XP_MAXIMO_PARTIDA,
   SEPARACION_PUERTAS,
+  dificultad,
+  VELOCIDAD_INICIAL,
+  VELOCIDAD_MAXIMA,
+  ANCHO_PUERTA,
+  ANCHO_PUERTA_MAXIMO,
+  ALTO_HUECO_RELATIVO,
+  ALTO_HUECO_MINIMO_RELATIVO,
 } from '../js/juegos/bola-cantora-logica.js';
 
 const RANGO = { minimo: 48, maximo: 67 };
@@ -92,4 +99,47 @@ test('el XP de la partida crece con las puertas y tiene tope', () => {
   assert.equal(xpDePartida(0), 0);
   assert.equal(xpDePartida(5), 10);
   assert.equal(xpDePartida(500), XP_MAXIMO_PARTIDA);
+});
+
+test('la dificultad sube con las puertas y tiene topes', () => {
+  const inicio = dificultad(0);
+  assert.equal(inicio.velocidad, VELOCIDAD_INICIAL);
+  assert.equal(inicio.anchoPuerta, ANCHO_PUERTA);
+  assert.equal(inicio.huecoRelativo, ALTO_HUECO_RELATIVO);
+  const media = dificultad(12);
+  assert.ok(media.velocidad > inicio.velocidad);
+  assert.ok(media.anchoPuerta > inicio.anchoPuerta);
+  assert.ok(media.huecoRelativo < inicio.huecoRelativo);
+  assert.ok(media.saltoMaximo > inicio.saltoMaximo);
+  const tope = dificultad(200);
+  assert.equal(tope.velocidad, VELOCIDAD_MAXIMA);
+  assert.equal(tope.anchoPuerta, ANCHO_PUERTA_MAXIMO);
+  assert.equal(tope.huecoRelativo, ALTO_HUECO_MINIMO_RELATIVO);
+  assert.equal(tope.saltoMaximo, 12);
+});
+
+test('desafinar un semitono y medio pasa al principio pero no con el hueco estrecho', () => {
+  const abierta = crearPartida(RANGO, { aleatorio: aleatorioFijo });
+  const estrecha = crearPartida(RANGO, { aleatorio: aleatorioFijo });
+  estrecha.puertasSuperadas = 40;
+  estrecha.puertas = [];
+  estrecha.puertas.push({ x: 300, nota: 58, ancho: ANCHO_PUERTA_MAXIMO, huecoRelativo: ALTO_HUECO_MINIMO_RELATIVO, superada: false, chocada: false });
+  abierta.puertas = [{ x: 300, nota: 58, ancho: ANCHO_PUERTA, huecoRelativo: ALTO_HUECO_RELATIVO, superada: false, chocada: false }];
+  for (const partida of [abierta, estrecha]) {
+    partida.secuencia = [58];
+    partida.indiceSecuencia = 1;
+    empezar(partida);
+    simularHasta(partida, 6, () => 58 + 1.5);
+  }
+  assert.equal(abierta.vidas, VIDAS_INICIALES);
+  assert.equal(estrecha.vidas, VIDAS_INICIALES - 1);
+});
+
+test('en modo secuencia la dificultad no sube', () => {
+  const partida = crearPartida(RANGO, { aleatorio: aleatorioFijo, secuencia: Array.from({ length: 20 }, () => 58) });
+  empezar(partida);
+  simularHasta(partida, 40, () => 58);
+  assert.ok(partida.puertasSuperadas >= 10);
+  assert.equal(partida.velocidad, VELOCIDAD_INICIAL);
+  assert.ok(partida.puertas.every((puerta) => puerta.ancho === ANCHO_PUERTA && puerta.huecoRelativo === ALTO_HUECO_RELATIVO));
 });

@@ -4,7 +4,7 @@
 
 import { el, crearPaleta, ajustarCanvas } from '../ui/dom.js';
 import { nombreNota } from '../musica/notas.js';
-import { ANCHO_PUERTA, huecoDePuerta, xDePuerta, puertaSiguiente } from './bola-cantora-logica.js';
+import { huecoDePuerta, xDePuerta, puertaSiguiente } from './bola-cantora-logica.js';
 import { dibujarAlondra } from './dibujar-alondra.js';
 
 const TAMANO_ALONDRA = 52;
@@ -205,7 +205,7 @@ export function crearVistaBolaCantora() {
     contexto.textBaseline = 'middle';
     for (const puerta of partida.puertas) {
       const x = xDePuerta(partida, puerta);
-      if (x > ancho || x + ANCHO_PUERTA < 0) continue;
+      if (x > ancho || x + puerta.ancho < 0) continue;
       const hueco = huecoDePuerta(partida, puerta);
       let color = paleta.puerta;
       if (puerta.superada) color = paleta.puertaSuperada;
@@ -216,9 +216,9 @@ export function crearVistaBolaCantora() {
         contexto.shadowColor = color;
         contexto.shadowBlur = 16;
       }
-      rectanguloRedondeado(contexto, x, -RADIO_ESQUINA_PUERTA, ANCHO_PUERTA, hueco.arriba + RADIO_ESQUINA_PUERTA, RADIO_ESQUINA_PUERTA);
+      rectanguloRedondeado(contexto, x, -RADIO_ESQUINA_PUERTA, puerta.ancho, hueco.arriba + RADIO_ESQUINA_PUERTA, RADIO_ESQUINA_PUERTA);
       contexto.fill();
-      rectanguloRedondeado(contexto, x, hueco.abajo, ANCHO_PUERTA, partida.alto - hueco.abajo + RADIO_ESQUINA_PUERTA, RADIO_ESQUINA_PUERTA);
+      rectanguloRedondeado(contexto, x, hueco.abajo, puerta.ancho, partida.alto - hueco.abajo + RADIO_ESQUINA_PUERTA, RADIO_ESQUINA_PUERTA);
       contexto.fill();
       contexto.shadowBlur = 0;
       // Cartel con la nota, centrado en el hueco y siempre dentro del cuadro.
@@ -226,10 +226,10 @@ export function crearVistaBolaCantora() {
       const altoCartel = 22;
       const yCartel = Math.min(partida.alto - altoCartel - 4, Math.max(4, hueco.centro - altoCartel / 2));
       contexto.fillStyle = paleta.cartel;
-      rectanguloRedondeado(contexto, x + ANCHO_PUERTA / 2 - anchoCartel / 2, yCartel, anchoCartel, altoCartel, 6);
+      rectanguloRedondeado(contexto, x + puerta.ancho / 2 - anchoCartel / 2, yCartel, anchoCartel, altoCartel, 6);
       contexto.fill();
       contexto.fillStyle = paleta.cartelTexto;
-      contexto.fillText(nombreNota(puerta.nota, false), x + ANCHO_PUERTA / 2, yCartel + altoCartel / 2);
+      contexto.fillText(nombreNota(puerta.nota, false), x + puerta.ancho / 2, yCartel + altoCartel / 2);
     }
   }
 
