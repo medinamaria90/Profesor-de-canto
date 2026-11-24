@@ -6,7 +6,8 @@ import { segundosPorPulso, GANANCIA_ACOMPANAMIENTO } from '../audio/sintetizador
 import { PULSOS_POR_COMPAS } from '../musica/arreglos.js';
 import { CENTS_POR_SEMITONO } from '../musica/notas.js';
 import { crearPianoRoll } from '../ui/componentes/piano-roll.js';
-import { puntuarMuestras, puntuarMuestrasTolerante, puntuarMelodia, estimarDesfase, UMBRAL_DOS_ESTRELLAS } from './puntuacion.js';
+import { puntuarMuestrasTolerante, puntuarMelodia, estimarDesfase, UMBRAL_DOS_ESTRELLAS } from './puntuacion.js';
+import { puntuarPorNotas } from './alineacion-notas.js';
 import { crearCabeceraEjercicio, crearEstadoEjercicio, capturarEnTiempo } from './comun.js';
 import { TEXTOS } from '../contenido/textos.js';
 
@@ -16,6 +17,7 @@ const RETARDO_INICIO_SEGUNDOS = 0.15;
 // El arranque de cada nota se ignora para no penalizar el tiempo de reacción.
 const FRACCION_INICIO_IGNORADA = 0.3;
 const COLA_TRAS_MELODIA_SEGUNDOS = 0.3;
+const FRACCION_MISMO_LADO_PARA_CONSEJO = 0.75;
 
 export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijarAcciones }) {
   const esCancion = ejercicio.tipo === 'cancion';
@@ -103,26 +105,29 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
     });
   }
 
+  // Dos criterios y se da el mejor nota a nota: por tiempo (voz alineada con el desfase estimado) y por notas
+  // cantadas (altura y orden, sin depender del tiempo). Así un retraso del dispositivo nunca cuenta como desafinar.
   function evaluar(muestrasCrudas) {
-    // La voz llega con retraso (auriculares, altavoz, reacción): se alinea con la melodía antes de puntuar.
     const desfase = estimarDesfase(muestrasCrudas, rollo.segmentos);
     const muestras = muestrasCrudas.map((muestra) => ({ ...muestra, tiempo: muestra.tiempo - desfase }));
     if (desfase > 0) {
       audio.aprenderLatencia(desfase);
       rollo.reemplazarEstela(muestras);
     }
+    const porNotas = puntuarPorNotas(muestrasCrudas, rollo.segmentos);
     const puntuaciones = [];
-    const todosLosCents = [];
     let afinadas = 0;
+    let posicion = 0;
     for (const segmento of rollo.segmentos) {
       if (segmento.midi === null) continue;
       const desde = segmento.inicio + (segmento.fin - segmento.inicio) * FRACCION_INICIO_IGNORADA;
       const cents = muestras
         .filter((muestra) => muestra.tiempo >= desde && muestra.tiempo < segmento.fin)
         .map((muestra) => (muestra.midi - segmento.midi) * CENTS_POR_SEMITONO);
-      const { puntuacion } = puntuarMuestrasTolerante(cents);
+      const porTiempo = puntuarMuestrasTolerante(cents).puntuacion;
+      const puntuacion = Math.max(porTiempo, porNotas.porNota[posicion]?.puntuacion ?? 0);
+      posicion++;
       puntuaciones.push(puntuacion);
-      todosLosCents.push(...cents);
       if (puntuacion >= UMBRAL_DOS_ESTRELLAS) afinadas++;
       rollo.marcarNota(segmento.indice, puntuacion);
     }
@@ -131,8 +136,17 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
     alTerminar({
       puntuacion: puntuarMelodia(puntuaciones),
       detalle: `${T.notasFormato(afinadas, puntuaciones.length)} · ${T.desfaseFormato(desfase)}`,
-      errorMedio: puntuarMuestras(todosLosCents).errorMedio,
+      errorMedio: consejoFiable(porNotas) ? porNotas.errorMedio : null,
     });
+  }
+
+  // Solo se da el consejo "cantas alto/bajo" si casi todas las notas emparejadas se desvían hacia el mismo lado.
+  function consejoFiable(porNotas) {
+    const conCents = porNotas.porNota.filter((nota) => nota.cents !== null);
+    if (conCents.length < 3 || porNotas.errorMedio === null) return false;
+    const signo = Math.sign(porNotas.errorMedio);
+    const mismoLado = conCents.filter((nota) => Math.sign(nota.cents) === signo).length;
+    return mismoLado / conCents.length >= FRACCION_MISMO_LADO_PARA_CONSEJO;
   }
 
   return {

@@ -1,5 +1,5 @@
 // Generado por herramientas/generar-lista-sw.cjs; no editar a mano.
-self.VERSION_ARCHIVOS = 'mwutoz57';
+self.VERSION_ARCHIVOS = 'mwutupkv';
 self.ARCHIVOS_APP = [
   "./css/apaisado.css",
   "./css/base.css",
@@ -41,6 +41,7 @@ self.ARCHIVOS_APP = [
   "./js/contenido/logros.js",
   "./js/contenido/tecnicas.js",
   "./js/contenido/textos.js",
+  "./js/ejercicios/alineacion-notas.js",
   "./js/ejercicios/comun.js",
   "./js/ejercicios/escucha.js",
   "./js/ejercicios/indice.js",
