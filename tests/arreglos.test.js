@@ -1,35 +1,38 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { generarArreglo, acordeEnCompas, compasesDeMelodia, colocarEnRegistro, tonoDeAcorde, ESTILOS, PULSOS_POR_COMPAS } from '../js/musica/arreglos.js';
+import { generarArreglo, acordeVigente, compasesDeMelodia, colocarEnRegistro, tonoDeAcorde, ESTILOS } from '../js/musica/arreglos.js';
 
 const ACORDES = [
   { compas: 0, grados: [0, 4, 7] },
+  { compas: 1, pulso: 2, grados: [7, 11, 14] },
   { compas: 2, grados: [5, 9, 12] },
 ];
 
-test('el acorde vigente es el último definido hasta ese compás', () => {
-  assert.deepEqual(acordeEnCompas(ACORDES, 0).grados, [0, 4, 7]);
-  assert.deepEqual(acordeEnCompas(ACORDES, 1).grados, [0, 4, 7]);
-  assert.deepEqual(acordeEnCompas(ACORDES, 3).grados, [5, 9, 12]);
+test('el acorde vigente respeta compás y pulso, y antes del primer compás suena el primero', () => {
+  assert.deepEqual(acordeVigente(ACORDES, -1, 0).grados, [0, 4, 7]);
+  assert.deepEqual(acordeVigente(ACORDES, 1, 1).grados, [0, 4, 7]);
+  assert.deepEqual(acordeVigente(ACORDES, 1, 2).grados, [7, 11, 14]);
+  assert.deepEqual(acordeVigente(ACORDES, 3, 0).grados, [5, 9, 12]);
 });
 
-test('el arreglo pop genera mano izquierda y derecha en cada compás, dentro de la duración', () => {
-  const arreglo = generarArreglo(ACORDES, 4, 'pop');
-  const ultimoPulso = 4 * PULSOS_POR_COMPAS;
-  for (const lista of [arreglo.bajo, arreglo.acordes]) {
-    assert.ok(lista.length > 0);
-    assert.ok(lista.every((evento) => evento.pulso >= 0 && evento.pulso < ultimoPulso));
-  }
-  assert.equal(arreglo.bajo.filter((evento) => evento.pulso < PULSOS_POR_COMPAS).length, ESTILOS.pop.bajo.length);
-  assert.equal(arreglo.bajo[0].grado, -12);
+test('el arreglo en bloque toca un acorde en cada pulso, con entrada de un compás y el primero más fuerte', () => {
+  const arreglo = generarArreglo(ACORDES, 4, 'bloque', 4);
+  const entrada = arreglo.acordes.filter((evento) => evento.pulso < 0);
+  assert.equal(entrada.length, 4);
+  assert.ok(entrada.every((evento) => evento.grados[0] === 0));
+  const compasUno = arreglo.acordes.filter((evento) => evento.pulso >= 4 && evento.pulso < 8);
+  assert.deepEqual(compasUno.map((evento) => evento.grados[0]), [0, 0, 7, 7]);
+  assert.equal(compasUno[0].acento, 1);
+  assert.ok(compasUno[1].acento < 1);
+  assert.ok(arreglo.acordes.every((evento) => evento.pulso < 16));
+  assert.equal(arreglo.bajo.find((evento) => evento.pulso === 0).grado, -12);
 });
 
-test('el arreglo puede empezar en un compás intermedio con pulsos relativos', () => {
-  const arreglo = generarArreglo(ACORDES, 1, 'balada', 2);
-  assert.equal(arreglo.acordes[0].pulso, 0);
-  // La balada arpegia: cada evento del piano es una nota del acorde, con la fundamental una octava arriba al final.
-  assert.ok(arreglo.acordes.every((evento) => evento.grados.length === 1));
-  assert.ok(arreglo.acordes.some((evento) => evento.grados[0] === 17));
+test('un vals lleva tres pulsos por compás y un estilo sin patrón de tres cae en bloque', () => {
+  const vals = generarArreglo(ACORDES, 2, 'bloque', 3);
+  assert.equal(vals.acordes.filter((evento) => evento.pulso >= 0 && evento.pulso < 3).length, ESTILOS.bloque[3].teclas.length);
+  assert.equal(generarArreglo(ACORDES, 1, 'swing', 3).acordes.length, generarArreglo(ACORDES, 1, 'bloque', 3).acordes.length);
+  assert.equal(generarArreglo(ACORDES, 1, 'inexistente').acordes.length, generarArreglo(ACORDES, 1, 'bloque').acordes.length);
 });
 
 test('las notas del acorde se extienden por octavas y el acorde se coloca en su registro sin cambiar de forma', () => {
@@ -40,8 +43,8 @@ test('las notas del acorde se extienden por octavas y el acorde se coloca en su 
   assert.deepEqual(colocarEnRegistro([-7], 36, 47), [41]);
 });
 
-test('un estilo desconocido cae en pop y los compases se calculan por pulsos', () => {
-  assert.deepEqual(generarArreglo(ACORDES, 1, 'inexistente').acordes.length, generarArreglo(ACORDES, 1, 'pop').acordes.length);
+test('los compases de una melodía descuentan la anacrusa', () => {
   assert.equal(compasesDeMelodia([[0, 2], [2, 2], [4, 3], [5, 1]]), 2);
   assert.equal(compasesDeMelodia([[0, 1]]), 1);
+  assert.equal(compasesDeMelodia([[0, 1], [0, 3], [0, 3]], 3, 1), 2);
 });

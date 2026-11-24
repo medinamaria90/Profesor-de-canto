@@ -32,8 +32,10 @@ function instanciarCancion(plantilla, base) {
     acompanamiento: {
       estilo: cancion.estilo,
       tempo: cancion.tempo,
-      compases: compasesDeMelodia(cancion.notas),
-      acordes: cancion.acordes.map((acorde) => ({ compas: acorde.compas, midis: acorde.grados.map((grado) => base + grado) })),
+      pulsosPorCompas: cancion.pulsosPorCompas,
+      anacrusa: cancion.anacrusa,
+      compases: compasesDeMelodia(cancion.notas, cancion.pulsosPorCompas, cancion.anacrusa),
+      acordes: cancion.acordes.map((acorde) => ({ compas: acorde.compas, pulso: acorde.pulso, midis: acorde.grados.map((grado) => base + cancion.tonica + grado) })),
     },
   };
 }

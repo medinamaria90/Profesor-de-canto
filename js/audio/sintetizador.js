@@ -1,7 +1,7 @@
 // Sintetizador sencillo para reproducir notas guía, melodías y clics de metrónomo.
 
 import { midiAFrecuencia } from '../musica/notas.js';
-import { vozGuia } from './instrumentos.js';
+import { vozGuia, piano } from './instrumentos.js';
 
 const MARGEN_PARADA_SEGUNDOS = 0.05;
 export const GANANCIA_GUIA = 0.22;
@@ -30,8 +30,9 @@ function anotarFrecuencia(contexto, frecuencia, cuando) {
   temporizadoresFrecuencia.push(temporizador);
 }
 
-export function reproducirNota(contexto, midi, duracion, { cuando = contexto.currentTime, ganancia = GANANCIA_GUIA } = {}) {
-  const { nodos, salida } = vozGuia(contexto, midi, duracion, { cuando, ganancia });
+// instrumento: 'guia' (flauta sintetizada) o 'piano'.
+export function reproducirNota(contexto, midi, duracion, { cuando = contexto.currentTime, ganancia = GANANCIA_GUIA, instrumento = 'guia' } = {}) {
+  const { nodos, salida } = instrumento === 'piano' ? piano(contexto, [midi], duracion, { cuando, ganancia }) : vozGuia(contexto, midi, duracion, { cuando, ganancia });
   anotarFrecuencia(contexto, midiAFrecuencia(midi), cuando);
   const voz = { nodos, salida };
   vocesActivas.add(voz);
@@ -59,12 +60,12 @@ export function segundosPorPulso(tempo) {
 }
 
 // Programa una secuencia de notas [{ midi, pulsos }] y devuelve cuándo empieza y cuánto dura.
-export function reproducirSecuencia(contexto, notas, tempo, { cuando = contexto.currentTime, ganancia = GANANCIA_GUIA } = {}) {
+export function reproducirSecuencia(contexto, notas, tempo, { cuando = contexto.currentTime, ganancia = GANANCIA_GUIA, instrumento = 'guia' } = {}) {
   const pulso = segundosPorPulso(tempo);
   let cursor = cuando;
   for (const nota of notas) {
     const duracion = nota.pulsos * pulso;
-    if (nota.midi !== null) reproducirNota(contexto, nota.midi, duracion * 0.95, { cuando: cursor, ganancia });
+    if (nota.midi !== null) reproducirNota(contexto, nota.midi, duracion * 0.95, { cuando: cursor, ganancia, instrumento });
     cursor += duracion;
   }
   return { inicio: cuando, duracion: cursor - cuando };
