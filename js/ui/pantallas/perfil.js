@@ -8,7 +8,7 @@ import { crearSelectorObjetivo } from './bienvenida.js';
 import { LOGROS } from '../../contenido/logros.js';
 import { TEXTOS } from '../../contenido/textos.js';
 import { obtenerEstado, actualizarEstado, reiniciarEstado } from '../../estado/tienda.js';
-import { fechaClave, rachaVigente, totalEstrellas, mejoraDelRango } from '../../estado/progreso.js';
+import { fechaClave, rachaVigente, totalEstrellas, mejoraDelRango, ultimoTestOido } from '../../estado/progreso.js';
 import { crearGraficoRango } from '../componentes/grafico-rango.js';
 import { nombreNota } from '../../musica/notas.js';
 import { audio } from '../../audio/servicio-audio.js';
@@ -59,6 +59,18 @@ function crearTarjetaDiagnostico() {
   );
 }
 
+function crearTarjetaTestOido(estado) {
+  const ultimo = ultimoTestOido(estado);
+  const TO = TEXTOS.testOido;
+  return el(
+    'section',
+    { clase: 'tarjeta perfil__seccion', 'aria-labelledby': 'perfil-test-oido' },
+    el('h2', { clase: 'perfil__subtitulo', id: 'perfil-test-oido', texto: TO.tarjetaTitulo }),
+    el('p', { clase: 'perfil__texto', texto: ultimo ? TO.tarjetaUltimo(ultimo.umbralCents, ultimo.aciertosAbsoluto, ultimo.totalAbsoluto, ultimo.fecha) : TO.tarjetaTexto }),
+    crearBoton(ultimo ? TO.repetirTest : TO.hacerTest, { variante: 'tonal', onClick: () => navegar('/test-oido') }),
+  );
+}
+
 function crearLogro(logro, conseguidoEl) {
   const conseguido = Boolean(conseguidoEl);
   return el(
@@ -102,6 +114,7 @@ export function crearPantallaPerfil() {
       crearEstadistica(T.estrellas, totalEstrellas(estado)),
     ),
     crearTarjetaRango(estado),
+    crearTarjetaTestOido(estado),
     el(
       'section',
       { clase: 'tarjeta perfil__seccion', 'aria-labelledby': 'perfil-objetivo' },

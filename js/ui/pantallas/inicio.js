@@ -8,7 +8,7 @@ import { crearEstrellas } from '../componentes/estrellas.js';
 import { UNIDADES, RUTINA_DIARIA, leccionDesbloqueada, siguienteLeccionPendiente } from '../../contenido/curriculum.js';
 import { TEXTOS } from '../../contenido/textos.js';
 import { obtenerEstado } from '../../estado/tienda.js';
-import { fechaClave, rachaVigente, xpHoy, rutinaHechaHoy, estrellasLeccion, XP_RUTINA_DIARIA } from '../../estado/progreso.js';
+import { fechaClave, rachaVigente, xpHoy, rutinaHechaHoy, estrellasLeccion, XP_RUTINA_DIARIA, ultimoTestOido } from '../../estado/progreso.js';
 import { navegar } from '../../nucleo/router.js';
 import { consumirAvisosPendientes } from '../../estado/sesion.js';
 import { mostrarAviso } from '../componentes/aviso.js';
@@ -122,6 +122,13 @@ export function crearPantallaInicio() {
     { clase: 'pantalla pantalla-inicio' },
     crearCabecera(estado, hoy),
     crearTarjetaRutina(estado, hoy),
+    !ultimoTestOido(estado) &&
+      el(
+        'section',
+        { clase: 'tarjeta tarjeta-rutina', 'aria-labelledby': 'inicio-test-oido' },
+        el('div', { clase: 'tarjeta-rutina__texto' }, el('h2', { clase: 'tarjeta-rutina__titulo', id: 'inicio-test-oido', texto: TEXTOS.testOido.tarjetaTitulo }), el('p', { clase: 'tarjeta-rutina__detalle', texto: TEXTOS.testOido.tarjetaTexto })),
+        crearBoton(TEXTOS.testOido.hacerTest, { variante: 'tonal', onClick: () => navegar('/test-oido') }),
+      ),
     UNIDADES.map((unidad) => crearUnidad(unidad, estado, leccionActual)),
   );
   return {

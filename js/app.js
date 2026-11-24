@@ -11,12 +11,13 @@ import { crearPantallaPerfil } from './ui/pantallas/perfil.js';
 import { crearPantallaBienvenida } from './ui/pantallas/bienvenida.js';
 import { crearPantallaRangoVocal } from './ui/pantallas/rango-vocal.js';
 import { crearPantallaNoEncontrada } from './ui/pantallas/no-encontrada.js';
+import { crearPantallaTestOido } from './ui/pantallas/test-oido.js';
 import { obtenerEstado } from './estado/tienda.js';
 import { TEXTOS } from './contenido/textos.js';
 import { audioDisponible } from './audio/contexto.js';
 import { el } from './ui/dom.js';
 
-const RUTAS_SIN_NAVEGACION = ['/leccion', '/resultados', '/bienvenida', '/rango'];
+const RUTAS_SIN_NAVEGACION = ['/leccion', '/resultados', '/bienvenida', '/rango', '/test-oido'];
 const RUTAS_DE_BIENVENIDA = ['/bienvenida', '/rango'];
 
 function guardia(camino) {
@@ -48,6 +49,7 @@ function arrancar() {
   registrarRuta('/perfil', crearPantallaPerfil);
   registrarRuta('/bienvenida', crearPantallaBienvenida);
   registrarRuta('/rango', crearPantallaRangoVocal);
+  registrarRuta('/test-oido', crearPantallaTestOido);
   registrarRutaNoEncontrada(crearPantallaNoEncontrada);
 
   alCambiarRuta((camino) => {

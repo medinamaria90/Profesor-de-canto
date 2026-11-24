@@ -298,3 +298,13 @@
   color: var(--sobre-primario-contenedor);
   font-size: var(--tam-letra-s);
 }
+
+.opciones--notas {
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--espacio-2);
+}
+
+.opcion--nota {
+  min-height: var(--objetivo-tactil);
+  padding: var(--espacio-2);
+}

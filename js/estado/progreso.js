@@ -36,7 +36,17 @@ export const ESTADO_INICIAL = Object.freeze({
   logros: {},
   juegos: {},
   oido: { nivel: 1, racha: 0, aciertos: 0, intentos: 0 },
+  testsOido: [],
 });
+
+export function registrarTestOido(estado, resultado, hoy) {
+  return { ...estado, testsOido: [...(estado.testsOido ?? []), { fecha: hoy, ...resultado }] };
+}
+
+export function ultimoTestOido(estado) {
+  const tests = estado.testsOido ?? [];
+  return tests.length ? tests[tests.length - 1] : null;
+}
 
 export const NIVEL_OIDO_MINIMO = 1;
 export const NIVEL_OIDO_MAXIMO = 4;
