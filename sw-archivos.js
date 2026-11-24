@@ -1,5 +1,5 @@
 // Generado por herramientas/generar-lista-sw.cjs; no editar a mano.
-self.VERSION_ARCHIVOS = 'mwuypus6';
+self.VERSION_ARCHIVOS = 'mwuyxk2m';
 self.ARCHIVOS_APP = [
   "./css/apaisado.css",
   "./css/base.css",
@@ -36,6 +36,7 @@ self.ARCHIVOS_APP = [
   "./js/audio/lector-tono.js",
   "./js/audio/mezcla.js",
   "./js/audio/microfono.js",
+  "./js/audio/piano-muestras.js",
   "./js/audio/servicio-audio.js",
   "./js/audio/sintetizador.js",
   "./js/audio/ventana-guia.js",
@@ -95,5 +96,31 @@ self.ARCHIVOS_APP = [
   "./js/ui/pantallas/rango-vocal.js",
   "./js/ui/pantallas/resultados.js",
   "./js/ui/pantallas/test-oido.js",
-  "./manifest.webmanifest"
+  "./manifest.webmanifest",
+  "./sonidos/piano/Ab2.mp3",
+  "./sonidos/piano/Ab3.mp3",
+  "./sonidos/piano/Ab4.mp3",
+  "./sonidos/piano/Ab5.mp3",
+  "./sonidos/piano/Bb2.mp3",
+  "./sonidos/piano/Bb3.mp3",
+  "./sonidos/piano/Bb4.mp3",
+  "./sonidos/piano/Bb5.mp3",
+  "./sonidos/piano/C2.mp3",
+  "./sonidos/piano/C3.mp3",
+  "./sonidos/piano/C4.mp3",
+  "./sonidos/piano/C5.mp3",
+  "./sonidos/piano/C6.mp3",
+  "./sonidos/piano/D2.mp3",
+  "./sonidos/piano/D3.mp3",
+  "./sonidos/piano/D4.mp3",
+  "./sonidos/piano/D5.mp3",
+  "./sonidos/piano/E2.mp3",
+  "./sonidos/piano/E3.mp3",
+  "./sonidos/piano/E4.mp3",
+  "./sonidos/piano/E5.mp3",
+  "./sonidos/piano/Gb2.mp3",
+  "./sonidos/piano/Gb3.mp3",
+  "./sonidos/piano/Gb4.mp3",
+  "./sonidos/piano/Gb5.mp3",
+  "./sonidos/piano/LICENCIA.txt"
 ];

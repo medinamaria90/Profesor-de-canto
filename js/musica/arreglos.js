@@ -1,4 +1,4 @@
-// Arreglos: convierte los acordes y el estilo de una canción en lo que toca cada instrumento.
+// Arreglos de piano: convierte los acordes y el estilo de una canción en lo que toca cada mano.
 // Lógica pura: devuelve listas de eventos con el pulso en el que suenan; el audio los programa después.
 
 export const PULSOS_POR_COMPAS = 4;
@@ -11,33 +11,24 @@ function arpegio(indices) {
 
 const acorde = (pulso, pulsos) => ({ pulso, tonos: 'acorde', pulsos });
 const nota = (pulso, tono, pulsos) => ({ pulso, tono, pulsos });
-const SIN_PERCUSION = { bombo: [], caja: [], charles: [] };
 
-// bajo: nota del acorde (índice) en cada pulso; teclas: acordes o arpegios del piano; cuerdas: colchón largo o no.
+// bajo: mano izquierda, una nota del acorde (índice) en cada pulso; teclas: mano derecha, acordes o arpegios.
 export const ESTILOS = {
   pop: {
-    bajo: [nota(0, 0, 1), nota(2, 0, 1), nota(3.5, 2, 0.5)],
+    bajo: [nota(0, 0, 1), nota(1.5, 2, 0.5), nota(2, 0, 1), nota(3, 2, 1)],
     teclas: [acorde(0, 1), acorde(1.5, 0.5), acorde(2, 1), acorde(3, 0.5), acorde(3.5, 0.5)],
-    cuerdas: false,
-    percusion: { bombo: [0, 2], caja: [1, 3], charles: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5] },
   },
   balada: {
     bajo: [nota(0, 0, 2), nota(2, 2, 2)],
     teclas: arpegio([0, 2, 3, 4, 3, 2, 0, 2]),
-    cuerdas: true,
-    percusion: SIN_PERCUSION,
   },
   swing: {
     bajo: [nota(0, 0, 1), nota(1, 1, 1), nota(2, 2, 1), nota(3, 1, 1)],
     teclas: [acorde(0, 1), acorde(1.66, 0.34), acorde(3, 0.66)],
-    cuerdas: false,
-    percusion: { bombo: [], caja: [], charles: [0, 0.66, 1, 1.66, 2, 2.66, 3, 3.66] },
   },
   tango: {
     bajo: [nota(0, 0, 1), nota(1, 2, 1), nota(2, 0, 1), nota(3, 2, 1)],
     teclas: [acorde(1, 0.5), acorde(2, 0.5), acorde(3, 0.5), acorde(3.5, 0.5)],
-    cuerdas: true,
-    percusion: SIN_PERCUSION,
   },
 };
 
@@ -60,14 +51,12 @@ export function colocarEnRegistro(midis, minimoFundamental, maximoFundamental) {
 }
 
 // acordes: [{ compas, grados: [0, 4, 7] }] (grados relativos a la nota base de la canción).
-// Devuelve { bajo: [{ pulso, grado, pulsos }], acordes: [{ pulso, grados, pulsos }], cuerdas: [{ pulso, grados, pulsos }], percusion: [{ pulso, tipo }] }
+// Devuelve { bajo: [{ pulso, grado, pulsos }], acordes: [{ pulso, grados, pulsos }] }
 // compasInicio permite arrancar en mitad de la canción (los pulsos devueltos son relativos a ese compás).
 export function generarArreglo(acordes, totalCompases, nombreEstilo, compasInicio = 0) {
   const estilo = estiloDe(nombreEstilo);
   const bajo = [];
   const acordesEventos = [];
-  const cuerdas = [];
-  const percusion = [];
   for (let indice = 0; indice < totalCompases; indice++) {
     const vigente = acordeEnCompas(acordes, compasInicio + indice);
     const inicio = indice * PULSOS_POR_COMPAS;
@@ -78,12 +67,8 @@ export function generarArreglo(acordes, totalCompases, nombreEstilo, compasInici
       const grados = evento.tonos === 'acorde' ? vigente.grados : evento.tonos.map((tono) => tonoDeAcorde(vigente.grados, tono));
       acordesEventos.push({ pulso: inicio + evento.pulso, grados, pulsos: evento.pulsos });
     }
-    if (estilo.cuerdas) cuerdas.push({ pulso: inicio, grados: vigente.grados, pulsos: PULSOS_POR_COMPAS });
-    for (const pulso of estilo.percusion.bombo) percusion.push({ pulso: inicio + pulso, tipo: 'bombo' });
-    for (const pulso of estilo.percusion.caja) percusion.push({ pulso: inicio + pulso, tipo: 'caja' });
-    for (const pulso of estilo.percusion.charles) percusion.push({ pulso: inicio + pulso, tipo: 'charles' });
   }
-  return { bajo, acordes: acordesEventos, cuerdas, percusion };
+  return { bajo, acordes: acordesEventos };
 }
 
 // El acorde vigente en un compás es el último definido en ese compás o antes.

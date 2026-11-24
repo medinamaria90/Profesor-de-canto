@@ -5,6 +5,7 @@ import { abrirMicrofono, ErrorMicrofono } from './microfono.js';
 import { crearEntradaSimulada } from './entrada-simulada.js';
 import { crearLectorTono, fotogramasPorSegundoDelDetector } from './lector-tono.js';
 import { crearVentanaGuia } from './ventana-guia.js';
+import { cargarPiano } from './piano-muestras.js';
 import * as sintetizador from './sintetizador.js';
 import { reproducirAcompanamiento } from './acompanamiento.js';
 import { CONFIGURACION } from '../nucleo/configuracion.js';
@@ -42,8 +43,16 @@ async function permisoDelNavegador() {
 export const audio = {
   esSimulado: CONFIGURACION.simulacion,
 
+  // Activa el contexto y empieza a cargar el piano grabado en segundo plano.
   async preparar() {
-    return reanudarContexto();
+    const contexto = await reanudarContexto();
+    cargarPiano(contexto);
+    return contexto;
+  },
+
+  // Espera a que el piano grabado esté listo (o a que falle y quede el sintetizado).
+  prepararPiano() {
+    return cargarPiano(obtenerContexto());
   },
 
   tieneEntrada() {

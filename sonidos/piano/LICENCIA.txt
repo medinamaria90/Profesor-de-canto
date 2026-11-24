@@ -1,0 +1,6 @@
+Muestras de piano acústico (acoustic_grand_piano) del banco de sonidos FluidR3 GM, de Frank Wen,
+convertidas a MP3 por Benjamin Gleitzman en el proyecto midi-js-soundfonts
+(https://github.com/gleitz/midi-js-soundfonts).
+
+Licencia: Creative Commons Attribution 3.0 (https://creativecommons.org/licenses/by/3.0/us/).
+Alondra usa un archivo por cada dos semitonos, de Do2 (C2) a Do6 (C6).

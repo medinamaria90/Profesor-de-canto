@@ -37,6 +37,8 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
   let animacion = null;
   let captura = null;
   let destruido = false;
+  // Cada fase lleva un turno: si el usuario cambia de fase mientras se espera al piano, la anterior no sigue.
+  let turno = 0;
 
   function duracionTotal() {
     const acompanamiento = ejercicio.acompanamiento ? ejercicio.acompanamiento.compases * PULSOS_POR_COMPAS * pulso : 0;
@@ -48,7 +50,8 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
     animacion = null;
   }
 
-  function faseEscuchar() {
+  async function faseEscuchar() {
+    const miTurno = ++turno;
     fijarAcciones([{ texto: T.cantarYa, variante: 'texto', accion: faseCantar }]);
     detenerAnimacion();
     captura?.cancelar();
@@ -56,6 +59,8 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
     rollo.reiniciar();
     cabecera.fijarInstruccion(T.instruccionEscucha);
     estado.textContent = `${TEXTOS.leccion.escuchar}…`;
+    await audio.prepararPiano();
+    if (destruido || miTurno !== turno) return;
     const inicio = audio.ahora() + RETARDO_INICIO_SEGUNDOS;
     if (ejercicio.acompanamiento) audio.reproducirAcompanamiento(ejercicio.acompanamiento, { cuando: inicio });
     audio.reproducirSecuencia(ejercicio.notas, ejercicio.tempo, { cuando: inicio });
@@ -77,6 +82,7 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
   }
 
   async function faseCantar() {
+    const miTurno = ++turno;
     fijarAcciones([]);
     detenerAnimacion();
     audio.detenerTodo();
@@ -85,7 +91,8 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
     try {
       // Si el micrófono se cerró por el camino, se vuelve a abrir antes de grabar.
       if (!audio.tieneEntrada()) await audio.abrirEntrada();
-      if (destruido) return;
+      await audio.prepararPiano();
+      if (destruido || miTurno !== turno) return;
       arrancarCaptura();
     } catch (error) {
       console.error('No se pudo empezar a cantar.', error);
