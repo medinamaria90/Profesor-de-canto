@@ -115,6 +115,8 @@ export function crearPantallaJuego() {
     empezar(partida);
     vista.dibujar(partida);
     lector ??= audio.crearLector((lectura) => {
+      // Mientras suena la nota guía la alondra se queda donde está: lo que oye el micro no es la voz.
+      if (lectura.guia) return;
       vozActual = lectura.voz ? lectura.midi : null;
     });
     lector.iniciar();

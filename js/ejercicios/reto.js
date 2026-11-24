@@ -84,6 +84,7 @@ export function crearEjercicioReto(ejercicio, { contenedor, alTerminar, fijarAcc
     partida = crearPartida(ejercicio.rango, { ancho, alto, secuencia: ejercicio.notas });
     pintarVidas(VIDAS_INICIALES);
     lector = audio.crearLector((lectura) => {
+      if (lectura.guia) return;
       vozActual = lectura.voz ? lectura.midi : null;
     });
     lector.iniciar();

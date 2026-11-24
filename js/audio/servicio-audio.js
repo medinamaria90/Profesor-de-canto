@@ -4,6 +4,7 @@ import { obtenerContexto, reanudarContexto } from './contexto.js';
 import { abrirMicrofono, ErrorMicrofono } from './microfono.js';
 import { crearEntradaSimulada } from './entrada-simulada.js';
 import { crearLectorTono, fotogramasPorSegundoDelDetector } from './lector-tono.js';
+import { crearVentanaGuia } from './ventana-guia.js';
 import * as sintetizador from './sintetizador.js';
 import { reproducirAcompanamiento } from './acompanamiento.js';
 import { CONFIGURACION } from '../nucleo/configuracion.js';
@@ -18,6 +19,8 @@ const LATENCIA_SALIDA_POR_DEFECTO_SEGUNDOS = 0.08;
 
 let entrada = null;
 let aperturaPendiente = null;
+// Mientras suena una nota guía, el micrófono la oiría: esas lecturas se entregan como silencio marcado con `guia`.
+const ventanaGuia = crearVentanaGuia();
 const acompanamientosActivos = new Set();
 // Cada apertura lleva un número; si se cierra la entrada mientras se abre, el resultado se descarta.
 let generacion = 0;
@@ -91,7 +94,10 @@ export const audio = {
 
   crearLector(alLeer) {
     if (!entrada) throw new Error('No hay entrada de audio abierta');
-    return crearLectorTono(entrada, alLeer);
+    return crearLectorTono(entrada, (lectura) => {
+      if (!ventanaGuia.activa(obtenerContexto().currentTime)) return alLeer(lectura);
+      return alLeer({ voz: false, nivel: lectura.nivel, guia: true });
+    });
   },
 
   ahora() {
@@ -126,8 +132,10 @@ export const audio = {
     guardarLatenciaAprendida(Math.round(nueva * 1000) / 1000);
   },
 
-  reproducirNota(midi, duracion, opciones) {
-    return sintetizador.reproducirNota(obtenerContexto(), midi, duracion, opciones);
+  reproducirNota(midi, duracion, opciones = {}) {
+    const contexto = obtenerContexto();
+    ventanaGuia.marcar(opciones.cuando ?? contexto.currentTime, duracion);
+    return sintetizador.reproducirNota(contexto, midi, duracion, opciones);
   },
 
   reproducirSecuencia(notas, tempo, opciones) {
