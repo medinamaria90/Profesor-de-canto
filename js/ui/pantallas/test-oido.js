@@ -16,9 +16,11 @@ import {
   notaAbsolutaAleatoria,
   parRelativo,
   debeDetenerAbsoluto,
+  poblacionRelativo,
   PREGUNTAS_RELATIVO,
   PREGUNTAS_ABSOLUTO,
   UMBRAL_PROFESIONAL_CENTS,
+  UMBRAL_MEDIA_SIN_ENTRENAR_CENTS,
 } from '../../ejercicios/test-oido-logica.js';
 import { NOMBRES_NOTAS, nombreNota } from '../../musica/notas.js';
 import { TEXTOS } from '../../contenido/textos.js';
@@ -171,7 +173,9 @@ export function crearPantallaTestOido() {
           el('h2', { clase: 'perfil__subtitulo', texto: T.parteRelativa }),
           el('p', { clase: 'tecnica__resumen', texto: T.umbralFormato(umbral) }),
           el('p', { texto: T.valoracionRelativa[nivelRelativo] }),
-          el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.margenFormato(umbral, UMBRAL_PROFESIONAL_CENTS) }),
+          el('p', { texto: T.poblacionFormato(poblacionRelativo(umbral).texto) }),
+          el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.margenFormato(umbral, UMBRAL_PROFESIONAL_CENTS, UMBRAL_MEDIA_SIN_ENTRENAR_CENTS) }),
+          el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.fuentesRelativo }),
           el('p', { clase: 'tecnica__consejo', texto: T.consejoRelativo[nivelRelativo] }),
         ),
         el(

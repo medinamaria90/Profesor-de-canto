@@ -6,6 +6,7 @@ import {
   intervaloActual,
   umbralRelativo,
   valorarRelativo,
+  poblacionRelativo,
   evaluarAbsoluto,
   valorarAbsoluto,
   notaAbsolutaAleatoria,
@@ -38,10 +39,16 @@ test('el umbral se estima con los cambios de sentido y se valora', () => {
   const umbral = umbralRelativo(escalera);
   // La escalera oscila entre 35 y 50 cents, así que el umbral queda entre ambos.
   assert.ok(umbral >= 35 && umbral <= 50, `umbral ${umbral}`);
-  assert.equal(valorarRelativo(umbral), 'bueno');
-  assert.equal(valorarRelativo(400), 'a-entrenar');
-  assert.equal(valorarRelativo(10), 'excelente');
-  assert.equal(valorarRelativo(25), 'muy-bueno');
+  assert.equal(valorarRelativo(umbral), 'normal');
+  assert.equal(valorarRelativo(400), 'dificultad');
+  assert.equal(valorarRelativo(80), 'a-entrenar');
+  assert.equal(valorarRelativo(3), 'excepcional');
+  assert.equal(valorarRelativo(5), 'profesional');
+  assert.equal(valorarRelativo(10), 'muy-bueno');
+  assert.equal(valorarRelativo(25), 'bueno');
+  assert.equal(poblacionRelativo(2).mejorQue, 99);
+  assert.equal(poblacionRelativo(20).mejorQue, 45);
+  assert.equal(poblacionRelativo(150).mejorQue, 1);
   assert.equal(umbralRelativo(crearEscalera()), 700);
 });
 

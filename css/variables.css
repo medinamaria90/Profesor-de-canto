@@ -4,17 +4,17 @@
   color-scheme: light dark;
 
   /* Paleta (modo claro) */
-  --primario: #5B3FE0;
+  --primario: #1769C4;
   --sobre-primario: #FFFFFF;
-  --primario-contenedor: #E6DEFF;
-  --sobre-primario-contenedor: #1F0A6B;
+  --primario-contenedor: #D6E8FF;
+  --sobre-primario-contenedor: #0A3A73;
 
-  --secundario: #8A5F00;
-  --secundario-contenedor: #FFE6A8;
-  --sobre-secundario-contenedor: #3D2A00;
+  --secundario: #8F5A00;
+  --secundario-contenedor: #FFE7B3;
+  --sobre-secundario-contenedor: #3F2A00;
 
   --acierto: #0F7A5C;
-  --acierto-contenedor: #BFF0DE;
+  --acierto-contenedor: #C7F0DC;
   --sobre-acierto-contenedor: #00392B;
 
   --aviso: #A35F00;
@@ -25,33 +25,36 @@
   --error-contenedor: #FFDAD9;
   --sobre-error-contenedor: #410006;
 
-  --racha: #D14F08;
-  --racha-contenedor: #FFE1D1;
+  --racha: #D9641A;
+  --racha-contenedor: #FFE3D0;
   --sobre-racha-contenedor: #5A1E00;
 
-  --fondo: #FBF8FF;
+  --fondo: #F2F8FF;
   --superficie: #FFFFFF;
-  --superficie-1: #F5F1FD;
-  --superficie-2: #EEE8FA;
-  --superficie-3: #E6DFF6;
-  --sobre-superficie: #1B1A22;
-  --texto-suave: #58556A;
-  --contorno: #C6C1D6;
-  --contorno-fuerte: #6F6A86;
-  --contorno-suave: #E7E2F2;
+  --superficie-1: #EAF3FF;
+  --superficie-2: #DCEBFC;
+  --superficie-3: #CDE1F7;
+  --sobre-superficie: #16233A;
+  --texto-suave: #4F607A;
+  --contorno: #B9CBE0;
+  --contorno-fuerte: #5F738F;
+  --contorno-suave: #E0EAF5;
 
-  --bloqueado: #DCD8E6;
-  --sobre-bloqueado: #6F6B80;
+  --bloqueado: #D9E4F0;
+  --sobre-bloqueado: #657A96;
   --estrella: #C98A00;
-  --estrella-vacia: #D5D0E0;
+  --estrella-vacia: #C9D8EA;
 
-  --sombra: rgba(27, 26, 34, 0.12);
-  --sombra-fuerte: rgba(27, 26, 34, 0.22);
-  --velo: rgba(27, 26, 34, 0.5);
-  --foco: #5B3FE0;
+  --sombra: rgba(22, 35, 58, 0.12);
+  --sombra-fuerte: rgba(22, 35, 58, 0.24);
+  --velo: rgba(22, 35, 58, 0.5);
+  --foco: #1769C4;
+
+  --cielo-alto: #DDEFFF;
+  --cielo-bajo: #F2F8FF;
 
   /* Escenario del vuelo de la alondra */
-  --juego-cielo: #BFE3FF;
+  --juego-cielo: #9FD3FF;
   --juego-suelo: #EAF6FF;
   --juego-colina-lejos: #A9D7B8;
   --juego-colina-cerca: #6FB98A;
@@ -61,11 +64,11 @@
   --alondra-ala: #7A4A1E;
   --alondra-pico: #F2B33D;
 
-  --unidad-1: #5B3FE0;
-  --unidad-2: #157A5E;
-  --unidad-3: #C93C7C;
-  --unidad-4: #C24A08;
-  --unidad-5: #0E7FA8;
+  --unidad-1: #1769C4;
+  --unidad-2: #0E8A7A;
+  --unidad-3: #D9641A;
+  --unidad-4: #7A52C9;
+  --unidad-5: #C7446B;
 
   /* Espaciado */
   --espacio-1: 4px;
@@ -123,10 +126,10 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --primario: #C9B8FF;
-    --sobre-primario: #2A0F8A;
-    --primario-contenedor: #4428B8;
-    --sobre-primario-contenedor: #E6DEFF;
+    --primario: #8EC2FF;
+    --sobre-primario: #042B5C;
+    --primario-contenedor: #1F4F8F;
+    --sobre-primario-contenedor: #D6E8FF;
 
     --secundario: #FFD37A;
     --secundario-contenedor: #5C4300;
@@ -148,26 +151,29 @@
     --racha-contenedor: #5A2A0A;
     --sobre-racha-contenedor: #FFE1D1;
 
-    --fondo: #131219;
-    --superficie: #1B1A22;
-    --superficie-1: #22202B;
-    --superficie-2: #2A2735;
-    --superficie-3: #332F40;
-    --sobre-superficie: #E8E4F2;
-    --texto-suave: #B1ACC2;
-    --contorno: #4B4759;
-    --contorno-fuerte: #9B96AC;
-    --contorno-suave: #2E2B3A;
+    --fondo: #0B1630;
+    --superficie: #13213F;
+    --superficie-1: #182A4C;
+    --superficie-2: #1F3359;
+    --superficie-3: #273D68;
+    --sobre-superficie: #E8F0FB;
+    --texto-suave: #AEBFD8;
+    --contorno: #3A4F75;
+    --contorno-fuerte: #93A8C6;
+    --contorno-suave: #223457;
 
-    --bloqueado: #2E2B3A;
-    --sobre-bloqueado: #9B96AC;
+    --bloqueado: #223457;
+    --sobre-bloqueado: #93A8C6;
     --estrella: #FFD37A;
-    --estrella-vacia: #3B3749;
+    --estrella-vacia: #2F4569;
 
     --sombra: rgba(0, 0, 0, 0.4);
     --sombra-fuerte: rgba(0, 0, 0, 0.6);
     --velo: rgba(0, 0, 0, 0.65);
-    --foco: #C9B8FF;
+    --foco: #8EC2FF;
+
+    --cielo-alto: #0B1630;
+    --cielo-bajo: #122247;
 
     --juego-cielo: #1B2A5A;
     --juego-suelo: #2E3F7A;
@@ -179,10 +185,10 @@
     --alondra-ala: #8E5A2A;
     --alondra-pico: #F7C04A;
 
-    --unidad-1: #B3A3FF;
-    --unidad-2: #3FB893;
-    --unidad-3: #E86AA6;
-    --unidad-4: #F07A3C;
-    --unidad-5: #3FA9D3;
+    --unidad-1: #8EC2FF;
+    --unidad-2: #5FD1B9;
+    --unidad-3: #FFA06A;
+    --unidad-4: #B9A3FF;
+    --unidad-5: #FF8FB0;
   }
 }

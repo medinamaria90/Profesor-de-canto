@@ -3,7 +3,7 @@
 
 Add-Type -AssemblyName System.Drawing
 
-$colorFondo = [System.Drawing.ColorTranslator]::FromHtml('#5B3FE0')
+$colorFondo = [System.Drawing.ColorTranslator]::FromHtml('#1769C4')
 $colorNota = [System.Drawing.Color]::White
 $carpeta = Join-Path $PSScriptRoot '..\iconos'
 

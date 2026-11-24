@@ -1,14 +1,17 @@
 // Lógica pura del test de oído: escalera adaptativa para el oído relativo y evaluación del oído absoluto.
 
 // Se empieza en 200 cents (dos semitonos); los dos escalones superiores solo se usan si alguien falla ahí.
-export const NIVELES_RELATIVO_CENTS = [700, 400, 200, 100, 50, 35, 25, 15, 10, 5];
+// El último escalón (2 cents) está en el límite medido en laboratorio para músicos muy entrenados.
+export const NIVELES_RELATIVO_CENTS = [700, 400, 200, 100, 50, 35, 25, 15, 10, 7, 5, 3, 2];
 export const INDICE_INICIAL_RELATIVO = 2;
-export const PREGUNTAS_RELATIVO = 18;
+export const PREGUNTAS_RELATIVO = 24;
 export const PREGUNTAS_ABSOLUTO = 10;
 // Si las primeras respuestas del oído absoluto no aciertan ninguna nota exacta, el test se corta.
 export const PREGUNTAS_ABSOLUTO_MINIMAS = 4;
-// Umbral de referencia de los músicos profesionales, para dar margen de mejora.
-export const UMBRAL_PROFESIONAL_CENTS = 10;
+// Referencias de estudios de discriminación de tono (Micheyl et al. 2006; Kishon-Rabin et al. 2001; Peretz y Vuvan 2017):
+// músicos profesionales 2-3 cents, personas sin entrenar 9-15 cents de media, amusia (1,5-4 % de la población) un semitono o más.
+export const UMBRAL_PROFESIONAL_CENTS = 3;
+export const UMBRAL_MEDIA_SIN_ENTRENAR_CENTS = 12;
 // Escalera "dos aciertos para subir, un fallo para bajar": converge hacia el 70 % de aciertos.
 const ACIERTOS_PARA_SUBIR = 2;
 const CAMBIOS_DE_SENTIDO_PARA_UMBRAL = 4;
@@ -52,11 +55,25 @@ export function umbralRelativo(escalera) {
 }
 
 export function valorarRelativo(umbralCents) {
-  if (umbralCents <= 12) return 'excelente';
-  if (umbralCents <= 30) return 'muy-bueno';
-  if (umbralCents <= 60) return 'bueno';
-  if (umbralCents <= 150) return 'normal';
-  return 'a-entrenar';
+  if (umbralCents <= 3) return 'excepcional';
+  if (umbralCents <= 5) return 'profesional';
+  if (umbralCents <= 10) return 'muy-bueno';
+  if (umbralCents <= 25) return 'bueno';
+  if (umbralCents <= 60) return 'normal';
+  if (umbralCents <= 100) return 'a-entrenar';
+  return 'dificultad';
+}
+
+// Estimación de en qué parte de la población queda un umbral, a partir de los estudios citados arriba.
+// Es orientativa: los estudios usan tonos puros y condiciones de laboratorio.
+export function poblacionRelativo(umbralCents) {
+  if (umbralCents <= 3) return { mejorQue: 99, texto: 'menos del 1 %' };
+  if (umbralCents <= 5) return { mejorQue: 95, texto: 'alrededor del 5 % mejor' };
+  if (umbralCents <= 10) return { mejorQue: 70, texto: 'el 30 % mejor' };
+  if (umbralCents <= 25) return { mejorQue: 45, texto: 'la mitad de la población' };
+  if (umbralCents <= 60) return { mejorQue: 15, texto: 'por debajo de la media' };
+  if (umbralCents <= 100) return { mejorQue: 5, texto: 'el 10 % con más dificultad' };
+  return { mejorQue: 1, texto: 'el 2-4 % con más dificultad' };
 }
 
 // true cuando ya no merece la pena seguir preguntando por el oído absoluto.

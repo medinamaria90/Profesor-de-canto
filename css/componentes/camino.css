@@ -16,9 +16,9 @@
 .unidad__cabecera {
   padding: var(--espacio-5);
   border-radius: var(--radio-l);
-  background: var(--unidad-color);
+  background: linear-gradient(135deg, var(--unidad-color), color-mix(in srgb, var(--unidad-color) 70%, var(--sobre-primario)));
   color: var(--sobre-primario);
-  box-shadow: 0 4px 14px var(--sombra);
+  box-shadow: 0 8px 24px var(--sombra);
 }
 
 .unidad__numero {
