@@ -37,7 +37,8 @@ export async function reproducirGuia(midis) {
 
 // Espera a que el usuario empiece a cantar y recoge `duracion` segundos de voz.
 // Resuelve { iniciado, muestras: [{ tiempo, midi }], cancelado }.
-export function capturarTrasVoz({ duracion, esperaMaxima = MS_ESPERA_VOZ_MAXIMA, alInicio, alMuestra, alProgreso }) {
+// Con silencioParaTerminar (ms), la captura acaba también cuando el usuario deja de cantar ese tiempo.
+export function capturarTrasVoz({ duracion, esperaMaxima = MS_ESPERA_VOZ_MAXIMA, silencioParaTerminar = null, alInicio, alMuestra, alProgreso }) {
   let resolverPromesa;
   const promesa = new Promise((resolver) => {
     resolverPromesa = resolver;
@@ -46,6 +47,7 @@ export function capturarTrasVoz({ duracion, esperaMaxima = MS_ESPERA_VOZ_MAXIMA,
   const arranque = performance.now();
   let primeraVoz = null;
   let inicio = null;
+  let ultimaVoz = null;
   let terminado = false;
 
   const terminar = (resultado) => {
@@ -70,11 +72,13 @@ export function capturarTrasVoz({ duracion, esperaMaxima = MS_ESPERA_VOZ_MAXIMA,
     }
     const transcurrido = (ahora - inicio) / 1000;
     if (lectura.voz) {
+      ultimaVoz = ahora;
       muestras.push({ tiempo: transcurrido, midi: lectura.midi });
       alMuestra?.(lectura.midi, transcurrido);
     }
     alProgreso?.(Math.min(1, transcurrido / duracion));
-    if (transcurrido >= duracion) terminar({ iniciado: true, muestras, cancelado: false });
+    const calladoDemasiado = silencioParaTerminar !== null && ultimaVoz !== null && ahora - ultimaVoz >= silencioParaTerminar;
+    if (transcurrido >= duracion || calladoDemasiado) terminar({ iniciado: true, muestras, cancelado: false });
   });
   lector.iniciar();
 

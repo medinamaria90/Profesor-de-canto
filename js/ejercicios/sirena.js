@@ -8,6 +8,8 @@ import { TEXTOS } from '../contenido/textos.js';
 
 const T = TEXTOS.ejercicios.sirena;
 const AMPLITUD_VISUAL_SEMITONOS = 18;
+// La sirena termina sola cuando el usuario deja de cantar este tiempo.
+const MS_SILENCIO_PARA_TERMINAR = 800;
 
 export function crearEjercicioSirena(ejercicio, { contenedor, alTerminar, fijarAcciones }) {
   const cabecera = crearCabeceraEjercicio(T.titulo, T.instruccion);
@@ -29,6 +31,10 @@ export function crearEjercicioSirena(ejercicio, { contenedor, alTerminar, fijarA
     contenedor.classList.add('ejercicio--grabando');
     captura = capturarTrasVoz({
       duracion: ejercicio.duracion,
+      silencioParaTerminar: MS_SILENCIO_PARA_TERMINAR,
+      alInicio: () => {
+        estado.textContent = T.enMarcha;
+      },
       alMuestra: (midi) => visual.registrar(midi),
       alProgreso: (progreso) => barra.actualizar(progreso),
     });

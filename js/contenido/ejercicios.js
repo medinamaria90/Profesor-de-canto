@@ -2,7 +2,7 @@
 
 import { gradosDeMelodia } from '../musica/melodias.js';
 
-export const DURACION_SIRENA_SEGUNDOS = 4;
+export const DURACION_SIRENA_SEGUNDOS = 12;
 export const DURACION_NOTA_POR_DEFECTO = 2.5;
 export const INTERVALO_MINIMO_ESCUCHA = 2;
 export const INTERVALO_MAXIMO_ESCUCHA = 7;

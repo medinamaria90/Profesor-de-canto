@@ -115,7 +115,8 @@ export const TEXTOS = {
     },
     sirena: {
       titulo: 'Sirena',
-      instruccion: 'Con una «u», desliza la voz de grave a agudo como una sirena.',
+      instruccion: 'Con una «u», desliza la voz de grave a agudo como una sirena. Tómate tu tiempo: termina cuando dejes de cantar.',
+      enMarcha: 'Sigue subiendo… se para sola cuando calles',
       amplitudFormato: (semitonos) => `Has recorrido ${semitonos} semitonos`,
       completada: '¡Buena sirena!',
       sinSubir: 'Recuerda: de grave a agudo',
