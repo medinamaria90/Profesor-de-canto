@@ -3,6 +3,8 @@
 const CLAVE_PROGRESO = 'alondra.progreso.v1';
 const CLAVE_MICROFONO = 'alondra.microfono-permitido';
 const CLAVE_LATENCIA = 'alondra.latencia-aprendida';
+const CLAVE_ULTIMO_ERROR = 'alondra.ultimo-error';
+const LONGITUD_MAXIMA_ERROR = 400;
 
 let copiaEnMemoria = null;
 
@@ -57,6 +59,24 @@ export function guardarLatenciaAprendida(segundos) {
     window.localStorage.setItem(CLAVE_LATENCIA, String(segundos));
   } catch (error) {
     console.warn('No se pudo guardar la latencia aprendida.', error);
+  }
+}
+
+export function guardarUltimoError(texto) {
+  try {
+    window.localStorage.setItem(CLAVE_ULTIMO_ERROR, JSON.stringify({ fecha: new Date().toISOString(), texto: String(texto).slice(0, LONGITUD_MAXIMA_ERROR) }));
+  } catch (error) {
+    console.warn('No se pudo guardar el último error.', error);
+  }
+}
+
+export function leerUltimoError() {
+  try {
+    const texto = window.localStorage.getItem(CLAVE_ULTIMO_ERROR);
+    return texto ? JSON.parse(texto) : null;
+  } catch (error) {
+    console.warn('No se pudo leer el último error.', error);
+    return null;
   }
 }
 

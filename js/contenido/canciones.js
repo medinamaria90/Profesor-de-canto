@@ -42,7 +42,7 @@ export const CANCIONES = [
     id: 'cumpleanos-feliz',
     titulo: 'Cumpleaños feliz',
     origen: 'tradicional',
-    autor: 'Tradicional (melodía libre de derechos)',
+    autor: 'Tradicional',
     estilo: 'balada',
     tempo: 100,
     dificultad: 2,

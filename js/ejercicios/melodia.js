@@ -10,6 +10,7 @@ import { puntuarMuestrasTolerante, puntuarMelodia, estimarDesfase, UMBRAL_DOS_ES
 import { puntuarPorNotas } from './alineacion-notas.js';
 import { crearCabeceraEjercicio, crearEstadoEjercicio, capturarEnTiempo } from './comun.js';
 import { TEXTOS } from '../contenido/textos.js';
+import { guardarUltimoError } from '../estado/almacen.js';
 
 const T = TEXTOS.ejercicios.melodia;
 const PULSOS_CUENTA_ATRAS = 2;
@@ -78,12 +79,27 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
     animacion = requestAnimationFrame(animar);
   }
 
-  function faseCantar() {
+  async function faseCantar() {
     fijarAcciones([]);
     detenerAnimacion();
     audio.detenerTodo();
     captura?.cancelar();
     rollo.reiniciar();
+    try {
+      // Si el micrófono se cerró por el camino, se vuelve a abrir antes de grabar.
+      if (!audio.tieneEntrada()) await audio.abrirEntrada();
+      if (destruido) return;
+      arrancarCaptura();
+    } catch (error) {
+      console.error('No se pudo empezar a cantar.', error);
+      guardarUltimoError(`Cantar: ${error.message}`);
+      contenedor.classList.remove('ejercicio--grabando');
+      estado.textContent = TEXTOS.leccion.errorCaptura;
+      fijarAcciones([{ texto: TEXTOS.leccion.reintentar, accion: faseEscuchar }]);
+    }
+  }
+
+  function arrancarCaptura() {
     cabecera.fijarInstruccion(esCancion ? TC.instruccionCanta : T.instruccionCanta);
     contenedor.classList.add('ejercicio--grabando');
     const inicio = audio.ahora() + RETARDO_INICIO_SEGUNDOS + PULSOS_CUENTA_ATRAS * pulso;

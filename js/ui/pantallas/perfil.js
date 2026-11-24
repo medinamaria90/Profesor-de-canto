@@ -12,6 +12,7 @@ import { fechaClave, rachaVigente, totalEstrellas, mejoraDelRango, ultimoTestOid
 import { crearGraficoRango } from '../componentes/grafico-rango.js';
 import { nombreNota } from '../../musica/notas.js';
 import { audio } from '../../audio/servicio-audio.js';
+import { leerUltimoError } from '../../estado/almacen.js';
 import { navegar } from '../../nucleo/router.js';
 
 const T = TEXTOS.perfil;
@@ -43,12 +44,14 @@ function formatearSegundos(valor) {
 
 function crearTarjetaDiagnostico() {
   const datos = audio.diagnostico();
+  const ultimoError = leerUltimoError();
   const filas = [
     [T.diagnosticoLatenciaSalida, formatearSegundos(datos.latenciaSalida)],
     [T.diagnosticoLatenciaEntrada, formatearSegundos(datos.latenciaEntrada)],
     [T.diagnosticoLatenciaAprendida, formatearSegundos(datos.latenciaAprendida)],
     [T.diagnosticoFotogramas, datos.fotogramasPorSegundo ? String(datos.fotogramasPorSegundo) : '–'],
     [T.diagnosticoMuestreo, `${datos.frecuenciaMuestreo} Hz`],
+    [T.diagnosticoUltimoError, ultimoError ? `${ultimoError.fecha.slice(11, 16)} · ${ultimoError.texto}` : '–'],
   ];
   return el(
     'section',

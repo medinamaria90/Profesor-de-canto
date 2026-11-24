@@ -16,6 +16,7 @@ import { obtenerEstado } from './estado/tienda.js';
 import { TEXTOS } from './contenido/textos.js';
 import { audioDisponible } from './audio/contexto.js';
 import { el } from './ui/dom.js';
+import { guardarUltimoError } from './estado/almacen.js';
 
 const RUTAS_SIN_NAVEGACION = ['/leccion', '/resultados', '/bienvenida', '/rango', '/test-oido'];
 const RUTAS_DE_BIENVENIDA = ['/bienvenida', '/rango'];
@@ -60,6 +61,12 @@ function arrancar() {
   iniciarRouter(contenedor, { guardia });
 }
 
+// Cualquier error no capturado queda anotado para poder leerlo en Perfil → Diagnóstico.
+function vigilarErrores() {
+  window.addEventListener('error', (evento) => guardarUltimoError(`${evento.message} (${evento.filename?.split('/').pop() ?? ''}:${evento.lineno ?? ''})`));
+  window.addEventListener('unhandledrejection', (evento) => guardarUltimoError(`Promesa: ${evento.reason?.message ?? evento.reason}`));
+}
+
 function registrarServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
   window.addEventListener('load', () => {
@@ -67,5 +74,6 @@ function registrarServiceWorker() {
   });
 }
 
+vigilarErrores();
 arrancar();
 registrarServiceWorker();

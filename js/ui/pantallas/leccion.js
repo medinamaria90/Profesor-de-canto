@@ -16,6 +16,7 @@ import { TEXTOS } from '../../contenido/textos.js';
 import { obtenerEstado, actualizarEstado } from '../../estado/tienda.js';
 import { guardarResultadoLeccion } from '../../estado/sesion.js';
 import { leerLeccionEnCurso, guardarLeccionEnCurso, borrarLeccionEnCurso } from '../../estado/leccion-en-curso.js';
+import { guardarUltimoError } from '../../estado/almacen.js';
 import { mostrarAviso } from '../componentes/aviso.js';
 import {
   fechaClave,
@@ -94,8 +95,15 @@ export function crearPantallaLeccion({ id }) {
     const contenedor = el('div', { clase: `ejercicio ejercicio--${ejercicio.tipo}` });
     area.replaceChildren(contenedor);
     fijarAcciones([]);
-    ejercicioActual = crearEjercicio(ejercicio, { contenedor, fijarAcciones, alTerminar: mostrarFeedback });
-    ejercicioActual.iniciar();
+    try {
+      ejercicioActual = crearEjercicio(ejercicio, { contenedor, fijarAcciones, alTerminar: mostrarFeedback });
+      ejercicioActual.iniciar();
+    } catch (error) {
+      console.error('No se pudo cargar el ejercicio.', error);
+      guardarUltimoError(`Ejercicio ${ejercicio.tipo}: ${error.message}`);
+      contenedor.append(el('p', { clase: 'aviso', role: 'alert', texto: T.errorEjercicio }));
+      fijarAcciones([{ texto: T.saltar, accion: () => mostrarFeedback({ puntuacion: 0 }) }]);
+    }
   }
 
   function mostrarFeedback(resultado) {

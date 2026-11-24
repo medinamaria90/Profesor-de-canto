@@ -113,6 +113,8 @@
   margin: 0;
   font-weight: var(--peso-medio);
   font-variant-numeric: tabular-nums;
+  text-align: right;
+  overflow-wrap: anywhere;
 }
 
 .perfil__peligro {
