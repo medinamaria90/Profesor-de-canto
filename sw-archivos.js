@@ -1,5 +1,5 @@
 // Generado por herramientas/generar-lista-sw.cjs; no editar a mano.
-self.VERSION_ARCHIVOS = 'mwuyd5eb';
+self.VERSION_ARCHIVOS = 'mwuypus6';
 self.ARCHIVOS_APP = [
   "./css/apaisado.css",
   "./css/base.css",
@@ -34,6 +34,7 @@ self.ARCHIVOS_APP = [
   "./js/audio/entrada-simulada.js",
   "./js/audio/instrumentos.js",
   "./js/audio/lector-tono.js",
+  "./js/audio/mezcla.js",
   "./js/audio/microfono.js",
   "./js/audio/servicio-audio.js",
   "./js/audio/sintetizador.js",

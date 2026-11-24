@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CANCIONES, obtenerCancion, notasDeFrase, pulsoInicioFrase } from '../js/contenido/canciones.js';
-import { compasesDeMelodia, PULSOS_POR_COMPAS } from '../js/musica/arreglos.js';
+import { CANCIONES, obtenerCancion } from '../js/contenido/canciones.js';
+import { compasesDeMelodia } from '../js/musica/arreglos.js';
 
 test('todas las canciones son coherentes: frases ordenadas, acordes dentro de los compases, ámbito cantable', () => {
   for (const cancion of CANCIONES) {
@@ -17,11 +17,7 @@ test('todas las canciones son coherentes: frases ordenadas, acordes dentro de lo
   }
 });
 
-test('las frases se cortan por sus índices y empiezan en el pulso correcto', () => {
-  const cancion = obtenerCancion('primer-vuelo');
-  assert.equal(notasDeFrase(cancion, 0).length, 6);
-  assert.equal(pulsoInicioFrase(cancion, 1), 2 * PULSOS_POR_COMPAS);
-  assert.equal(notasDeFrase(cancion, 3).at(-1)[1], 4);
+test('una canción desconocida devuelve null', () => {
   assert.equal(obtenerCancion('no-existe'), null);
 });
 

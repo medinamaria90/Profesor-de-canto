@@ -30,27 +30,6 @@ export const FRAY_SANTIAGO = {
   notas: [[0, 1], [2, 1], [4, 1], [0, 1], [0, 1], [2, 1], [4, 1], [0, 1], [4, 1], [5, 1], [7, 2], [4, 1], [5, 1], [7, 2]],
 };
 
-export const ESTRELLITA_PRIMERA_PARTE = {
-  titulo: 'Estrellita (primera parte)',
-  tempo: 104,
-  notas: [[0, 1], [0, 1], [7, 1], [7, 1], [9, 1], [9, 1], [7, 2], [5, 1], [5, 1], [4, 1], [4, 1], [2, 1], [2, 1], [0, 2]],
-};
-
-export const ESTRELLITA_SEGUNDA_PARTE = {
-  titulo: 'Estrellita (segunda parte)',
-  tempo: 104,
-  notas: [[7, 1], [7, 1], [5, 1], [5, 1], [4, 1], [4, 1], [2, 2], [7, 1], [7, 1], [5, 1], [5, 1], [4, 1], [4, 1], [2, 2]],
-};
-
-export const HIMNO_ALEGRIA = {
-  titulo: 'Himno de la alegría',
-  tempo: 112,
-  notas: [
-    [4, 1], [4, 1], [5, 1], [7, 1], [7, 1], [5, 1], [4, 1], [2, 1],
-    [0, 1], [0, 1], [2, 1], [4, 1], [4, 1.5], [2, 0.5], [2, 2],
-  ],
-};
-
 export const CUCU_CANTABA_LA_RANA = {
   titulo: 'Cucú, cantaba la rana',
   tempo: 100,

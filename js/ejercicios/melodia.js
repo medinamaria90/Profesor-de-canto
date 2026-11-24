@@ -23,13 +23,10 @@ const FRACCION_MISMO_LADO_PARA_CONSEJO = 0.75;
 export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijarAcciones }) {
   const esCancion = ejercicio.tipo === 'cancion';
   const TC = TEXTOS.ejercicios.cancion;
-  const tipoTexto = esCancion ? (ejercicio.modo === 'frase' ? TC.fraseFormato(ejercicio.frase + 1, ejercicio.totalFrases) : TC.titulo) : T.titulo;
+  const tipoTexto = esCancion ? TC.titulo : T.titulo;
   const cabecera = crearCabeceraEjercicio(tipoTexto, T.instruccionEscucha);
   const pulso = segundosPorPulso(ejercicio.tempo);
-  // En una frase intermedia, el acompañamiento arranca en el compás y la melodía entra unos pulsos después.
-  const entrada = (ejercicio.pulsosDeEntrada ?? 0) * pulso;
-  const notasConEntrada = entrada > 0 ? [{ midi: null, pulsos: ejercicio.pulsosDeEntrada }, ...ejercicio.notas] : ejercicio.notas;
-  const rollo = crearPianoRoll(notasConEntrada, ejercicio.tempo, { etiqueta: ejercicio.titulo });
+  const rollo = crearPianoRoll(ejercicio.notas, ejercicio.tempo, { etiqueta: ejercicio.titulo });
   const estado = crearEstadoEjercicio();
   contenedor.append(
     cabecera.elemento,
@@ -61,7 +58,7 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
     estado.textContent = `${TEXTOS.leccion.escuchar}…`;
     const inicio = audio.ahora() + RETARDO_INICIO_SEGUNDOS;
     if (ejercicio.acompanamiento) audio.reproducirAcompanamiento(ejercicio.acompanamiento, { cuando: inicio });
-    audio.reproducirSecuencia(notasConEntrada, ejercicio.tempo, { cuando: inicio });
+    audio.reproducirSecuencia(ejercicio.notas, ejercicio.tempo, { cuando: inicio });
     const animar = () => {
       const tiempo = audio.ahora() - inicio;
       rollo.fijarTiempo(tiempo);
@@ -105,7 +102,7 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
     const inicio = audio.ahora() + RETARDO_INICIO_SEGUNDOS + PULSOS_CUENTA_ATRAS * pulso;
     for (let i = PULSOS_CUENTA_ATRAS; i >= 1; i--) audio.clickMetronomo(inicio - i * pulso, i === PULSOS_CUENTA_ATRAS);
     if (ejercicio.acompanamiento) audio.reproducirAcompanamiento(ejercicio.acompanamiento, { cuando: inicio, ganancia: 0.8 });
-    audio.reproducirSecuencia(notasConEntrada, ejercicio.tempo, { cuando: inicio, ganancia: GANANCIA_ACOMPANAMIENTO });
+    audio.reproducirSecuencia(ejercicio.notas, ejercicio.tempo, { cuando: inicio, ganancia: GANANCIA_ACOMPANAMIENTO });
     captura = capturarEnTiempo({
       inicioAudio: inicio,
       duracion: duracionTotal(),

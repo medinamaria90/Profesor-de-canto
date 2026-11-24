@@ -160,7 +160,6 @@ export const TEXTOS = {
     },
     cancion: {
       titulo: 'Canción',
-      fraseFormato: (actual, total) => `Frase ${actual} de ${total}`,
       instruccionCanta: 'Cántala',
     },
     escucha: {

@@ -1,6 +1,6 @@
 // Catálogo de canciones: originales de Alondra y melodías de dominio público (compositor fallecido antes de 1946).
 // Cada canción está en grados (semitonos desde la tónica) y se transporta al rango vocal del usuario.
-// notas: [[grado, pulsos]], frases: índices de nota donde empieza cada frase, acordes: [{ compas, grados }].
+// notas: [[grado, pulsos]], frases: índices de nota donde empieza cada frase (respiraciones), acordes: [{ compas, grados }].
 
 const ACORDE = {
   I: [0, 4, 7],
@@ -137,16 +137,4 @@ export function obtenerCancion(id) {
 
 export function gradosDeCancion(cancion) {
   return cancion.notas.map(([grado]) => grado);
-}
-
-// Devuelve la lista de notas de una frase (índice de frase 0, 1, …).
-export function notasDeFrase(cancion, indiceFrase) {
-  const inicio = cancion.frases[indiceFrase];
-  const fin = cancion.frases[indiceFrase + 1] ?? cancion.notas.length;
-  return cancion.notas.slice(inicio, fin);
-}
-
-// Pulso absoluto en el que empieza una frase.
-export function pulsoInicioFrase(cancion, indiceFrase) {
-  return cancion.notas.slice(0, cancion.frases[indiceFrase]).reduce((suma, [, pulsos]) => suma + pulsos, 0);
 }

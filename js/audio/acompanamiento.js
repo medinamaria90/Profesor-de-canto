@@ -1,10 +1,18 @@
-// Programa la orquestación de una canción (acordes, bajo y percusión) a partir de su arreglo.
+// Programa la orquestación de una canción (piano, cuerdas, bajo y percusión) a partir de su arreglo.
 
-import { generarArreglo, PULSOS_POR_COMPAS } from '../musica/arreglos.js';
-import { padAcorde, bajo, percusion } from './instrumentos.js';
+import { generarArreglo, colocarEnRegistro, PULSOS_POR_COMPAS } from '../musica/arreglos.js';
+import { piano, cuerdas, bajo, percusion } from './instrumentos.js';
 import { segundosPorPulso } from './sintetizador.js';
 
-const SOLAPE_ACORDE = 0.95;
+// Cada instrumento vive en su registro, sea cual sea la voz del usuario: la fundamental del acorde cae en estas notas MIDI.
+const REGISTRO_PIANO = { minimo: 52, maximo: 63 }; // Mi3 a Mi♭4
+const REGISTRO_CUERDAS = { minimo: 57, maximo: 68 };
+const REGISTRO_BAJO = { minimo: 36, maximo: 47 }; // Do2 a Si2
+const SOLAPE_PIANO = 1.1; // las notas del piano se pisan un poco, como con pedal
+const GANANCIA_PIANO = 0.17;
+const GANANCIA_CUERDAS = 0.045;
+const GANANCIA_BAJO = 0.22;
+const GANANCIA_PERCUSION = 0.08;
 
 // acompanamiento: { acordes: [{ compas, midis }], tempo, estilo, compasInicio, compases }
 // Devuelve { duracion, detener() }.
@@ -15,13 +23,19 @@ export function reproducirAcompanamiento(contexto, acompanamiento, { cuando = co
   const arreglo = generarArreglo(acordesRelativos, totalCompases, acompanamiento.estilo, acompanamiento.compasInicio ?? 0);
   const voces = [];
   for (const evento of arreglo.acordes) {
-    voces.push(padAcorde(contexto, evento.grados, evento.pulsos * pulso * SOLAPE_ACORDE, { cuando: cuando + evento.pulso * pulso, ganancia: 0.05 * ganancia }));
+    const midis = colocarEnRegistro(evento.grados, REGISTRO_PIANO.minimo, REGISTRO_PIANO.maximo);
+    voces.push(piano(contexto, midis, evento.pulsos * pulso * SOLAPE_PIANO, { cuando: cuando + evento.pulso * pulso, ganancia: GANANCIA_PIANO * ganancia }));
+  }
+  for (const evento of arreglo.cuerdas) {
+    const midis = colocarEnRegistro(evento.grados, REGISTRO_CUERDAS.minimo, REGISTRO_CUERDAS.maximo);
+    voces.push(cuerdas(contexto, midis, evento.pulsos * pulso, { cuando: cuando + evento.pulso * pulso, ganancia: GANANCIA_CUERDAS * ganancia }));
   }
   for (const evento of arreglo.bajo) {
-    voces.push(bajo(contexto, evento.grado, evento.pulsos * pulso * 0.9, { cuando: cuando + evento.pulso * pulso, ganancia: 0.16 * ganancia }));
+    const [midi] = colocarEnRegistro([evento.grado], REGISTRO_BAJO.minimo, REGISTRO_BAJO.maximo);
+    voces.push(bajo(contexto, midi, evento.pulsos * pulso * 0.95, { cuando: cuando + evento.pulso * pulso, ganancia: GANANCIA_BAJO * ganancia }));
   }
   for (const evento of arreglo.percusion) {
-    voces.push(percusion(contexto, evento.tipo, { cuando: cuando + evento.pulso * pulso, ganancia: 0.12 * ganancia }));
+    voces.push(percusion(contexto, evento.tipo, { cuando: cuando + evento.pulso * pulso, ganancia: GANANCIA_PERCUSION * ganancia }));
   }
   return {
     duracion: totalCompases * PULSOS_POR_COMPAS * pulso,

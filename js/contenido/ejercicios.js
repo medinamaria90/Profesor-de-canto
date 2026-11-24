@@ -1,9 +1,9 @@
 // Convierte las plantillas de una lección (grados relativos) en ejercicios concretos adaptados al rango vocal.
 
 import { gradosDeMelodia } from '../musica/melodias.js';
-import { obtenerCancion, gradosDeCancion, notasDeFrase, pulsoInicioFrase } from './canciones.js';
+import { obtenerCancion, gradosDeCancion } from './canciones.js';
 import { obtenerTecnica } from './tecnicas.js';
-import { PULSOS_POR_COMPAS, compasesDeMelodia } from '../musica/arreglos.js';
+import { compasesDeMelodia } from '../musica/arreglos.js';
 import { SEMITONOS_POR_NIVEL_OIDO, NIVEL_OIDO_MINIMO } from '../estado/progreso.js';
 
 export const DURACION_SIRENA_SEGUNDOS = 12;
@@ -20,34 +20,20 @@ function gradosDePlantilla(plantilla) {
   return [];
 }
 
-// Los acordes suenan una octava por debajo de la melodía para no taparla.
-const OCTAVA = 12;
-
+// La canción se canta entera; los acordes van en la misma tonalidad y el acompañamiento los coloca en su registro.
 function instanciarCancion(plantilla, base) {
   const cancion = obtenerCancion(plantilla.cancionId);
   if (!cancion) throw new Error(`Canción desconocida: ${plantilla.cancionId}`);
-  const esFrase = plantilla.modo === 'frase';
-  const notasGrados = esFrase ? notasDeFrase(cancion, plantilla.frase) : cancion.notas;
-  const pulsoInicio = esFrase ? pulsoInicioFrase(cancion, plantilla.frase) : 0;
-  const compasInicio = Math.floor(pulsoInicio / PULSOS_POR_COMPAS);
-  const pulsosFrase = notasGrados.reduce((suma, [, pulsos]) => suma + pulsos, 0);
-  const compases = Math.ceil((pulsoInicio - compasInicio * PULSOS_POR_COMPAS + pulsosFrase) / PULSOS_POR_COMPAS);
   return {
     titulo: cancion.titulo,
     autor: cancion.autor,
-    modo: plantilla.modo ?? 'completa',
-    frase: plantilla.frase ?? null,
-    totalFrases: cancion.frases.length,
     tempo: cancion.tempo,
-    notas: notasGrados.map(([grado, pulsos]) => ({ midi: base + grado, pulsos })),
-    // Silencio inicial para que la frase empiece donde cae dentro del compás.
-    pulsosDeEntrada: pulsoInicio - compasInicio * PULSOS_POR_COMPAS,
+    notas: cancion.notas.map(([grado, pulsos]) => ({ midi: base + grado, pulsos })),
     acompanamiento: {
       estilo: cancion.estilo,
       tempo: cancion.tempo,
-      compasInicio,
-      compases: esFrase ? compases : compasesDeMelodia(cancion.notas),
-      acordes: cancion.acordes.map((acorde) => ({ compas: acorde.compas, midis: acorde.grados.map((grado) => base + grado - OCTAVA) })),
+      compases: compasesDeMelodia(cancion.notas),
+      acordes: cancion.acordes.map((acorde) => ({ compas: acorde.compas, midis: acorde.grados.map((grado) => base + grado) })),
     },
   };
 }
