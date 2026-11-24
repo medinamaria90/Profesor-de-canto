@@ -8,6 +8,7 @@ import { TEXTOS } from '../contenido/textos.js';
 const T = TEXTOS.ejercicios.respiracion;
 const ORDEN_FASES = ['inhalar', 'retener', 'exhalar'];
 const MS_POR_SEGUNDO = 1000;
+const MS_PAUSA = 100;
 
 export function crearEjercicioRespiracion(ejercicio, { contenedor, alTerminar, fijarAcciones }) {
   const cabecera = crearCabeceraEjercicio(T.titulo, T.instruccion);
@@ -18,16 +19,18 @@ export function crearEjercicioRespiracion(ejercicio, { contenedor, alTerminar, f
   contenedor.append(cabecera.elemento, el('div', { clase: 'respiracion' }, circulo), estado);
 
   let cancelado = false;
+  let pausado = false;
 
   async function ejecutarFase(fase) {
     const segundos = ejercicio.fases[fase];
     circulo.style.setProperty('--duracion-fase', `${segundos}s`);
     circulo.dataset.fase = fase;
     etiquetaFase.textContent = T[fase];
+    estado.textContent = T[fase];
     for (let restante = segundos; restante > 0; restante--) {
       if (cancelado) return;
+      while (pausado && !cancelado) await esperar(MS_PAUSA);
       cuenta.textContent = String(restante);
-      estado.textContent = `${T[fase]} · ${restante}`;
       await esperar(MS_POR_SEGUNDO);
     }
   }
@@ -52,6 +55,12 @@ export function crearEjercicioRespiracion(ejercicio, { contenedor, alTerminar, f
     iniciar() {
       circulo.dataset.fase = 'reposo';
       fijarAcciones([{ texto: TEXTOS.leccion.empezar, accion: comenzar }]);
+    },
+    pausar() {
+      pausado = true;
+    },
+    reanudar() {
+      pausado = false;
     },
     destruir() {
       cancelado = true;

@@ -120,6 +120,15 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
       rollo.montar();
       faseEscuchar();
     },
+    pausar() {
+      detenerAnimacion();
+      captura?.cancelar();
+      contenedor.classList.remove('ejercicio--grabando');
+      fijarAcciones([]);
+    },
+    reanudar() {
+      faseEscuchar();
+    },
     destruir() {
       destruido = true;
       detenerAnimacion();

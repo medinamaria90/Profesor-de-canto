@@ -78,6 +78,12 @@ export function crearPantallaBienvenida() {
     if (paso === 1) pasoNombre();
     else if (paso === 2) pasoObjetivo();
     else pasoRango();
+    // El foco pasa al título del paso para que el teclado y el lector sigan el flujo.
+    const titulo = contenido.querySelector('h1');
+    if (titulo && paso !== 1) {
+      titulo.tabIndex = -1;
+      titulo.focus();
+    }
   }
 
   function terminar(medirRango) {

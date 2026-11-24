@@ -27,6 +27,7 @@ function anotarFrecuencia(contexto, frecuencia, cuando) {
   const retraso = Math.max(0, (cuando - contexto.currentTime) * 1000);
   const temporizador = setTimeout(() => {
     ultimaFrecuencia = frecuencia;
+    temporizadoresFrecuencia = temporizadoresFrecuencia.filter((id) => id !== temporizador);
   }, retraso);
   temporizadoresFrecuencia.push(temporizador);
 }

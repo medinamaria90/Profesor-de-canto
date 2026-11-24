@@ -80,6 +80,13 @@ export function crearEjercicioNota(ejercicio, { contenedor, alTerminar, fijarAcc
       visual.montar();
       faseEscuchar();
     },
+    pausar() {
+      captura?.cancelar();
+      fijarAcciones([]);
+    },
+    reanudar() {
+      faseCantar();
+    },
     destruir() {
       destruido = true;
       captura?.cancelar();

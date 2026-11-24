@@ -53,6 +53,7 @@ export function crearPantallaLeccion({ id }) {
   let indice = enCurso?.indice ?? 0;
   let ejercicioActual = null;
   let modoPractica = enCurso?.modoPractica ?? false;
+  let destruida = false;
 
   function recordarProgreso() {
     guardarLeccionEnCurso({ leccionId: leccion.id, ejercicios, puntuaciones, indice, modoPractica });
@@ -129,7 +130,7 @@ export function crearPantallaLeccion({ id }) {
     const puntuacion = puntuarMelodia(puntuaciones);
     const estrellas = calcularEstrellas(puntuacion);
     const hoy = fechaClave();
-    const xpCompleto = esRutina ? XP_RUTINA_DIARIA : calcularXpLeccion(puntuaciones);
+    const xpCompleto = esRutina ? XP_RUTINA_DIARIA : calcularXpLeccion(puntuaciones, { conBonus: !modoPractica });
     const xp = modoPractica ? Math.round(xpCompleto * FACTOR_XP_PRACTICA) : xpCompleto;
     let logrosNuevos = [];
     const estadoFinal = actualizarEstado((estado) => {
@@ -159,8 +160,13 @@ export function crearPantallaLeccion({ id }) {
   }
 
   async function confirmarSalida() {
+    ejercicioActual?.pausar?.();
+    audio.detenerTodo();
     const salir = await mostrarDialogo({ titulo: T.confirmarSalirTitulo, texto: T.confirmarSalirTexto, confirmar: T.confirmarSalirSi, cancelar: T.confirmarSalirNo, peligro: true });
-    if (!salir) return;
+    if (!salir) {
+      ejercicioActual?.reanudar?.();
+      return;
+    }
     borrarLeccionEnCurso();
     navegar('/', { reemplazar: true });
   }
@@ -183,16 +189,19 @@ export function crearPantallaLeccion({ id }) {
       mostrarEjercicio();
       return;
     }
-    if (await audio.puedeAbrirSinPreguntar()) {
+    const sinPreguntar = await audio.puedeAbrirSinPreguntar();
+    if (destruida) return;
+    if (sinPreguntar) {
       try {
         await audio.abrirEntrada();
-        mostrarEjercicio();
+        if (!destruida) mostrarEjercicio();
         return;
       } catch (error) {
+        if (destruida || error.motivo === 'cancelado') return;
         console.warn('No se pudo reabrir el micrófono; se muestra la tarjeta de permiso.', error);
       }
     }
-    area.replaceChildren(crearSolicitudMicrofono({ alListo: mostrarEjercicio, alOmitir: seguirSinMicrofono }).elemento);
+    area.replaceChildren(crearSolicitudMicrofono({ alListo: () => !destruida && mostrarEjercicio(), alOmitir: seguirSinMicrofono }).elemento);
   }
 
   function montado() {
@@ -209,6 +218,7 @@ export function crearPantallaLeccion({ id }) {
     elemento,
     montado,
     destruir() {
+      destruida = true;
       ejercicioActual?.destruir();
       audio.detenerTodo();
       audio.cerrarEntrada();

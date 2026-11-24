@@ -1,7 +1,7 @@
 // Fachada de audio para las pantallas: una entrada compartida (micrófono o simulada), lector de tono y sintetizador.
 
 import { obtenerContexto, reanudarContexto } from './contexto.js';
-import { abrirMicrofono } from './microfono.js';
+import { abrirMicrofono, ErrorMicrofono } from './microfono.js';
 import { crearEntradaSimulada } from './entrada-simulada.js';
 import { crearLectorTono } from './lector-tono.js';
 import * as sintetizador from './sintetizador.js';
@@ -17,6 +17,8 @@ const LATENCIA_SALIDA_POR_DEFECTO_SEGUNDOS = 0.08;
 
 let entrada = null;
 let aperturaPendiente = null;
+// Cada apertura lleva un número; si se cierra la entrada mientras se abre, el resultado se descarta.
+let generacion = 0;
 // Tras conceder el permiso una vez (en esta visita o en otra anterior), no se vuelve a mostrar la tarjeta.
 let permisoConcedido = false;
 
@@ -51,6 +53,7 @@ export const audio = {
 
   // Libera el micrófono: se llama al salir de cualquier pantalla que lo use.
   cerrarEntrada() {
+    generacion++;
     if (!entrada) return;
     entrada.cerrar();
     entrada = null;
@@ -59,12 +62,18 @@ export const audio = {
   async abrirEntrada() {
     if (entrada) return entrada;
     if (!aperturaPendiente) {
+      const miGeneracion = ++generacion;
       const contexto = await reanudarContexto();
       aperturaPendiente = (CONFIGURACION.simulacion ? Promise.resolve(crearEntradaSimulada(contexto)) : abrirMicrofono(contexto))
         .then((nueva) => {
+          if (miGeneracion !== generacion) {
+            // La pantalla que pidió el micrófono ya se cerró: se libera sin usarlo.
+            nueva.cerrar();
+            throw new ErrorMicrofono('cancelado');
+          }
           entrada = nueva;
           permisoConcedido = true;
-          guardarPermisoMicrofono();
+          if (!CONFIGURACION.simulacion) guardarPermisoMicrofono();
           return nueva;
         })
         .finally(() => {

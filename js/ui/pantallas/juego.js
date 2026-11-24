@@ -37,6 +37,7 @@ export function crearPantallaJuego() {
 
   let partida = null;
   let lector = null;
+  let destruida = false;
   let animacion = null;
   let ultimoTiempo = null;
   let ultimaNotaGuiada = null;
@@ -153,11 +154,15 @@ export function crearPantallaJuego() {
     elemento,
     montado() {
       audio.preparar().catch((error) => console.warn('No se pudo activar el audio aún.', error));
-      const mostrarSolicitud = () => area.replaceChildren(crearSolicitudMicrofono({ alListo: arrancar }).elemento);
+      const siVive = (accion) => () => {
+        if (!destruida) accion();
+      };
+      const mostrarSolicitud = siVive(() => area.replaceChildren(crearSolicitudMicrofono({ alListo: siVive(arrancar) }).elemento));
       if (audio.tieneEntrada()) arrancar();
-      else audio.puedeAbrirSinPreguntar().then((sinPreguntar) => (sinPreguntar ? audio.abrirEntrada().then(arrancar).catch(mostrarSolicitud) : mostrarSolicitud()));
+      else audio.puedeAbrirSinPreguntar().then((sinPreguntar) => (sinPreguntar ? audio.abrirEntrada().then(siVive(arrancar)).catch(mostrarSolicitud) : mostrarSolicitud()));
     },
     destruir() {
+      destruida = true;
       if (animacion !== null) cancelAnimationFrame(animacion);
       partida = null;
       lector?.detener();

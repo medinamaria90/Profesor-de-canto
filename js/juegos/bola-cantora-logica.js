@@ -133,8 +133,10 @@ function comprobarPuertas(partida) {
     }
     const hueco = huecoDePuerta(partida, puerta);
     const dentroDelHueco = bola.y - RADIO_BOLA >= hueco.arriba && bola.y + RADIO_BOLA <= hueco.abajo;
-    if (!dentroDelHueco && partida.tiempo >= partida.invulnerableHasta) {
-      puerta.chocada = true;
+    if (dentroDelHueco) continue;
+    puerta.chocada = true;
+    // Durante la invulnerabilidad se atraviesa la pared sin perder vida, pero la puerta no cuenta.
+    if (partida.tiempo >= partida.invulnerableHasta) {
       perderVida(partida);
       eventos.push({ tipo: 'choque', nota: puerta.nota });
     }

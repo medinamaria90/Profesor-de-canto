@@ -64,6 +64,13 @@ export function crearEjercicioSirena(ejercicio, { contenedor, alTerminar, fijarA
       visual.montar();
       faseCantar();
     },
+    pausar() {
+      captura?.cancelar();
+      fijarAcciones([]);
+    },
+    reanudar() {
+      faseCantar();
+    },
     destruir() {
       destruido = true;
       captura?.cancelar();

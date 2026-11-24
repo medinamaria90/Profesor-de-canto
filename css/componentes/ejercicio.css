@@ -125,7 +125,7 @@
   gap: var(--espacio-1);
   min-height: 64px;
   padding: var(--espacio-3) var(--espacio-4);
-  border: 2px solid var(--contorno);
+  border: 2px solid var(--contorno-fuerte);
   border-radius: var(--radio-m);
   background: var(--superficie);
   font-weight: var(--peso-medio);

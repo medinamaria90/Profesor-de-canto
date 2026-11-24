@@ -113,12 +113,12 @@ export function registrarActividad(estado, xp, hoy) {
   };
 }
 
-export function calcularXpLeccion(puntuaciones) {
+export function calcularXpLeccion(puntuaciones, { conBonus = true } = {}) {
   if (!puntuaciones.length) return 0;
   const suma = puntuaciones.reduce((acumulado, valor) => acumulado + valor, 0);
   const media = suma / puntuaciones.length;
   const base = Math.round(suma * XP_POR_PUNTO);
-  return media >= UMBRAL_LECCION_PERFECTA ? base + BONUS_XP_LECCION_PERFECTA : base;
+  return conBonus && media >= UMBRAL_LECCION_PERFECTA ? base + BONUS_XP_LECCION_PERFECTA : base;
 }
 
 export function registrarLeccion(estado, { leccionId, puntuacion, estrellas, xp, hoy }) {

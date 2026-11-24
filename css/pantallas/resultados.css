@@ -60,7 +60,7 @@
   font-weight: var(--peso-fuerte);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--texto-suave);
+  color: var(--sobre-superficie);
 }
 
 .resultados__xp {

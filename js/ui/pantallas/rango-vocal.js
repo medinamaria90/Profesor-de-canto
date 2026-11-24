@@ -37,6 +37,7 @@ export function crearPantallaRangoVocal({ consulta }) {
   const elemento = el('section', { clase: 'pantalla pantalla-rango' }, area);
 
   let lector = null;
+  let destruida = false;
   let minimo = null;
   let maximo = null;
   let notaEstable = null;
@@ -116,7 +117,8 @@ export function crearPantallaRangoVocal({ consulta }) {
   }
 
   function mostrarSolicitud() {
-    area.replaceChildren(crearSolicitudMicrofono({ alListo: arrancar, alOmitir: salir, textoOmitir: T.saltarRango }).elemento);
+    if (destruida) return;
+    area.replaceChildren(crearSolicitudMicrofono({ alListo: () => !destruida && arrancar(), alOmitir: salir, textoOmitir: T.saltarRango }).elemento);
   }
 
   return {
@@ -124,9 +126,10 @@ export function crearPantallaRangoVocal({ consulta }) {
     montado() {
       audio.preparar().catch((error) => console.warn('No se pudo activar el audio aún.', error));
       if (audio.tieneEntrada()) arrancar();
-      else audio.puedeAbrirSinPreguntar().then((sinPreguntar) => (sinPreguntar ? audio.abrirEntrada().then(arrancar).catch(mostrarSolicitud) : mostrarSolicitud()));
+      else audio.puedeAbrirSinPreguntar().then((sinPreguntar) => (sinPreguntar ? audio.abrirEntrada().then(() => !destruida && arrancar()).catch(mostrarSolicitud) : mostrarSolicitud()));
     },
     destruir() {
+      destruida = true;
       lector?.detener();
       visual.destruir();
       audio.cerrarEntrada();

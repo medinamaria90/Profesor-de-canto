@@ -25,7 +25,7 @@
   --error-contenedor: #FFDAD9;
   --sobre-error-contenedor: #410006;
 
-  --racha: #E4580B;
+  --racha: #D14F08;
   --racha-contenedor: #FFE1D1;
   --sobre-racha-contenedor: #5A1E00;
 
@@ -37,6 +37,7 @@
   --sobre-superficie: #1B1A22;
   --texto-suave: #58556A;
   --contorno: #C6C1D6;
+  --contorno-fuerte: #6F6A86;
   --contorno-suave: #E7E2F2;
 
   --bloqueado: #DCD8E6;
@@ -144,6 +145,7 @@
     --sobre-superficie: #E8E4F2;
     --texto-suave: #B1ACC2;
     --contorno: #4B4759;
+    --contorno-fuerte: #9B96AC;
     --contorno-suave: #2E2B3A;
 
     --bloqueado: #2E2B3A;

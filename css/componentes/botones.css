@@ -47,7 +47,7 @@
 .boton--contorno {
   background: transparent;
   color: var(--primario);
-  border-color: var(--contorno);
+  border-color: var(--contorno-fuerte);
 }
 
 .boton--texto {

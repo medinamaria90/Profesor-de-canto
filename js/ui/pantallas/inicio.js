@@ -71,28 +71,26 @@ function crearNodoLeccion(leccion, estado, esActual, posicion) {
   const desbloqueada = leccionDesbloqueada(estado, leccion.id);
   const completada = estrellas > 0;
   const estadoNodo = !desbloqueada ? 'bloqueada' : esActual ? 'actual' : completada ? 'completada' : 'disponible';
-  const descripcionId = `nodo-desc-${leccion.id}`;
+  const descripcion = !desbloqueada ? T.bloqueada : T.estrellasFormato(estrellas);
   const boton = el(
     'button',
     {
       clase: `camino__boton camino__boton--${estadoNodo}`,
       type: 'button',
       disabled: !desbloqueada,
-      'aria-describedby': descripcionId,
+      'aria-label': `${leccion.titulo}. ${descripcion}`,
       onClick: () => navegar(`/leccion/${leccion.id}`),
     },
     el('span', { clase: 'camino__icono', 'aria-hidden': 'true', texto: desbloqueada ? leccion.icono : '' }),
     !desbloqueada && el('span', { clase: 'camino__candado' }, icono('candado', { tamano: 22 })),
     esActual && el('span', { clase: 'camino__burbuja', 'aria-hidden': 'true', texto: completada ? T.repetir : T.empezar }),
   );
-  const descripcion = !desbloqueada ? T.bloqueada : T.estrellasFormato(estrellas);
   return el(
     'li',
     { clase: `camino__nodo camino__nodo--${posicion} ${esActual ? 'camino__nodo--actual' : ''}`.trim() },
     boton,
     el('span', { clase: 'camino__titulo', texto: leccion.titulo }),
     desbloqueada && crearEstrellas(estrellas, { tamano: 's' }),
-    el('span', { clase: 'visualmente-oculto', id: descripcionId, texto: `${leccion.titulo}. ${descripcion}` }),
   );
 }
 
@@ -131,7 +129,7 @@ export function crearPantallaInicio() {
     montado() {
       consumirAvisosPendientes().forEach((texto, indice) => mostrarAviso(texto, { retrasoMs: indice * DURACION_AVISO_MS }));
       const nodoActual = elemento.querySelector('.camino__boton--actual');
-      if (nodoActual) {
+      if (nodoActual && nodoActual.getBoundingClientRect().bottom > window.innerHeight) {
         requestAnimationFrame(() => nodoActual.scrollIntoView({ block: 'center', behavior: prefiereMenosMovimiento() ? 'auto' : 'smooth' }));
       }
     },

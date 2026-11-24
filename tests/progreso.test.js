@@ -45,6 +45,7 @@ test('la racha vigente cae a cero si ayer no hubo actividad', () => {
 test('XP de lección: un décimo de los puntos más bonus si es redonda', () => {
   assert.equal(calcularXpLeccion([100, 100, 100]), 45);
   assert.equal(calcularXpLeccion([60, 70, 80]), 21);
+  assert.equal(calcularXpLeccion([100, 100, 100], { conBonus: false }), 30);
   assert.equal(calcularXpLeccion([]), 0);
 });
 

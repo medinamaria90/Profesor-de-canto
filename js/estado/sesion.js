@@ -1,15 +1,27 @@
 // Datos efímeros de la sesión (no se guardan): el resultado de la última lección para la pantalla de resultados.
 
+const CLAVE_RESULTADO = 'alondra.ultimo-resultado';
 let ultimoResultado = null;
 
 export function guardarResultadoLeccion(resultado) {
   ultimoResultado = resultado;
+  try {
+    window.sessionStorage.setItem(CLAVE_RESULTADO, JSON.stringify(resultado));
+  } catch (error) {
+    console.warn('No se pudo guardar el resultado para una recarga.', error);
+  }
 }
 
 export function consumirResultadoLeccion() {
-  const resultado = ultimoResultado;
+  let resultado = ultimoResultado;
   ultimoResultado = null;
-  return resultado;
+  try {
+    resultado ??= JSON.parse(window.sessionStorage.getItem(CLAVE_RESULTADO));
+    window.sessionStorage.removeItem(CLAVE_RESULTADO);
+  } catch (error) {
+    console.warn('No se pudo leer el resultado guardado.', error);
+  }
+  return resultado ?? null;
 }
 
 let avisosPendientes = [];

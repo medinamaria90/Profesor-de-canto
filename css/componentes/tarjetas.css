@@ -50,7 +50,7 @@
   width: 100%;
   min-height: 56px;
   padding: 0 var(--espacio-4);
-  border: 2px solid var(--contorno);
+  border: 2px solid var(--contorno-fuerte);
   border-radius: var(--radio-m);
   background: var(--superficie);
   font-size: var(--tam-letra-l);

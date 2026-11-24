@@ -28,6 +28,7 @@ export function crearPantallaAfinador() {
   );
 
   let lector = null;
+  let destruida = false;
   let ultimaVoz = 0;
   let objetivoActual = null;
 
@@ -71,11 +72,15 @@ export function crearPantallaAfinador() {
   return {
     elemento,
     montado() {
-      const mostrarSolicitud = () => area.replaceChildren(crearSolicitudMicrofono({ alListo: arrancar }).elemento);
+      const siVive = (accion) => () => {
+        if (!destruida) accion();
+      };
+      const mostrarSolicitud = siVive(() => area.replaceChildren(crearSolicitudMicrofono({ alListo: siVive(arrancar) }).elemento));
       if (audio.tieneEntrada()) arrancar();
-      else audio.puedeAbrirSinPreguntar().then((sinPreguntar) => (sinPreguntar ? audio.abrirEntrada().then(arrancar).catch(mostrarSolicitud) : mostrarSolicitud()));
+      else audio.puedeAbrirSinPreguntar().then((sinPreguntar) => (sinPreguntar ? audio.abrirEntrada().then(siVive(arrancar)).catch(mostrarSolicitud) : mostrarSolicitud()));
     },
     destruir() {
+      destruida = true;
       lector?.detener();
       audio.cerrarEntrada();
       visual.destruir();
