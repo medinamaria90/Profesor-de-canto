@@ -20,6 +20,27 @@ function mediana(valores) {
   return ordenados[Math.floor(ordenados.length / 2)];
 }
 
+let ultimosFotogramasPorSegundo = 0;
+let cuentaFotogramas = 0;
+let inicioCuenta = 0;
+const MS_VENTANA_FPS = 1000;
+
+// Fotogramas por segundo que consigue el detector en este dispositivo (0 si aún no se ha medido).
+export function fotogramasPorSegundoDelDetector() {
+  return ultimosFotogramasPorSegundo;
+}
+
+function contarFotograma() {
+  const ahora = performance.now();
+  if (inicioCuenta === 0) inicioCuenta = ahora;
+  cuentaFotogramas++;
+  if (ahora - inicioCuenta >= MS_VENTANA_FPS) {
+    ultimosFotogramasPorSegundo = Math.round((cuentaFotogramas * 1000) / (ahora - inicioCuenta));
+    cuentaFotogramas = 0;
+    inicioCuenta = ahora;
+  }
+}
+
 // alLeer recibe { voz: true, midi, frecuencia, claridad, nivel } o { voz: false, nivel }.
 export function crearLectorTono(entrada, alLeer) {
   let animacion = null;
@@ -27,6 +48,7 @@ export function crearLectorTono(entrada, alLeer) {
   let reducido = null;
 
   function paso() {
+    contarFotograma();
     const buffer = entrada.leer();
     reducido ??= new Float32Array(Math.floor(buffer.length / FACTOR_DIEZMADO));
     const deteccion = detectarTono(diezmar(buffer, reducido), entrada.frecuenciaMuestreo / FACTOR_DIEZMADO);

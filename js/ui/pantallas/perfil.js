@@ -37,6 +37,28 @@ function crearTarjetaRango(estado) {
   );
 }
 
+function formatearSegundos(valor) {
+  return valor === null || valor === undefined ? '–' : `${Math.round(valor * 1000)} ms`;
+}
+
+function crearTarjetaDiagnostico() {
+  const datos = audio.diagnostico();
+  const filas = [
+    [T.diagnosticoLatenciaSalida, formatearSegundos(datos.latenciaSalida)],
+    [T.diagnosticoLatenciaEntrada, formatearSegundos(datos.latenciaEntrada)],
+    [T.diagnosticoLatenciaAprendida, formatearSegundos(datos.latenciaAprendida)],
+    [T.diagnosticoFotogramas, datos.fotogramasPorSegundo ? String(datos.fotogramasPorSegundo) : '–'],
+    [T.diagnosticoMuestreo, `${datos.frecuenciaMuestreo} Hz`],
+  ];
+  return el(
+    'section',
+    { clase: 'tarjeta perfil__seccion', 'aria-labelledby': 'perfil-diagnostico' },
+    el('h2', { clase: 'perfil__subtitulo', id: 'perfil-diagnostico', texto: T.diagnostico }),
+    el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.diagnosticoTexto }),
+    el('dl', { clase: 'diagnostico' }, filas.map(([etiqueta, valor]) => el('div', { clase: 'diagnostico__fila' }, el('dt', { texto: etiqueta }), el('dd', { texto: valor })))),
+  );
+}
+
 function crearLogro(logro, conseguidoEl) {
   const conseguido = Boolean(conseguidoEl);
   return el(
@@ -92,6 +114,7 @@ export function crearPantallaPerfil() {
       el('div', { clase: 'perfil__fila' }, el('h2', { clase: 'perfil__subtitulo', id: 'perfil-logros', texto: T.logros }), el('span', { clase: 'perfil__contador', texto: T.logrosFormato(conseguidos, LOGROS.length) })),
       el('ul', { clase: 'logros' }, LOGROS.map((logro) => crearLogro(logro, estado.logros[logro.id]))),
     ),
+    crearTarjetaDiagnostico(),
     el('div', { clase: 'perfil__peligro' }, crearBoton(T.reiniciar, { variante: 'peligro-texto', onClick: confirmarBorrado })),
   );
   return { elemento };

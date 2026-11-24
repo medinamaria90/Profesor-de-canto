@@ -91,6 +91,30 @@
   font-weight: var(--peso-fuerte);
 }
 
+.diagnostico {
+  width: 100%;
+  margin: 0;
+  display: grid;
+  gap: var(--espacio-2);
+}
+
+.diagnostico__fila {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  font-size: var(--tam-letra-s);
+}
+
+.diagnostico__fila dt {
+  color: var(--texto-suave);
+}
+
+.diagnostico__fila dd {
+  margin: 0;
+  font-weight: var(--peso-medio);
+  font-variant-numeric: tabular-nums;
+}
+
 .perfil__peligro {
   display: flex;
   justify-content: center;

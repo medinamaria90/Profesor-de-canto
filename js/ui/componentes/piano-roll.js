@@ -12,6 +12,7 @@ const ALTO_NOTA_RELATIVO = 0.8;
 const RADIO_ESQUINA = 8;
 const RADIO_PUNTO = 3.5;
 const SEPARACION_NOTAS_SEGUNDOS = 0.04;
+const MARGEN_RESUMEN = 8;
 
 export function crearPianoRoll(notas, tempo, { etiqueta } = {}) {
   const canvas = el('canvas', { clase: 'piano-roll__canvas' });
@@ -32,6 +33,8 @@ export function crearPianoRoll(notas, tempo, { etiqueta } = {}) {
   let tiempo = 0;
   const estela = [];
   let observador = null;
+  // En modo resumen la melodía entera cabe en el ancho del canvas.
+  let resumen = false;
 
   function colores() {
     return {
@@ -78,8 +81,9 @@ export function crearPianoRoll(notas, tempo, { etiqueta } = {}) {
     const { contexto, ancho, alto } = ajustarCanvas(canvas);
     const paleta = colores();
     contexto.clearRect(0, 0, ancho, alto);
-    const xCursor = ancho * POSICION_CURSOR_RELATIVA;
-    const xDeTiempo = (t) => xCursor + (t - tiempo) * PIXELES_POR_SEGUNDO;
+    const pixelesPorSegundo = resumen ? (ancho - MARGEN_RESUMEN * 2) / Math.max(duracion, 0.001) : PIXELES_POR_SEGUNDO;
+    const xCursor = resumen ? MARGEN_RESUMEN : ancho * POSICION_CURSOR_RELATIVA;
+    const xDeTiempo = (t) => xCursor + (t - (resumen ? 0 : tiempo)) * pixelesPorSegundo;
     const altoFila = alto / (midiMaximo - midiMinimo + 1);
     const yDeMidi = (midi) => alto - (midi - midiMinimo + 0.5) * altoFila;
 
@@ -99,7 +103,7 @@ export function crearPianoRoll(notas, tempo, { etiqueta } = {}) {
     for (const segmento of segmentos) {
       if (segmento.midi === null) continue;
       const x = xDeTiempo(segmento.inicio);
-      const anchoNota = (segmento.fin - segmento.inicio - SEPARACION_NOTAS_SEGUNDOS) * PIXELES_POR_SEGUNDO;
+      const anchoNota = (segmento.fin - segmento.inicio - SEPARACION_NOTAS_SEGUNDOS) * pixelesPorSegundo;
       if (x + anchoNota < 0 || x > ancho) continue;
       const altoNota = altoFila * ALTO_NOTA_RELATIVO;
       const y = yDeMidi(segmento.midi) - altoNota / 2;
@@ -128,6 +132,7 @@ export function crearPianoRoll(notas, tempo, { etiqueta } = {}) {
       contexto.fill();
     }
 
+    if (resumen) return;
     contexto.strokeStyle = paleta.cursor;
     contexto.lineWidth = 2;
     contexto.beginPath();
@@ -162,7 +167,12 @@ export function crearPianoRoll(notas, tempo, { etiqueta } = {}) {
       segmentos[indice].estado = puntuacion;
       dibujar();
     },
+    mostrarResumen() {
+      resumen = true;
+      dibujar();
+    },
     reiniciar() {
+      resumen = false;
       estela.length = 0;
       segmentos.forEach((segmento) => {
         segmento.estado = null;

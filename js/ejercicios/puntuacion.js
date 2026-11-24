@@ -74,7 +74,7 @@ export function puntuarSirena(midiMuestras, semitonosObjetivo = SEMITONOS_SIRENA
   return { puntuacion, amplitud, ascendente };
 }
 
-export const DESFASE_MAXIMO_SEGUNDOS = 0.9;
+export const DESFASE_MAXIMO_SEGUNDOS = 1.5;
 export const PASO_DESFASE_SEGUNDOS = 0.02;
 
 function segmentoEn(segmentos, tiempo) {

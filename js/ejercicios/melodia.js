@@ -109,9 +109,10 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
       rollo.marcarNota(segmento.indice, puntuacion);
     }
     estado.textContent = '';
+    rollo.mostrarResumen();
     alTerminar({
       puntuacion: puntuarMelodia(puntuaciones),
-      detalle: T.notasFormato(afinadas, puntuaciones.length),
+      detalle: `${T.notasFormato(afinadas, puntuaciones.length)} · ${T.desfaseFormato(desfase)}`,
       errorMedio: puntuarMuestras(todosLosCents).errorMedio,
     });
   }

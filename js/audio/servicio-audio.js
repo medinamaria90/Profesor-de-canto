@@ -3,7 +3,7 @@
 import { obtenerContexto, reanudarContexto } from './contexto.js';
 import { abrirMicrofono, ErrorMicrofono } from './microfono.js';
 import { crearEntradaSimulada } from './entrada-simulada.js';
-import { crearLectorTono } from './lector-tono.js';
+import { crearLectorTono, fotogramasPorSegundoDelDetector } from './lector-tono.js';
 import * as sintetizador from './sintetizador.js';
 import { CONFIGURACION } from '../nucleo/configuracion.js';
 import { TAMANO_BLOQUE } from './microfono.js';
@@ -103,6 +103,18 @@ export const audio = {
     const salida = contexto.outputLatency || LATENCIA_SALIDA_POR_DEFECTO_SEGUNDOS;
     const entrada = contexto.baseLatency || 0;
     return salida + entrada + TAMANO_BLOQUE / contexto.sampleRate / 2 + leerLatenciaAprendida();
+  },
+
+  // Datos para entender el comportamiento del audio en este dispositivo.
+  diagnostico() {
+    const contexto = obtenerContexto();
+    return {
+      frecuenciaMuestreo: contexto.sampleRate,
+      latenciaSalida: contexto.outputLatency ?? null,
+      latenciaEntrada: contexto.baseLatency ?? null,
+      latenciaAprendida: leerLatenciaAprendida(),
+      fotogramasPorSegundo: fotogramasPorSegundoDelDetector(),
+    };
   },
 
   // Tras una melodía, el desfase sobrante que se detectó se incorpora a la latencia aprendida.
