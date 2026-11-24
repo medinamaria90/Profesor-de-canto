@@ -36,7 +36,7 @@ export function crearVistaBolaCantora() {
   const paletaCss = crearPaleta({
     cieloArriba: '--juego-cielo',
     cieloAbajo: '--juego-suelo',
-    sol: '--secundario-contenedor',
+    sol: '--juego-astro',
     colinaLejos: '--juego-colina-lejos',
     colinaCerca: '--juego-colina-cerca',
     nube: '--juego-nube',
@@ -142,14 +142,15 @@ export function crearVistaBolaCantora() {
       rectanguloRedondeado(contexto, x, hueco.abajo, ANCHO_PUERTA, partida.alto - hueco.abajo + RADIO_ESQUINA_PUERTA, RADIO_ESQUINA_PUERTA);
       contexto.fill();
       contexto.shadowBlur = 0;
-      // Cartel con la nota, colgado en el borde superior del hueco.
+      // Cartel con la nota, centrado en el hueco y siempre dentro del cuadro.
       const anchoCartel = 44;
       const altoCartel = 22;
+      const yCartel = Math.min(partida.alto - altoCartel - 4, Math.max(4, hueco.centro - altoCartel / 2));
       contexto.fillStyle = paleta.cartel;
-      rectanguloRedondeado(contexto, x + ANCHO_PUERTA / 2 - anchoCartel / 2, hueco.arriba + 4, anchoCartel, altoCartel, 6);
+      rectanguloRedondeado(contexto, x + ANCHO_PUERTA / 2 - anchoCartel / 2, yCartel, anchoCartel, altoCartel, 6);
       contexto.fill();
       contexto.fillStyle = paleta.cartelTexto;
-      contexto.fillText(nombreNota(puerta.nota, false), x + ANCHO_PUERTA / 2, hueco.arriba + 4 + altoCartel / 2);
+      contexto.fillText(nombreNota(puerta.nota, false), x + ANCHO_PUERTA / 2, yCartel + altoCartel / 2);
     }
   }
 

@@ -21,6 +21,10 @@ export const TEXTOS = {
     finPuertas: (puertas) => (puertas === 1 ? '1 puerta superada' : `${puertas} puertas superadas`),
     finXp: (xp) => `+${xp} XP`,
     nuevoRecord: '¡Nuevo récord!',
+    pista: 'Pista de nota',
+    pistaSi: 'sí',
+    pistaNo: 'no',
+    bonusSinPista: 'Sin pista: +50 % de XP',
   },
 
   bienvenida: {

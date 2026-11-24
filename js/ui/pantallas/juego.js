@@ -11,7 +11,7 @@ import { GANANCIA_ACOMPANAMIENTO } from '../../audio/sintetizador.js';
 import { TEXTOS } from '../../contenido/textos.js';
 import { evaluarLogros, JUEGO_BOLA_CANTORA } from '../../contenido/logros.js';
 import { obtenerEstado, actualizarEstado } from '../../estado/tienda.js';
-import { fechaClave, rangoVocalEfectivo, registrarPartida, mejorPuntuacionJuego } from '../../estado/progreso.js';
+import { fechaClave, rangoVocalEfectivo, registrarPartida, mejorPuntuacionJuego, pistaDeNotaActiva, fijarPistaDeNota, FACTOR_XP_SIN_PISTA } from '../../estado/progreso.js';
 import { audio } from '../../audio/servicio-audio.js';
 import { navegar } from '../../nucleo/router.js';
 
@@ -57,7 +57,29 @@ export function crearPantallaJuego() {
     if (!puerta || puerta.nota === ultimaNotaGuiada) return;
     ultimaNotaGuiada = puerta.nota;
     siguiente.textContent = T.siguienteNota(nombreNota(puerta.nota));
-    audio.reproducirNota(puerta.nota, DURACION_NOTA_GUIA_SEGUNDOS, { ganancia: GANANCIA_ACOMPANAMIENTO });
+    if (pistaDeNotaActiva(obtenerEstado())) audio.reproducirNota(puerta.nota, DURACION_NOTA_GUIA_SEGUNDOS, { ganancia: GANANCIA_ACOMPANAMIENTO });
+  }
+
+  function crearInterruptorPista() {
+    const activa = pistaDeNotaActiva(obtenerEstado());
+    const boton = el(
+      'button',
+      {
+        clase: 'interruptor',
+        type: 'button',
+        role: 'switch',
+        'aria-checked': String(activa),
+        onClick: () => {
+          const nueva = !pistaDeNotaActiva(obtenerEstado());
+          actualizarEstado((estado) => fijarPistaDeNota(estado, nueva));
+          boton.setAttribute('aria-checked', String(nueva));
+          boton.querySelector('.interruptor__estado').textContent = nueva ? T.pistaSi : T.pistaNo;
+        },
+      },
+      el('span', { clase: 'interruptor__texto', texto: T.pista }),
+      el('span', { clase: 'interruptor__estado', texto: activa ? T.pistaSi : T.pistaNo }),
+    );
+    return boton;
   }
 
   function bucle(ahora) {
@@ -103,7 +125,7 @@ export function crearPantallaJuego() {
     lector?.detener();
     vozActual = null;
     const puertas = partida.puertasSuperadas;
-    const xp = xpDePartida(puertas);
+    const xp = Math.round(xpDePartida(puertas) * (pistaDeNotaActiva(obtenerEstado()) ? 1 : FACTOR_XP_SIN_PISTA));
     const hoy = fechaClave();
     const mejorAnterior = mejorPuntuacionJuego(obtenerEstado(), JUEGO_BOLA_CANTORA);
     actualizarEstado((estado) => evaluarLogros(registrarPartida(estado, { juegoId: JUEGO_BOLA_CANTORA, puntuacion: puertas, xp, hoy }), hoy).estado);
@@ -134,6 +156,7 @@ export function crearPantallaJuego() {
       ),
       el('div', { clase: 'juego__tablero' }, vista.elemento, capa),
       siguiente,
+      el('div', { clase: 'juego__opciones' }, crearInterruptorPista(), el('span', { clase: 'juego__record', texto: T.bonusSinPista })),
       record,
     );
     pintarVidas(VIDAS_INICIALES);

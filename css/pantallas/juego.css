@@ -129,3 +129,36 @@
     height: 60vh;
   }
 }
+
+.juego__opciones {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-3);
+  flex-wrap: wrap;
+}
+
+.interruptor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  min-height: 40px;
+  padding: 0 var(--espacio-4);
+  border: 2px solid var(--contorno-fuerte);
+  border-radius: var(--radio-completo);
+  background: var(--superficie);
+  font-weight: var(--peso-medio);
+  font-size: var(--tam-letra-s);
+}
+
+.interruptor[aria-checked="true"] {
+  border-color: var(--primario);
+  background: var(--primario-contenedor);
+  color: var(--sobre-primario-contenedor);
+}
+
+.interruptor__estado {
+  text-transform: uppercase;
+  font-size: var(--tam-letra-xs);
+  letter-spacing: 0.06em;
+}

@@ -59,6 +59,7 @@
   --juego-colina-lejos: #A9D7B8;
   --juego-colina-cerca: #6FB98A;
   --juego-nube: rgba(255, 255, 255, 0.85);
+  --juego-astro: #FFE08A;
   --alondra-cuerpo: #B8793A;
   --alondra-vientre: #F6E4C8;
   --alondra-ala: #7A4A1E;
@@ -180,6 +181,7 @@
     --juego-colina-lejos: #2F5A5C;
     --juego-colina-cerca: #244B46;
     --juego-nube: rgba(220, 230, 255, 0.35);
+    --juego-astro: #F2E6B8;
     --alondra-cuerpo: #D08A48;
     --alondra-vientre: #F9E9D0;
     --alondra-ala: #8E5A2A;

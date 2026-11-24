@@ -37,7 +37,18 @@ export const ESTADO_INICIAL = Object.freeze({
   juegos: {},
   oido: { nivel: 1, racha: 0, aciertos: 0, intentos: 0 },
   testsOido: [],
+  preferencias: { pistaDeNota: true },
 });
+
+export const FACTOR_XP_SIN_PISTA = 1.5;
+
+export function pistaDeNotaActiva(estado) {
+  return estado.preferencias?.pistaDeNota ?? true;
+}
+
+export function fijarPistaDeNota(estado, activa) {
+  return { ...estado, preferencias: { ...(estado.preferencias ?? {}), pistaDeNota: activa } };
+}
 
 export function registrarTestOido(estado, resultado, hoy) {
   return { ...estado, testsOido: [...(estado.testsOido ?? []), { fecha: hoy, ...resultado }] };
