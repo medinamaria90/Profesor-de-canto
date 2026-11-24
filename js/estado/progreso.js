@@ -32,6 +32,7 @@ export const ESTADO_INICIAL = Object.freeze({
   lecciones: {},
   rutinasDiarias: {},
   rangoVocal: null,
+  historialRango: [],
   logros: {},
   juegos: {},
 });
@@ -140,8 +141,20 @@ export function rangoVocalEfectivo(estado) {
   return rango;
 }
 
-export function guardarRangoVocal(estado, minimo, maximo) {
-  return { ...estado, rangoVocal: { minimo: Math.round(minimo), maximo: Math.round(maximo) } };
+// Guarda el rango medido y lo añade al historial (una entrada por día: la última del día sustituye a la anterior).
+export function guardarRangoVocal(estado, minimo, maximo, hoy) {
+  const rango = { minimo: Math.round(minimo), maximo: Math.round(maximo) };
+  const historial = (estado.historialRango ?? []).filter((medida) => medida.fecha !== hoy);
+  return { ...estado, rangoVocal: rango, historialRango: [...historial, { fecha: hoy, ...rango }] };
+}
+
+// Semitonos ganados entre la primera medición y la última.
+export function mejoraDelRango(estado) {
+  const historial = estado.historialRango ?? [];
+  if (historial.length < 2) return 0;
+  const primera = historial[0];
+  const ultima = historial[historial.length - 1];
+  return ultima.maximo - ultima.minimo - (primera.maximo - primera.minimo);
 }
 
 export function completarBienvenida(estado, { nombre, objetivoDiarioXp }) {

@@ -178,7 +178,7 @@ export function crearPantallaLeccion({ id }) {
       mostrarEjercicio();
       return;
     }
-    if (audio.permisoConcedido()) {
+    if (await audio.puedeAbrirSinPreguntar()) {
       try {
         await audio.abrirEntrada();
         mostrarEjercicio();

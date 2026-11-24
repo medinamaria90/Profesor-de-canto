@@ -51,9 +51,44 @@
   color: var(--texto-suave);
 }
 
+.perfil__texto--pequeno {
+  font-size: var(--tam-letra-s);
+}
+
 .perfil__contador {
   color: var(--texto-suave);
   font-weight: var(--peso-medio);
+}
+
+.grafico-rango__marco {
+  width: 100%;
+}
+
+.grafico-rango {
+  width: 100%;
+  height: auto;
+  font-family: var(--fuente);
+}
+
+.grafico-rango__barra {
+  fill: var(--primario-contenedor);
+}
+
+.grafico-rango__fila--ultima .grafico-rango__barra {
+  fill: var(--primario);
+}
+
+.grafico-rango__fecha,
+.grafico-rango__semitonos,
+.grafico-rango__eje {
+  font-size: 11px;
+  fill: var(--texto-suave);
+}
+
+.grafico-rango__fila--ultima .grafico-rango__fecha,
+.grafico-rango__fila--ultima .grafico-rango__semitonos {
+  fill: var(--sobre-superficie);
+  font-weight: var(--peso-fuerte);
 }
 
 .perfil__peligro {

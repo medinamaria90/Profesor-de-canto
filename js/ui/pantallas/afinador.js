@@ -71,9 +71,9 @@ export function crearPantallaAfinador() {
   return {
     elemento,
     montado() {
+      const mostrarSolicitud = () => area.replaceChildren(crearSolicitudMicrofono({ alListo: arrancar }).elemento);
       if (audio.tieneEntrada()) arrancar();
-      else if (audio.permisoConcedido()) audio.abrirEntrada().then(arrancar).catch(() => area.replaceChildren(crearSolicitudMicrofono({ alListo: arrancar }).elemento));
-      else area.replaceChildren(crearSolicitudMicrofono({ alListo: arrancar }).elemento);
+      else audio.puedeAbrirSinPreguntar().then((sinPreguntar) => (sinPreguntar ? audio.abrirEntrada().then(arrancar).catch(mostrarSolicitud) : mostrarSolicitud()));
     },
     destruir() {
       lector?.detener();

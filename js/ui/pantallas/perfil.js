@@ -7,7 +7,8 @@ import { crearSelectorObjetivo } from './bienvenida.js';
 import { LOGROS } from '../../contenido/logros.js';
 import { TEXTOS } from '../../contenido/textos.js';
 import { obtenerEstado, actualizarEstado, reiniciarEstado } from '../../estado/tienda.js';
-import { fechaClave, rachaVigente, totalEstrellas } from '../../estado/progreso.js';
+import { fechaClave, rachaVigente, totalEstrellas, mejoraDelRango } from '../../estado/progreso.js';
+import { crearGraficoRango } from '../componentes/grafico-rango.js';
 import { nombreNota } from '../../musica/notas.js';
 import { audio } from '../../audio/servicio-audio.js';
 import { navegar } from '../../nucleo/router.js';
@@ -20,12 +21,17 @@ function crearEstadistica(etiqueta, valor) {
 
 function crearTarjetaRango(estado) {
   const rango = estado.rangoVocal;
+  const historial = estado.historialRango ?? [];
+  const mejora = mejoraDelRango(estado);
   const texto = rango ? T.rangoFormato(nombreNota(rango.minimo), nombreNota(rango.maximo), rango.maximo - rango.minimo) : T.rangoSinMedir;
   return el(
     'section',
     { clase: 'tarjeta perfil__seccion', 'aria-labelledby': 'perfil-rango' },
     el('h2', { clase: 'perfil__subtitulo', id: 'perfil-rango', texto: T.rangoTitulo }),
     el('p', { clase: 'perfil__texto', texto }),
+    historial.length > 0 && crearGraficoRango(historial, T.evolucionRango),
+    historial.length > 1 && el('p', { clase: 'perfil__texto', texto: T.mejoraFormato(mejora) }),
+    el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.rangoConsejo }),
     crearBoton(rango ? T.medirOtraVez : T.medirRango, { variante: 'tonal', onClick: () => navegar('/rango?volver=/perfil') }),
   );
 }

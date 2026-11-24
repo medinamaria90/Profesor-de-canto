@@ -7,14 +7,27 @@ import { crearLectorTono } from './lector-tono.js';
 import * as sintetizador from './sintetizador.js';
 import { CONFIGURACION } from '../nucleo/configuracion.js';
 import { TAMANO_BLOQUE } from './microfono.js';
+import { leerPermisoMicrofono, guardarPermisoMicrofono } from '../estado/almacen.js';
 
 // Si el navegador no informa de su latencia de salida, se asume la típica de un móvil.
 const LATENCIA_SALIDA_POR_DEFECTO_SEGUNDOS = 0.08;
 
 let entrada = null;
 let aperturaPendiente = null;
-// Tras conceder el permiso una vez, las siguientes aperturas no necesitan tarjeta explicativa.
+// Tras conceder el permiso una vez (en esta visita o en otra anterior), no se vuelve a mostrar la tarjeta.
 let permisoConcedido = false;
+
+async function permisoDelNavegador() {
+  if (!navigator.permissions?.query) return false;
+  try {
+    const resultado = await navigator.permissions.query({ name: 'microphone' });
+    return resultado.state === 'granted';
+  } catch (error) {
+    // Algunos navegadores no reconocen el permiso "microphone"; se seguirá preguntando.
+    console.warn('No se pudo consultar el permiso de micrófono.', error);
+    return false;
+  }
+}
 
 export const audio = {
   esSimulado: CONFIGURACION.simulacion,
@@ -27,8 +40,10 @@ export const audio = {
     return entrada !== null;
   },
 
-  permisoConcedido() {
-    return permisoConcedido;
+  // true si se puede abrir el micrófono sin mostrar antes la tarjeta explicativa.
+  async puedeAbrirSinPreguntar() {
+    if (CONFIGURACION.simulacion || permisoConcedido || leerPermisoMicrofono()) return true;
+    return permisoDelNavegador();
   },
 
   // Libera el micrófono: se llama al salir de cualquier pantalla que lo use.
@@ -46,6 +61,7 @@ export const audio = {
         .then((nueva) => {
           entrada = nueva;
           permisoConcedido = true;
+          guardarPermisoMicrofono();
           return nueva;
         })
         .finally(() => {

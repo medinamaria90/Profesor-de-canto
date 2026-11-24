@@ -153,9 +153,9 @@ export function crearPantallaJuego() {
     elemento,
     montado() {
       audio.preparar().catch((error) => console.warn('No se pudo activar el audio aún.', error));
+      const mostrarSolicitud = () => area.replaceChildren(crearSolicitudMicrofono({ alListo: arrancar }).elemento);
       if (audio.tieneEntrada()) arrancar();
-      else if (audio.permisoConcedido()) audio.abrirEntrada().then(arrancar).catch(() => area.replaceChildren(crearSolicitudMicrofono({ alListo: arrancar }).elemento));
-      else area.replaceChildren(crearSolicitudMicrofono({ alListo: arrancar }).elemento);
+      else audio.puedeAbrirSinPreguntar().then((sinPreguntar) => (sinPreguntar ? audio.abrirEntrada().then(arrancar).catch(mostrarSolicitud) : mostrarSolicitud()));
     },
     destruir() {
       if (animacion !== null) cancelAnimationFrame(animacion);

@@ -12,6 +12,8 @@ import {
   RANGO_VOCAL_POR_DEFECTO,
   migrarEstado,
   XP_RUTINA_DIARIA,
+  guardarRangoVocal,
+  mejoraDelRango,
 } from '../js/estado/progreso.js';
 import { evaluarLogros } from '../js/contenido/logros.js';
 import { leccionDesbloqueada } from '../js/contenido/curriculum.js';
@@ -73,6 +75,16 @@ test('rango vocal: usa el estándar si no hay medida o es demasiado estrecho', (
   assert.deepEqual(rangoVocalEfectivo(ESTADO_INICIAL), RANGO_VOCAL_POR_DEFECTO);
   assert.deepEqual(rangoVocalEfectivo({ rangoVocal: { minimo: 60, maximo: 63 } }), RANGO_VOCAL_POR_DEFECTO);
   assert.deepEqual(rangoVocalEfectivo({ rangoVocal: { minimo: 50, maximo: 70 } }), { minimo: 50, maximo: 70 });
+});
+
+test('el rango medido se apunta en el historial, una entrada por día', () => {
+  let estado = guardarRangoVocal(ESTADO_INICIAL, 50, 60, '2026-01-01');
+  estado = guardarRangoVocal(estado, 50, 62, '2026-01-01');
+  estado = guardarRangoVocal(estado, 48, 64, '2026-01-10');
+  assert.equal(estado.historialRango.length, 2);
+  assert.deepEqual(estado.rangoVocal, { minimo: 48, maximo: 64 });
+  assert.equal(mejoraDelRango(estado), 4);
+  assert.equal(mejoraDelRango(ESTADO_INICIAL), 0);
 });
 
 test('migrar completa estados antiguos o corruptos', () => {

@@ -91,7 +91,8 @@ export function crearPantallaRangoVocal({ consulta }) {
     const agudo = maximo;
     let logrosNuevos = [];
     actualizarEstado((actual) => {
-      const evaluacion = evaluarLogros(guardarRangoVocal(actual, grave, agudo), fechaClave());
+      const hoy = fechaClave();
+      const evaluacion = evaluarLogros(guardarRangoVocal(actual, grave, agudo, hoy), hoy);
       logrosNuevos = evaluacion.nuevos;
       return evaluacion.estado;
     });
@@ -123,8 +124,7 @@ export function crearPantallaRangoVocal({ consulta }) {
     montado() {
       audio.preparar().catch((error) => console.warn('No se pudo activar el audio aún.', error));
       if (audio.tieneEntrada()) arrancar();
-      else if (audio.permisoConcedido()) audio.abrirEntrada().then(arrancar).catch(mostrarSolicitud);
-      else mostrarSolicitud();
+      else audio.puedeAbrirSinPreguntar().then((sinPreguntar) => (sinPreguntar ? audio.abrirEntrada().then(arrancar).catch(mostrarSolicitud) : mostrarSolicitud()));
     },
     destruir() {
       lector?.detener();
