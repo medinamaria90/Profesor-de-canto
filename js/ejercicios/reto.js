@@ -67,14 +67,18 @@ export function crearEjercicioReto(ejercicio, { contenedor, alTerminar, fijarAcc
     audio.reproducirSecuencia(ejercicio.notas, ejercicio.tempo, { cuando: inicioAudio + entradaSegundos, instrumento: 'piano', ganancia: GANANCIA_MELODIA });
   }
 
+  // Sin vidas, el vuelo no vale: cero y a repetir. Con vidas, cuentan las puertas superadas.
   function terminar() {
     lector?.detener();
     audio.detenerTodo();
     const superadas = partida.puertasSuperadas;
+    const caida = partida.vidas <= 0;
     alTerminar({
-      puntuacion: Math.round((superadas / total) * PUNTUACION_MAXIMA),
-      titulo: superadas === total ? T.perfecto : undefined,
+      puntuacion: caida ? 0 : Math.round((superadas / total) * PUNTUACION_MAXIMA),
+      titulo: caida ? T.caida : superadas === total ? T.perfecto : undefined,
       detalle: T.resultadoFormato(superadas, total),
+      repetir: comenzar,
+      textoRepetir: TEXTOS.leccion.otraVez,
     });
   }
 
@@ -101,6 +105,9 @@ export function crearEjercicioReto(ejercicio, { contenedor, alTerminar, fijarAcc
     fijarAcciones([]);
     await audio.prepararPiano();
     if (destruido) return;
+    marcador.textContent = `0/${total}`;
+    ultimaPuertaAnunciada = null;
+    vozActual = null;
     const { ancho, alto } = vista.medidas();
     const partitura = ejercicio.partitura.map((nota) => ({ midi: nota.midi, inicio: entradaSegundos + nota.inicio * pulso, duracion: nota.duracion * pulso }));
     partida = crearPartida(ejercicio.rango, { ancho, alto, partitura, velocidad });

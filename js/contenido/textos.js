@@ -81,6 +81,7 @@ export const TEXTOS = {
     progresoFormato: (actual, total) => `${actual} de ${total}`,
     continuar: 'Continuar',
     cantarOtraVez: 'Cantar otra vez',
+    otraVez: 'Otra vez',
     porcentajeFormato: (puntuacion) => `${Math.round(puntuacion)} %`,
     porcentajeEtiqueta: (puntuacion) => `Puntuación: ${Math.round(puntuacion)} por ciento`,
     reintentar: 'Reintentar',
@@ -164,6 +165,7 @@ export const TEXTOS = {
       preparado: 'Las puertas siguen la canción.',
       resultadoFormato: (superadas, total) => `${superadas} de ${total} puertas`,
       perfecto: '¡Vuelo perfecto!',
+      caida: 'La alondra se ha caído',
     },
     cancion: {
       titulo: 'Canción',
@@ -197,6 +199,7 @@ export const TEXTOS = {
     logroNuevo: 'Logro',
     continuar: 'Continuar',
     objetivoCumplido: '¡Objetivo cumplido!',
+    sinAprobar: 'Sin estrellas: repite la lección para avanzar.',
   },
 
   testOido: {

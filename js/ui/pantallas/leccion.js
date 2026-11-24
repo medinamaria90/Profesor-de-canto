@@ -8,7 +8,7 @@ import { mostrarDialogo } from '../componentes/dialogo.js';
 import { crearSolicitudMicrofono } from '../componentes/solicitud-microfono.js';
 import { crearEjercicio } from '../../ejercicios/indice.js';
 import { elegirAleatorio } from '../../ejercicios/comun.js';
-import { calcularEstrellas, calificarResultado, puntuarMelodia, TOLERANCIA_CENTS_AFINADO } from '../../ejercicios/puntuacion.js';
+import { calcularEstrellas, calificarResultado, puntuarMelodia, TOLERANCIA_CENTS_AFINADO, UMBRAL_UNA_ESTRELLA } from '../../ejercicios/puntuacion.js';
 import { instanciarEjercicios, requiereMicrofono } from '../../contenido/ejercicios.js';
 import { obtenerLeccion, RUTINA_DIARIA } from '../../contenido/curriculum.js';
 import { evaluarLogros } from '../../contenido/logros.js';
@@ -36,6 +36,7 @@ import { navegar } from '../../nucleo/router.js';
 import { crearPantallaNoEncontrada } from './no-encontrada.js';
 
 const T = TEXTOS.leccion;
+const EJERCICIOS_DECISIVOS = ['cancion', 'reto'];
 // A partir de esta desviación media se da un consejo de "cantas alto/bajo".
 const CENTS_PARA_CONSEJO = TOLERANCIA_CENTS_AFINADO * 0.6;
 // Sin micrófono la lección vale la mitad de XP y no cuenta para el camino.
@@ -118,7 +119,7 @@ export function crearPantallaLeccion({ id }) {
     // Si el ejercicio se puede repetir, la puntuación que cuenta es la del último intento.
     const botonRepetir =
       resultado.repetir &&
-      crearBoton(T.cantarOtraVez, {
+      crearBoton(resultado.textoRepetir ?? T.cantarOtraVez, {
         variante: 'tonal',
         ancho: true,
         onClick: () => {
@@ -162,7 +163,9 @@ export function crearPantallaLeccion({ id }) {
     ejercicioActual = null;
     borrarLeccionEnCurso();
     const puntuacion = puntuarMelodia(puntuaciones);
-    const estrellas = calcularEstrellas(puntuacion);
+    // La canción o el reto son la prueba de la lección: si se fallan, no hay estrellas y no se avanza.
+    const pruebaFallada = ejercicios.some((ejercicio, indice) => EJERCICIOS_DECISIVOS.includes(ejercicio.tipo) && (puntuaciones[indice] ?? 0) < UMBRAL_UNA_ESTRELLA);
+    const estrellas = pruebaFallada ? 0 : calcularEstrellas(puntuacion);
     const hoy = fechaClave();
     const xpCompleto = esRutina ? (rutinaHechaHoy(obtenerEstado(), hoy) ? 0 : XP_RUTINA_DIARIA) : calcularXpLeccion(puntuaciones, { conBonus: !modoPractica });
     const xp = modoPractica ? Math.round(xpCompleto * FACTOR_XP_PRACTICA) : xpCompleto;

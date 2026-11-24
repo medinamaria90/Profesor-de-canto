@@ -55,6 +55,13 @@ export function clickMetronomo(contexto, cuando, acento = false) {
   oscilador.connect(envolvente).connect(contexto.destination);
   oscilador.start(cuando);
   oscilador.stop(cuando + DURACION_CLICK_SEGUNDOS + MARGEN_PARADA_SEGUNDOS);
+  // Los clics programados por adelantado también se paran con detenerTodo().
+  const voz = { nodos: [oscilador], salida: envolvente };
+  vocesActivas.add(voz);
+  oscilador.onended = () => {
+    envolvente.disconnect();
+    vocesActivas.delete(voz);
+  };
 }
 
 // Programa una secuencia de notas [{ midi, pulsos }] y devuelve cuándo empieza y cuánto dura.

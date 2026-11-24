@@ -57,6 +57,7 @@ export function crearPantallaResultados() {
     el('p', { clase: 'resultados__sobretitulo', texto: resultado.modoPractica ? T.tituloPractica : resultado.esRutina ? T.tituloRutina : T.titulo }),
     el('h1', { clase: 'resultados__titulo', texto: resultado.titulo }),
     resultado.modoPractica ? el('p', { clase: 'aviso', role: 'note', texto: T.practicaSinEstrellas }) : crearEstrellas(resultado.estrellas, { tamano: 'l', animadas: true }),
+    !resultado.modoPractica && !resultado.esRutina && resultado.estrellas === 0 && el('p', { clase: 'aviso', role: 'note', texto: T.sinAprobar }),
     el(
       'div',
       { clase: 'resultados__tarjetas' },

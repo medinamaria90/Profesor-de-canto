@@ -1,5 +1,5 @@
 // Generado por herramientas/generar-lista-sw.cjs; no editar a mano.
-self.VERSION_ARCHIVOS = 'mwv0lebl';
+self.VERSION_ARCHIVOS = 'mwv0rb6r';
 self.ARCHIVOS_APP = [
   "./css/apaisado.css",
   "./css/base.css",
