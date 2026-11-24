@@ -23,7 +23,7 @@ export function crearEjercicioTecnica(ejercicio, { contenedor, alTerminar, fijar
   let temporizador = null;
 
   const botonEjemplo = ejercicio.ejemplo
-    ? crearBoton(T.escuchar, { variante: 'tonal', icono: 'reproducir', ancho: true, onClick: alternarEjemplo })
+    ? crearBoton(T.escuchar, { variante: 'tonal', ancho: true, onClick: alternarEjemplo })
     : null;
 
   function pararEjemplo() {
