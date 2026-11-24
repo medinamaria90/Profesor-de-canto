@@ -1,4 +1,4 @@
-// Test de oído: oído relativo (escalera adaptativa) y oído absoluto (nombrar notas sueltas), con consejos.
+// Test de oído: se elige una parte (relativo o absoluto), se hace y se ven resultados y consejos.
 
 import { el } from '../dom.js';
 import { crearBoton, crearBotonIcono } from '../componentes/boton.js';
@@ -30,12 +30,12 @@ import { audio } from '../../audio/servicio-audio.js';
 import { navegar } from '../../nucleo/router.js';
 
 const T = TEXTOS.testOido;
-const TOTAL_PREGUNTAS = PREGUNTAS_RELATIVO + PREGUNTAS_ABSOLUTO;
 const MS_TRAS_RESPUESTA = 700;
 
 export function crearPantallaTestOido() {
-  const barra = crearBarraProgreso({ valor: 0, maximo: TOTAL_PREGUNTAS, etiqueta: T.titulo });
+  const barra = crearBarraProgreso({ valor: 0, maximo: 1, etiqueta: T.titulo });
   const contador = el('span', { clase: 'leccion__contador', 'aria-hidden': 'true' });
+  const titulo = el('span', { clase: 'leccion__titulo', texto: T.titulo });
   const area = el('div', { clase: 'leccion__area' });
   const pie = el('div', { clase: 'leccion__pie leccion__pie--vacio' });
   const elemento = el(
@@ -45,7 +45,7 @@ export function crearPantallaTestOido() {
       'header',
       { clase: 'leccion__cabecera' },
       crearBotonIcono(icono('cerrar'), { ariaLabel: TEXTOS.perfil.cancelar, onClick: () => navegar('/perfil') }),
-      el('div', { clase: 'leccion__progreso' }, el('div', { clase: 'leccion__fila' }, el('span', { clase: 'leccion__titulo', texto: T.titulo }), contador), barra.elemento),
+      el('div', { clase: 'leccion__progreso' }, el('div', { clase: 'leccion__fila' }, titulo, contador), barra.elemento),
     ),
     area,
     pie,
@@ -55,6 +55,7 @@ export function crearPantallaTestOido() {
   let respuestasAbsoluto = [];
   let notaAnterior = null;
   let pregunta = 0;
+  let total = 0;
   let destruida = false;
 
   function fijarAcciones(acciones) {
@@ -66,17 +67,42 @@ export function crearPantallaTestOido() {
   function avanzarProgreso() {
     pregunta++;
     barra.actualizar(pregunta);
-    contador.textContent = `${Math.min(pregunta + 1, TOTAL_PREGUNTAS)}/${TOTAL_PREGUNTAS}`;
+    contador.textContent = `${Math.min(pregunta + 1, total)}/${total}`;
   }
 
-  function intro() {
+  function empezarParte(parte, preguntas) {
+    pregunta = 0;
+    total = preguntas;
+    barra.fijarMaximo(total);
+    barra.actualizar(0);
+    contador.textContent = `1/${total}`;
+    titulo.textContent = parte === 'relativo' ? T.parteRelativa : T.parteAbsoluta;
+    escalera = crearEscalera();
+    respuestasAbsoluto = [];
+    notaAnterior = null;
+    if (parte === 'relativo') preguntaRelativa();
+    else preguntaAbsoluta();
+  }
+
+  function eleccion() {
+    titulo.textContent = T.titulo;
+    contador.textContent = '';
+    barra.actualizar(0);
     area.replaceChildren(
-      el('div', { clase: 'ejercicio' }, el('p', { clase: 'ejercicio__tipo', texto: T.titulo }), el('h1', { clase: 'ejercicio__instruccion', texto: T.introTitulo }),
-        el('div', { clase: 'tarjeta tecnica' }, el('p', { clase: 'tecnica__resumen', texto: T.introRelativo }), el('p', { clase: 'tecnica__resumen', texto: T.introAbsoluto }), el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.introDuracion })),
+      el(
+        'div',
+        { clase: 'ejercicio' },
+        el('h1', { clase: 'ejercicio__instruccion', texto: T.introTitulo }),
+        el(
+          'div',
+          { clase: 'opciones opciones--vertical' },
+          el('button', { clase: 'opcion', type: 'button', onClick: () => empezarParte('relativo', PREGUNTAS_RELATIVO) }, el('span', { clase: 'opcion__texto', texto: T.parteRelativa }), el('span', { clase: 'opcion__detalle', texto: T.introRelativo })),
+          el('button', { clase: 'opcion', type: 'button', onClick: () => empezarParte('absoluto', PREGUNTAS_ABSOLUTO) }, el('span', { clase: 'opcion__texto', texto: T.parteAbsoluta }), el('span', { clase: 'opcion__detalle', texto: T.introAbsoluto })),
+        ),
+        el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.introDuracion }),
       ),
     );
-    contador.textContent = `1/${TOTAL_PREGUNTAS}`;
-    fijarAcciones([{ texto: T.empezar, accion: preguntaRelativa }]);
+    fijarAcciones([]);
   }
 
   function marcarOpciones(botones, opciones, elegida, correcta) {
@@ -90,20 +116,17 @@ export function crearPantallaTestOido() {
   async function preguntaRelativa() {
     if (destruida) return;
     if (escalera.historial.length >= PREGUNTAS_RELATIVO) {
-      preguntaAbsoluta();
+      resultadosRelativo();
       return;
     }
     fijarAcciones([]);
-    const cents = intervaloActual(escalera);
-    const par = parRelativo(cents, Math.random);
+    const par = parRelativo(intervaloActual(escalera), Math.random);
     const opciones = ['primera', 'segunda'];
     const estado = el('p', { clase: 'ejercicio__estado', 'aria-live': 'polite', texto: `${TEXTOS.leccion.escuchar}…` });
     const botones = opciones.map((valor) =>
       el('button', { clase: 'opcion', type: 'button', disabled: true, onClick: () => responder(valor) }, el('span', { clase: 'opcion__texto', texto: valor === 'primera' ? TEXTOS.ejercicios.escucha.primera : TEXTOS.ejercicios.escucha.segunda })),
     );
-    area.replaceChildren(
-      el('div', { clase: 'ejercicio' }, el('p', { clase: 'ejercicio__tipo', texto: T.parteRelativa }), el('h2', { clase: 'ejercicio__instruccion', texto: TEXTOS.ejercicios.escucha.preguntaAgudo }), el('div', { clase: 'opciones' }, botones), estado),
-    );
+    area.replaceChildren(el('div', { clase: 'ejercicio' }, el('h2', { clase: 'ejercicio__instruccion', texto: TEXTOS.ejercicios.escucha.preguntaAgudo }), el('div', { clase: 'opciones' }, botones), estado));
     const responder = (valor) => {
       const acierto = valor === par.respuestaCorrecta;
       marcarOpciones(botones, opciones, valor, par.respuestaCorrecta);
@@ -124,7 +147,7 @@ export function crearPantallaTestOido() {
   async function preguntaAbsoluta() {
     if (destruida) return;
     if (debeDetenerAbsoluto(respuestasAbsoluto)) {
-      resultados();
+      resultadosAbsoluto();
       return;
     }
     fijarAcciones([]);
@@ -136,9 +159,7 @@ export function crearPantallaTestOido() {
     const botones = grados.map((grado) =>
       el('button', { clase: 'opcion opcion--nota', type: 'button', disabled: true, onClick: () => responder(grado) }, el('span', { clase: 'opcion__texto', texto: NOMBRES_NOTAS[grado] })),
     );
-    area.replaceChildren(
-      el('div', { clase: 'ejercicio' }, el('p', { clase: 'ejercicio__tipo', texto: T.parteAbsoluta }), el('h2', { clase: 'ejercicio__instruccion', texto: T.preguntaAbsoluta }), el('div', { clase: 'opciones opciones--notas' }, botones), estado),
-    );
+    area.replaceChildren(el('div', { clase: 'ejercicio' }, el('h2', { clase: 'ejercicio__instruccion', texto: T.preguntaAbsoluta }), el('div', { clase: 'opciones opciones--notas' }, botones), estado));
     const responder = (grado) => {
       marcarOpciones(botones, grados, grado, correcta);
       estado.textContent = grado === correcta ? TEXTOS.ejercicios.escucha.correcto : T.eraFormato(nombreNota(midi, false));
@@ -155,57 +176,47 @@ export function crearPantallaTestOido() {
     fijarAcciones([{ texto: TEXTOS.leccion.escucharOtraVez, variante: 'tonal', accion: () => reproducirGuia([midi]) }]);
   }
 
-  function resultados() {
-    const umbral = umbralRelativo(escalera);
-    const nivelRelativo = valorarRelativo(umbral);
-    const absoluto = evaluarAbsoluto(respuestasAbsoluto);
-    const nivelAbsoluto = valorarAbsoluto(absoluto);
-    actualizarEstado((estado) => registrarTestOido(estado, { umbralCents: umbral, aciertosAbsoluto: absoluto.exactas, totalAbsoluto: absoluto.total }, fechaClave()));
+  function mostrarResultado(encabezado, lineas) {
     area.replaceChildren(
       el(
         'div',
         { clase: 'ejercicio' },
-        el('p', { clase: 'ejercicio__tipo', texto: T.titulo }),
-        el('h1', { clase: 'ejercicio__instruccion', texto: T.resultadosTitulo }),
-        el(
-          'section',
-          { clase: 'tarjeta tecnica' },
-          el('h2', { clase: 'perfil__subtitulo', texto: T.parteRelativa }),
-          el('p', { clase: 'tecnica__resumen', texto: T.umbralFormato(umbral) }),
-          el('p', { texto: T.valoracionRelativa[nivelRelativo] }),
-          el('p', { texto: T.poblacionFormato(poblacionRelativo(umbral).texto) }),
-          el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.margenFormato(umbral, UMBRAL_PROFESIONAL_CENTS, UMBRAL_MEDIA_SIN_ENTRENAR_CENTS) }),
-          el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.fuentesRelativo }),
-          el('p', { clase: 'tecnica__consejo', texto: T.consejoRelativo[nivelRelativo] }),
-        ),
-        el(
-          'section',
-          { clase: 'tarjeta tecnica' },
-          el('h2', { clase: 'perfil__subtitulo', texto: T.parteAbsoluta }),
-          el('p', { clase: 'tecnica__resumen', texto: T.absolutoFormato(absoluto.exactas, absoluto.total, absoluto.cercanas, absoluto.azar) }),
-          el('p', { texto: T.valoracionAbsoluta[nivelAbsoluto] }),
-          el('p', { clase: 'tecnica__consejo', texto: T.consejoAbsoluto[nivelAbsoluto] }),
-          el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.oidoAbsolutoExplicacion }),
-        ),
+        el('h1', { clase: 'ejercicio__instruccion', texto: encabezado }),
+        el('section', { clase: 'tarjeta tecnica' }, lineas),
       ),
     );
-    fijarAcciones([{ texto: TEXTOS.resultados.continuar, accion: () => navegar('/perfil') }, { texto: T.repetir, variante: 'texto', accion: reiniciar }]);
+    fijarAcciones([{ texto: TEXTOS.resultados.continuar, accion: () => navegar('/perfil') }, { texto: T.repetir, variante: 'texto', accion: eleccion }]);
   }
 
-  function reiniciar() {
-    escalera = crearEscalera();
-    respuestasAbsoluto = [];
-    notaAnterior = null;
-    pregunta = 0;
-    barra.actualizar(0);
-    intro();
+  function resultadosRelativo() {
+    const umbral = umbralRelativo(escalera);
+    const nivel = valorarRelativo(umbral);
+    actualizarEstado((estado) => registrarTestOido(estado, { umbralCents: umbral }, fechaClave()));
+    mostrarResultado(T.parteRelativa, [
+      el('p', { clase: 'tecnica__resumen', texto: T.umbralFormato(umbral) }),
+      el('p', { texto: `${T.valoracionRelativa[nivel]} ${T.poblacionFormato(poblacionRelativo(umbral).texto)}` }),
+      el('p', { clase: 'tecnica__consejo', texto: T.consejoRelativo[nivel] }),
+      el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: `${T.margenFormato(umbral, UMBRAL_PROFESIONAL_CENTS, UMBRAL_MEDIA_SIN_ENTRENAR_CENTS)} ${T.fuentesRelativo}` }),
+    ]);
+  }
+
+  function resultadosAbsoluto() {
+    const absoluto = evaluarAbsoluto(respuestasAbsoluto);
+    const nivel = valorarAbsoluto(absoluto);
+    actualizarEstado((estado) => registrarTestOido(estado, { aciertosAbsoluto: absoluto.exactas, totalAbsoluto: absoluto.total }, fechaClave()));
+    mostrarResultado(T.parteAbsoluta, [
+      el('p', { clase: 'tecnica__resumen', texto: T.absolutoFormato(absoluto.exactas, absoluto.total, absoluto.cercanas, absoluto.azar) }),
+      el('p', { texto: T.valoracionAbsoluta[nivel] }),
+      el('p', { clase: 'tecnica__consejo', texto: T.consejoAbsoluto[nivel] }),
+      el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.oidoAbsolutoExplicacion }),
+    ]);
   }
 
   return {
     elemento,
     montado() {
       audio.preparar().catch((error) => console.warn('No se pudo activar el audio aún.', error));
-      intro();
+      eleccion();
     },
     destruir() {
       destruida = true;

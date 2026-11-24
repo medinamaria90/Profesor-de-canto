@@ -122,3 +122,55 @@
   justify-content: center;
   padding-top: var(--espacio-4);
 }
+
+/* Perfil en una pantalla */
+.pantalla-perfil {
+  gap: var(--espacio-3);
+}
+
+.perfil__cabecera .boton {
+  margin-left: auto;
+}
+
+.perfil__estadisticas {
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--espacio-2);
+}
+
+.perfil__estadisticas .estadistica {
+  padding: var(--espacio-3) var(--espacio-1);
+}
+
+.perfil__estadisticas .estadistica__valor {
+  font-size: var(--tam-letra-l);
+}
+
+.ficha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  padding: var(--espacio-3) var(--espacio-4);
+}
+
+.ficha__texto {
+  min-width: 0;
+}
+
+.ficha__titulo {
+  font-weight: var(--peso-fuerte);
+}
+
+.ficha__detalle {
+  font-size: var(--tam-letra-s);
+  color: var(--texto-suave);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ficha .boton {
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 0 var(--espacio-4);
+}

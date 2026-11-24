@@ -1,7 +1,7 @@
 /* Tokens de diseño: único lugar donde se escriben colores y medidas. */
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
   /* Paleta (modo claro) */
   --primario: #1769C4;
@@ -144,8 +144,9 @@
   --punto-ancho: 840px;
 }
 
+/* Paleta nocturna: solo si algún día se activa a mano con data-tema="oscuro". */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root[data-tema="oscuro"] {
     --primario: #8EC2FF;
     --sobre-primario: #042B5C;
     --primario-contenedor: #1F4F8F;

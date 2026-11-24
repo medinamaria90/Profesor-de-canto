@@ -1,9 +1,10 @@
-// Perfil: estadísticas, rango vocal, objetivo diario, logros y borrado del progreso.
+// Perfil en una pantalla: lo esencial a la vista; logros, diagnóstico y ajustes detrás de un panel.
 
 import { el } from '../dom.js';
 import { crearBoton } from '../componentes/boton.js';
 import { icono } from '../componentes/iconos.js';
 import { mostrarDialogo } from '../componentes/dialogo.js';
+import { mostrarHoja } from '../componentes/hoja.js';
 import { crearSelectorObjetivo } from './bienvenida.js';
 import { LOGROS } from '../../contenido/logros.js';
 import { TEXTOS } from '../../contenido/textos.js';
@@ -16,24 +17,19 @@ import { leerUltimoError } from '../../estado/almacen.js';
 import { navegar } from '../../nucleo/router.js';
 
 const T = TEXTOS.perfil;
+const TO = TEXTOS.testOido;
 
 function crearEstadistica(etiqueta, valor) {
   return el('div', { clase: 'estadistica' }, el('p', { clase: 'estadistica__valor', texto: String(valor) }), el('p', { clase: 'estadistica__etiqueta', texto: etiqueta }));
 }
 
-function crearTarjetaRango(estado) {
-  const rango = estado.rangoVocal;
-  const historial = estado.historialRango ?? [];
-  const mejora = mejoraDelRango(estado);
-  const texto = rango ? T.rangoFormato(nombreNota(rango.minimo), nombreNota(rango.maximo), rango.maximo - rango.minimo) : T.rangoSinMedir;
+// Fila compacta: título, dato en una línea y un botón a la derecha.
+function crearFicha({ titulo, texto, boton, alPulsar }) {
   return el(
-    'section',
-    { clase: 'tarjeta perfil__seccion', 'aria-labelledby': 'perfil-rango' },
-    el('h2', { clase: 'perfil__subtitulo', id: 'perfil-rango', texto: T.rangoTitulo }),
-    el('p', { clase: 'perfil__texto', texto }),
-    historial.length > 0 && crearGraficoRango(historial, T.evolucionRango),
-    historial.length > 1 && el('p', { clase: 'perfil__texto', texto: T.mejoraFormato(mejora) }),
-    crearBoton(rango ? T.medirOtraVez : T.medirRango, { variante: 'tonal', onClick: () => navegar('/rango?volver=/perfil') }),
+    'div',
+    { clase: 'ficha tarjeta' },
+    el('div', { clase: 'ficha__texto' }, el('p', { clase: 'ficha__titulo', texto: titulo }), el('p', { clase: 'ficha__detalle', texto })),
+    crearBoton(boton, { variante: 'tonal', onClick: alPulsar }),
   );
 }
 
@@ -41,7 +37,34 @@ function formatearSegundos(valor) {
   return valor === null || valor === undefined ? '–' : `${Math.round(valor * 1000)} ms`;
 }
 
-function crearTarjetaDiagnostico() {
+function crearLogro(logro, conseguido) {
+  return el(
+    'li',
+    { clase: `logro ${conseguido ? '' : 'logro--bloqueado'}`.trim(), 'aria-label': `${logro.titulo}. ${logro.descripcion}${conseguido ? '' : `. ${T.bloqueado}`}` },
+    el('span', { clase: 'logro__icono', 'aria-hidden': 'true', texto: logro.icono }),
+    el('div', { clase: 'logro__texto' }, el('p', { clase: 'logro__titulo', texto: logro.titulo }), el('p', { clase: 'logro__descripcion', texto: logro.descripcion })),
+  );
+}
+
+function abrirLogros(estado) {
+  mostrarHoja({ titulo: T.logros, contenido: el('ul', { clase: 'logros' }, LOGROS.map((logro) => crearLogro(logro, Boolean(estado.logros[logro.id])))) });
+}
+
+function abrirRango(estado) {
+  const historial = estado.historialRango ?? [];
+  mostrarHoja({
+    titulo: T.rangoTitulo,
+    contenido: el(
+      'div',
+      { clase: 'hoja__pila' },
+      historial.length > 0 ? crearGraficoRango(historial, T.evolucionRango) : el('p', { clase: 'perfil__texto', texto: T.rangoSinMedir }),
+      historial.length > 1 && el('p', { clase: 'perfil__texto', texto: T.mejoraFormato(mejoraDelRango(estado)) }),
+      crearBoton(estado.rangoVocal ? T.medirOtraVez : T.medirRango, { ancho: true, onClick: () => navegar('/rango?volver=/perfil') }),
+    ),
+  });
+}
+
+function abrirAjustes(estado) {
   const datos = audio.diagnostico();
   const ultimoError = leerUltimoError();
   const filas = [
@@ -52,34 +75,29 @@ function crearTarjetaDiagnostico() {
     [T.diagnosticoMuestreo, `${datos.frecuenciaMuestreo} Hz`],
     [T.diagnosticoUltimoError, ultimoError ? `${ultimoError.fecha.slice(11, 16)} · ${ultimoError.texto}` : '–'],
   ];
-  return el(
-    'section',
-    { clase: 'tarjeta perfil__seccion', 'aria-labelledby': 'perfil-diagnostico' },
-    el('h2', { clase: 'perfil__subtitulo', id: 'perfil-diagnostico', texto: T.diagnostico }),
-    el('dl', { clase: 'diagnostico' }, filas.map(([etiqueta, valor]) => el('div', { clase: 'diagnostico__fila' }, el('dt', { texto: etiqueta }), el('dd', { texto: valor })))),
-  );
-}
-
-function crearTarjetaTestOido(estado) {
-  const ultimo = ultimoTestOido(estado);
-  const TO = TEXTOS.testOido;
-  return el(
-    'section',
-    { clase: 'tarjeta perfil__seccion', 'aria-labelledby': 'perfil-test-oido' },
-    el('h2', { clase: 'perfil__subtitulo', id: 'perfil-test-oido', texto: TO.tarjetaTitulo }),
-    el('p', { clase: 'perfil__texto', texto: ultimo ? TO.tarjetaUltimo(ultimo.umbralCents, ultimo.aciertosAbsoluto, ultimo.totalAbsoluto, ultimo.fecha) : TO.tarjetaTexto }),
-    crearBoton(ultimo ? TO.repetirTest : TO.hacerTest, { variante: 'tonal', onClick: () => navegar('/test-oido') }),
-  );
-}
-
-function crearLogro(logro, conseguidoEl) {
-  const conseguido = Boolean(conseguidoEl);
-  return el(
-    'li',
-    { clase: `logro ${conseguido ? '' : 'logro--bloqueado'}`.trim(), 'aria-label': `${logro.titulo}. ${logro.descripcion}${conseguido ? '' : `. ${T.bloqueado}`}` },
-    el('span', { clase: 'logro__icono', 'aria-hidden': 'true', texto: logro.icono }),
-    el('div', { clase: 'logro__texto' }, el('p', { clase: 'logro__titulo', texto: logro.titulo }), el('p', { clase: 'logro__descripcion', texto: logro.descripcion })),
-  );
+  const hoja = mostrarHoja({
+    titulo: T.ajustes,
+    contenido: el(
+      'div',
+      { clase: 'hoja__pila' },
+      el('h3', { clase: 'perfil__subtitulo', texto: T.objetivo }),
+      crearSelectorObjetivo(estado.objetivoDiarioXp, (xp) => actualizarEstado((actual) => ({ ...actual, objetivoDiarioXp: xp }))),
+      el('h3', { clase: 'perfil__subtitulo', texto: T.diagnostico }),
+      el('dl', { clase: 'diagnostico' }, filas.map(([etiqueta, valor]) => el('div', { clase: 'diagnostico__fila' }, el('dt', { texto: etiqueta }), el('dd', { texto: valor })))),
+      audio.esSimulado && el('p', { clase: 'aviso', role: 'note', texto: T.simulacion }),
+      crearBoton(T.reiniciar, {
+        variante: 'peligro-texto',
+        ancho: true,
+        onClick: async () => {
+          const borrar = await mostrarDialogo({ titulo: T.reiniciarTitulo, texto: T.reiniciarTexto, confirmar: T.reiniciarConfirmar, cancelar: T.cancelar, peligro: true });
+          if (!borrar) return;
+          hoja.cerrar();
+          reiniciarEstado();
+          navegar('/bienvenida', { reemplazar: true });
+        },
+      }),
+    ),
+  });
 }
 
 export function crearPantallaPerfil() {
@@ -87,13 +105,8 @@ export function crearPantallaPerfil() {
   const hoy = fechaClave();
   const conseguidos = LOGROS.filter((logro) => estado.logros[logro.id]).length;
   const inicial = estado.nombre ? estado.nombre.charAt(0).toUpperCase() : null;
-
-  async function confirmarBorrado() {
-    const borrar = await mostrarDialogo({ titulo: T.reiniciarTitulo, texto: T.reiniciarTexto, confirmar: T.reiniciarConfirmar, cancelar: T.cancelar, peligro: true });
-    if (!borrar) return;
-    reiniciarEstado();
-    navegar('/bienvenida', { reemplazar: true });
-  }
+  const rango = estado.rangoVocal;
+  const test = ultimoTestOido(estado);
 
   const elemento = el(
     'section',
@@ -103,33 +116,34 @@ export function crearPantallaPerfil() {
       { clase: 'perfil__cabecera' },
       el('div', { clase: 'perfil__avatar', 'aria-hidden': 'true', texto: inicial }, inicial === null && icono('persona', { tamano: 32 })),
       el('h1', { clase: 'pantalla__titulo', texto: estado.nombre || T.titulo }),
+      crearBoton(T.ajustes, { variante: 'texto', onClick: () => abrirAjustes(estado) }),
     ),
-    audio.esSimulado && el('p', { clase: 'aviso', role: 'note', texto: T.simulacion }),
     el(
       'section',
       { clase: 'perfil__estadisticas', 'aria-label': T.estadisticas },
       crearEstadistica(T.xpTotal, estado.xpTotal),
       crearEstadistica(T.racha, rachaVigente(estado, hoy)),
-      crearEstadistica(T.mejorRacha, estado.mejorRacha),
       crearEstadistica(T.lecciones, Object.keys(estado.lecciones).length),
       crearEstadistica(T.estrellas, totalEstrellas(estado)),
     ),
-    crearTarjetaRango(estado),
-    crearTarjetaTestOido(estado),
-    el(
-      'section',
-      { clase: 'tarjeta perfil__seccion', 'aria-labelledby': 'perfil-objetivo' },
-      el('h2', { clase: 'perfil__subtitulo', id: 'perfil-objetivo', texto: T.objetivo }),
-      crearSelectorObjetivo(estado.objetivoDiarioXp, (xp) => actualizarEstado((actual) => ({ ...actual, objetivoDiarioXp: xp }))),
-    ),
-    el(
-      'section',
-      { clase: 'perfil__seccion', 'aria-labelledby': 'perfil-logros' },
-      el('div', { clase: 'perfil__fila' }, el('h2', { clase: 'perfil__subtitulo', id: 'perfil-logros', texto: T.logros }), el('span', { clase: 'perfil__contador', texto: T.logrosFormato(conseguidos, LOGROS.length) })),
-      el('ul', { clase: 'logros' }, LOGROS.map((logro) => crearLogro(logro, estado.logros[logro.id]))),
-    ),
-    crearTarjetaDiagnostico(),
-    el('div', { clase: 'perfil__peligro' }, crearBoton(T.reiniciar, { variante: 'peligro-texto', onClick: confirmarBorrado })),
+    crearFicha({
+      titulo: T.rangoTitulo,
+      texto: rango ? T.rangoFormato(nombreNota(rango.minimo), nombreNota(rango.maximo), rango.maximo - rango.minimo) : T.rangoSinMedir,
+      boton: rango ? T.ver : T.medirRango,
+      alPulsar: () => (rango ? abrirRango(estado) : navegar('/rango?volver=/perfil')),
+    }),
+    crearFicha({
+      titulo: TO.tarjetaTitulo,
+      texto: test ? TO.tarjetaUltimo(test) : TO.tarjetaTexto,
+      boton: test ? TO.repetirTest : TO.hacerTest,
+      alPulsar: () => navegar('/test-oido'),
+    }),
+    crearFicha({
+      titulo: T.logros,
+      texto: T.logrosFormato(conseguidos, LOGROS.length),
+      boton: T.ver,
+      alPulsar: () => abrirLogros(estado),
+    }),
   );
   return { elemento };
 }

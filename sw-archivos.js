@@ -1,5 +1,5 @@
 // Generado por herramientas/generar-lista-sw.cjs; no editar a mano.
-self.VERSION_ARCHIVOS = 'mwuvm8do';
+self.VERSION_ARCHIVOS = 'mwuvqyir';
 self.ARCHIVOS_APP = [
   "./css/apaisado.css",
   "./css/base.css",
@@ -75,6 +75,7 @@ self.ARCHIVOS_APP = [
   "./js/ui/componentes/dialogo.js",
   "./js/ui/componentes/estrellas.js",
   "./js/ui/componentes/grafico-rango.js",
+  "./js/ui/componentes/hoja.js",
   "./js/ui/componentes/iconos.js",
   "./js/ui/componentes/navegacion.js",
   "./js/ui/componentes/piano-roll.js",
