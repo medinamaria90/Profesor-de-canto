@@ -1,5 +1,5 @@
 // Generado por herramientas/generar-lista-sw.cjs; no editar a mano.
-self.VERSION_ARCHIVOS = 'mwuuw3cc';
+self.VERSION_ARCHIVOS = 'mwuv1l4u';
 self.ARCHIVOS_APP = [
   "./css/apaisado.css",
   "./css/base.css",
@@ -60,6 +60,7 @@ self.ARCHIVOS_APP = [
   "./js/estado/tienda.js",
   "./js/juegos/bola-cantora-logica.js",
   "./js/juegos/bola-cantora-vista.js",
+  "./js/juegos/dibujar-alondra.js",
   "./js/musica/arreglos.js",
   "./js/musica/melodias.js",
   "./js/musica/notas.js",

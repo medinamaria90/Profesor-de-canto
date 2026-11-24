@@ -1,24 +1,28 @@
-// Dibujo en primera persona del minijuego "Bola cantora": las puertas vienen hacia ti desde el fondo,
-// la bola es grande y brilla, y un túnel de líneas da sensación de velocidad. Solo pinta: la partida
-// la mueve la lógica pura (que sigue trabajando en 2D: distancia horizontal = profundidad).
+// Vista lateral del "Vuelo de la alondra": cielo con profundidad (sol, colinas y nubes en paralaje),
+// puertas con cartel de nota, la alondra batiendo las alas y una estela de plumas. Solo pinta: la partida
+// la mueve la lógica pura (que sigue hablando de "bola": es la posición de la alondra).
 
 import { el, crearPaleta, ajustarCanvas } from '../ui/dom.js';
 import { nombreNota } from '../musica/notas.js';
 import { ANCHO_PUERTA, huecoDePuerta, xDePuerta, puertaSiguiente } from './bola-cantora-logica.js';
+import { dibujarAlondra } from './dibujar-alondra.js';
 
-// Distancia focal de la perspectiva: cuanto mayor, menos "ojo de pez".
-const FOCAL = 260;
-const RADIO_BOLA_PANTALLA = 26;
-const LONGITUD_ESTELA = 14;
-const LINEAS_TUNEL = 10;
-const SEPARACION_LINEAS_TUNEL = 90;
+const TAMANO_ALONDRA = 52;
+const LONGITUD_ESTELA = 16;
+const RADIO_ESQUINA_PUERTA = 10;
 const FRECUENCIA_PARPADEO = 12;
-const OPACIDAD_GUIA = 0.35;
-const GROSOR_MARCO = 14;
-const PARTICULAS_POR_PUERTA = 12;
-const VIDA_PARTICULA_SEGUNDOS = 0.6;
-const VELOCIDAD_PARTICULA = 90;
-const DISTANCIA_DESVANECER = ANCHO_PUERTA * 3;
+const OPACIDAD_GUIA = 0.4;
+const PARTICULAS_POR_PUERTA = 14;
+const VIDA_PARTICULA_SEGUNDOS = 0.7;
+const VELOCIDAD_PARTICULA = 110;
+const VELOCIDAD_COLINAS = 0.25;
+const VELOCIDAD_NUBES = 0.5;
+const NUBES = [
+  { x: 60, y: 0.18, tamano: 26 }, { x: 260, y: 0.1, tamano: 34 }, { x: 470, y: 0.24, tamano: 22 }, { x: 700, y: 0.14, tamano: 30 }, { x: 930, y: 0.2, tamano: 24 },
+];
+const ANCHO_CIELO = 1100;
+const ALTO_COLINAS_RELATIVO = 0.22;
+const INCLINACION_POR_VELOCIDAD = 0.0025;
 
 export function crearVistaBolaCantora() {
   const canvas = el('canvas', { clase: 'juego__canvas' });
@@ -27,98 +31,135 @@ export function crearVistaBolaCantora() {
   const particulas = [];
   let observador = null;
   let ultimasSuperadas = 0;
+  let yAnterior = null;
 
   const paletaCss = crearPaleta({
-    fondoArriba: '--juego-cielo',
-    fondoAbajo: '--juego-suelo',
-    tunel: '--juego-tunel',
+    cieloArriba: '--juego-cielo',
+    cieloAbajo: '--juego-suelo',
+    sol: '--secundario-contenedor',
+    colinaLejos: '--juego-colina-lejos',
+    colinaCerca: '--juego-colina-cerca',
+    nube: '--juego-nube',
     puerta: '--primario',
     puertaSiguiente: '--secundario',
     puertaSuperada: '--acierto',
     puertaChocada: '--error',
-    etiqueta: '--sobre-primario',
-    bola: '--racha',
-    bolaBorde: '--racha-contenedor',
-    brillo: '--sobre-primario',
+    cartel: '--superficie',
+    cartelTexto: '--sobre-superficie',
     guia: '--primario',
+    pluma: '--alondra-ala',
+    cuerpo: '--alondra-cuerpo',
+    vientre: '--alondra-vientre',
+    ala: '--alondra-ala',
+    pico: '--alondra-pico',
+    ojo: '--sobre-superficie',
+    brillo: '--sobre-primario',
+    particula: '--secundario',
   });
   const colores = () => paletaCss.obtener();
 
-  // Escala de un objeto a `distancia` píxeles por delante de la bola (0 = en el plano de la bola).
-  function escala(distancia) {
-    return FOCAL / (FOCAL + Math.max(0, distancia));
+  function rectanguloRedondeado(contexto, x, y, ancho, alto, radio) {
+    const r = Math.min(radio, ancho / 2, Math.abs(alto) / 2);
+    contexto.beginPath();
+    contexto.moveTo(x + r, y);
+    contexto.arcTo(x + ancho, y, x + ancho, y + alto, r);
+    contexto.arcTo(x + ancho, y + alto, x, y + alto, r);
+    contexto.arcTo(x, y + alto, x, y, r);
+    contexto.arcTo(x, y, x + ancho, y, r);
+    contexto.closePath();
   }
 
-  function dibujarFondo(contexto, paleta, ancho, alto, partida) {
+  function dibujarCielo(contexto, paleta, ancho, alto, partida) {
     const degradado = contexto.createLinearGradient(0, 0, 0, alto);
-    degradado.addColorStop(0, paleta.fondoArriba);
-    degradado.addColorStop(1, paleta.fondoAbajo);
+    degradado.addColorStop(0, paleta.cieloArriba);
+    degradado.addColorStop(1, paleta.cieloAbajo);
     contexto.fillStyle = degradado;
     contexto.fillRect(0, 0, ancho, alto);
 
-    const cx = ancho / 2;
-    const cy = alto / 2;
-    contexto.strokeStyle = paleta.tunel;
-    contexto.lineWidth = 1;
-    const avance = partida.desplazamiento % SEPARACION_LINEAS_TUNEL;
-    for (let i = 0; i < LINEAS_TUNEL; i++) {
-      const distancia = i * SEPARACION_LINEAS_TUNEL - avance + SEPARACION_LINEAS_TUNEL;
-      const s = escala(distancia);
-      contexto.globalAlpha = 0.5 * s;
-      contexto.strokeRect(cx - (ancho / 2) * s, cy - (alto / 2) * s, ancho * s, alto * s);
-    }
+    // Sol.
+    contexto.fillStyle = paleta.sol;
+    contexto.globalAlpha = 0.9;
     contexto.beginPath();
-    for (const [x, y] of [[0, 0], [ancho, 0], [0, alto], [ancho, alto]]) {
-      contexto.moveTo(x, y);
-      contexto.lineTo(cx, cy);
-    }
-    contexto.globalAlpha = 0.25;
-    contexto.stroke();
+    contexto.arc(ancho * 0.8, alto * 0.22, Math.min(ancho, alto) * 0.09, 0, Math.PI * 2);
+    contexto.fill();
     contexto.globalAlpha = 1;
+
+    // Nubes en paralaje.
+    const avanceNubes = (partida.desplazamiento * VELOCIDAD_NUBES) % ANCHO_CIELO;
+    contexto.fillStyle = paleta.nube;
+    for (const nube of NUBES) {
+      const x = ((nube.x - avanceNubes) % ANCHO_CIELO + ANCHO_CIELO) % ANCHO_CIELO - 60;
+      const y = alto * nube.y;
+      const r = nube.tamano;
+      contexto.beginPath();
+      contexto.arc(x, y, r, 0, Math.PI * 2);
+      contexto.arc(x + r * 0.9, y - r * 0.4, r * 0.8, 0, Math.PI * 2);
+      contexto.arc(x + r * 1.8, y, r * 0.9, 0, Math.PI * 2);
+      contexto.arc(x + r * 0.9, y + r * 0.3, r * 0.9, 0, Math.PI * 2);
+      contexto.fill();
+    }
+
+    // Colinas en dos planos.
+    dibujarColinas(contexto, paleta.colinaLejos, ancho, alto, partida.desplazamiento * VELOCIDAD_COLINAS, 0.3, 140);
+    dibujarColinas(contexto, paleta.colinaCerca, ancho, alto, partida.desplazamiento * VELOCIDAD_COLINAS * 1.8, 0.55, 90);
   }
 
-  function dibujarPuerta(contexto, paleta, partida, puerta, ancho, alto, esSiguiente) {
-    const distancia = xDePuerta(partida, puerta) - partida.bola.x;
-    if (distancia < -DISTANCIA_DESVANECER) return;
-    const s = escala(distancia);
-    const cx = ancho / 2;
-    const cy = alto / 2;
-    const anchoMarco = ancho * s;
-    const altoMarco = alto * s;
-    const x0 = cx - anchoMarco / 2;
-    const y0 = cy - altoMarco / 2;
-    const hueco = huecoDePuerta(partida, puerta);
-    const yArriba = cy + (hueco.arriba - alto / 2) * s;
-    const yAbajo = cy + (hueco.abajo - alto / 2) * s;
-    let color = paleta.puerta;
-    if (puerta.superada) color = paleta.puertaSuperada;
-    else if (puerta.chocada) color = paleta.puertaChocada;
-    else if (esSiguiente) color = paleta.puertaSiguiente;
-
-    contexto.globalAlpha = distancia < 0 ? Math.max(0, 1 + distancia / DISTANCIA_DESVANECER) : Math.min(1, 0.35 + s);
+  function dibujarColinas(contexto, color, ancho, alto, avance, amplitud, periodo) {
+    const base = alto * (1 - ALTO_COLINAS_RELATIVO);
     contexto.fillStyle = color;
-    contexto.fillRect(x0, y0, anchoMarco, Math.max(0, yArriba - y0));
-    contexto.fillRect(x0, yAbajo, anchoMarco, Math.max(0, y0 + altoMarco - yAbajo));
-    contexto.fillRect(x0, y0, GROSOR_MARCO * s, altoMarco);
-    contexto.fillRect(x0 + anchoMarco - GROSOR_MARCO * s, y0, GROSOR_MARCO * s, altoMarco);
-
-    if (s > 0.3 && !puerta.superada && !puerta.chocada) {
-      contexto.fillStyle = paleta.etiqueta;
-      contexto.font = `600 ${Math.round(16 + 18 * s)}px system-ui, sans-serif`;
-      contexto.textAlign = 'center';
-      contexto.textBaseline = 'middle';
-      contexto.fillText(nombreNota(puerta.nota, false), cx, Math.max(yArriba - 14 * s, y0 + 14 * s));
+    contexto.beginPath();
+    contexto.moveTo(0, alto);
+    for (let x = 0; x <= ancho; x += 8) {
+      const fase = (x + avance) / periodo;
+      const y = base + Math.sin(fase) * alto * ALTO_COLINAS_RELATIVO * amplitud * 0.5 + Math.sin(fase * 0.37) * alto * 0.03;
+      contexto.lineTo(x, y);
     }
-    contexto.globalAlpha = 1;
+    contexto.lineTo(ancho, alto);
+    contexto.closePath();
+    contexto.fill();
   }
 
-  function dibujarGuia(contexto, paleta, partida, ancho, alto) {
+  function dibujarPuertas(contexto, paleta, partida, ancho) {
+    const siguiente = puertaSiguiente(partida);
+    contexto.font = '600 14px system-ui, sans-serif';
+    contexto.textAlign = 'center';
+    contexto.textBaseline = 'middle';
+    for (const puerta of partida.puertas) {
+      const x = xDePuerta(partida, puerta);
+      if (x > ancho || x + ANCHO_PUERTA < 0) continue;
+      const hueco = huecoDePuerta(partida, puerta);
+      let color = paleta.puerta;
+      if (puerta.superada) color = paleta.puertaSuperada;
+      else if (puerta.chocada) color = paleta.puertaChocada;
+      else if (puerta === siguiente) color = paleta.puertaSiguiente;
+      contexto.fillStyle = color;
+      if (puerta === siguiente) {
+        contexto.shadowColor = color;
+        contexto.shadowBlur = 16;
+      }
+      rectanguloRedondeado(contexto, x, -RADIO_ESQUINA_PUERTA, ANCHO_PUERTA, hueco.arriba + RADIO_ESQUINA_PUERTA, RADIO_ESQUINA_PUERTA);
+      contexto.fill();
+      rectanguloRedondeado(contexto, x, hueco.abajo, ANCHO_PUERTA, partida.alto - hueco.abajo + RADIO_ESQUINA_PUERTA, RADIO_ESQUINA_PUERTA);
+      contexto.fill();
+      contexto.shadowBlur = 0;
+      // Cartel con la nota, colgado en el borde superior del hueco.
+      const anchoCartel = 44;
+      const altoCartel = 22;
+      contexto.fillStyle = paleta.cartel;
+      rectanguloRedondeado(contexto, x + ANCHO_PUERTA / 2 - anchoCartel / 2, hueco.arriba + 4, anchoCartel, altoCartel, 6);
+      contexto.fill();
+      contexto.fillStyle = paleta.cartelTexto;
+      contexto.fillText(nombreNota(puerta.nota, false), x + ANCHO_PUERTA / 2, hueco.arriba + 4 + altoCartel / 2);
+    }
+  }
+
+  function dibujarGuia(contexto, paleta, partida, ancho) {
     if (partida.alturaObjetivo === null) return;
-    const y = alto - partida.alturaObjetivo * alto;
+    const y = partida.alto - partida.alturaObjetivo * partida.alto;
     contexto.strokeStyle = paleta.guia;
     contexto.globalAlpha = OPACIDAD_GUIA;
     contexto.lineWidth = 2;
-    contexto.setLineDash([8, 8]);
+    contexto.setLineDash([6, 8]);
     contexto.beginPath();
     contexto.moveTo(0, y);
     contexto.lineTo(ancho, y);
@@ -127,46 +168,31 @@ export function crearVistaBolaCantora() {
     contexto.globalAlpha = 1;
   }
 
-  function dibujarBola(contexto, paleta, partida, ancho) {
-    const cx = ancho / 2;
-    const y = partida.bola.y;
-    estela.push(y);
+  function dibujarEstela(contexto, paleta, partida) {
+    const bola = partida.bola;
+    estela.push({ x: bola.x, y: bola.y });
     if (estela.length > LONGITUD_ESTELA) estela.shift();
-    estela.forEach((yAnterior, indice) => {
+    const pasoX = partida.velocidad / 60;
+    estela.forEach((punto, indice) => {
       const fraccion = (indice + 1) / estela.length;
-      contexto.globalAlpha = fraccion * 0.35;
-      contexto.fillStyle = paleta.bolaBorde;
+      contexto.globalAlpha = fraccion * 0.45;
+      contexto.fillStyle = paleta.pluma;
       contexto.beginPath();
-      contexto.arc(cx - (1 - fraccion) * 40, yAnterior + (1 - fraccion) * 12, RADIO_BOLA_PANTALLA * (0.4 + 0.6 * fraccion), 0, Math.PI * 2);
+      contexto.ellipse(bola.x - (estela.length - indice) * pasoX - 22, punto.y + 4, 7 * fraccion + 2, 3 * fraccion + 1, -0.3, 0, Math.PI * 2);
       contexto.fill();
     });
     contexto.globalAlpha = 1;
-
-    const invulnerable = partida.tiempo < partida.invulnerableHasta;
-    if (invulnerable && Math.floor(partida.tiempo * FRECUENCIA_PARPADEO) % 2 === 0) contexto.globalAlpha = 0.4;
-    contexto.shadowColor = paleta.bola;
-    contexto.shadowBlur = 24;
-    const degradado = contexto.createRadialGradient(cx - RADIO_BOLA_PANTALLA * 0.35, y - RADIO_BOLA_PANTALLA * 0.35, RADIO_BOLA_PANTALLA * 0.2, cx, y, RADIO_BOLA_PANTALLA);
-    degradado.addColorStop(0, paleta.brillo);
-    degradado.addColorStop(0.25, paleta.bola);
-    degradado.addColorStop(1, paleta.bola);
-    contexto.fillStyle = degradado;
-    contexto.beginPath();
-    contexto.arc(cx, y, RADIO_BOLA_PANTALLA, 0, Math.PI * 2);
-    contexto.fill();
-    contexto.shadowBlur = 0;
-    contexto.globalAlpha = 1;
   }
 
-  function emitirParticulas(partida, ancho) {
+  function emitirParticulas(partida) {
     for (let i = 0; i < PARTICULAS_POR_PUERTA; i++) {
       const angulo = (i / PARTICULAS_POR_PUERTA) * Math.PI * 2;
-      particulas.push({ x: ancho / 2, y: partida.bola.y, vx: Math.cos(angulo) * VELOCIDAD_PARTICULA, vy: Math.sin(angulo) * VELOCIDAD_PARTICULA, nacimiento: partida.tiempo });
+      particulas.push({ x: partida.bola.x, y: partida.bola.y, vx: Math.cos(angulo) * VELOCIDAD_PARTICULA, vy: Math.sin(angulo) * VELOCIDAD_PARTICULA, nacimiento: partida.tiempo });
     }
   }
 
   function dibujarParticulas(contexto, paleta, partida) {
-    contexto.fillStyle = paleta.puertaSuperada;
+    contexto.fillStyle = paleta.particula;
     for (let i = particulas.length - 1; i >= 0; i--) {
       const p = particulas[i];
       const edad = partida.tiempo - p.nacimiento;
@@ -176,9 +202,25 @@ export function crearVistaBolaCantora() {
       }
       contexto.globalAlpha = 1 - edad / VIDA_PARTICULA_SEGUNDOS;
       contexto.beginPath();
-      contexto.arc(p.x + p.vx * edad, p.y + p.vy * edad, 4, 0, Math.PI * 2);
+      contexto.arc(p.x + p.vx * edad - partida.velocidad * edad, p.y + p.vy * edad, 4, 0, Math.PI * 2);
       contexto.fill();
     }
+    contexto.globalAlpha = 1;
+  }
+
+  function dibujarPersonaje(contexto, paleta, partida) {
+    const bola = partida.bola;
+    const velocidadY = yAnterior === null ? 0 : bola.y - yAnterior;
+    yAnterior = bola.y;
+    const invulnerable = partida.tiempo < partida.invulnerableHasta;
+    if (invulnerable && Math.floor(partida.tiempo * FRECUENCIA_PARPADEO) % 2 === 0) contexto.globalAlpha = 0.4;
+    dibujarAlondra(contexto, bola.x, bola.y, {
+      tamano: TAMANO_ALONDRA,
+      inclinacion: velocidadY * INCLINACION_POR_VELOCIDAD * 60,
+      fase: partida.tiempo,
+      paleta,
+      resplandor: partida.alturaObjetivo === null ? null : paleta.particula,
+    });
     contexto.globalAlpha = 1;
   }
 
@@ -191,21 +233,20 @@ export function crearVistaBolaCantora() {
     dibujar(partida) {
       const { contexto, ancho, alto } = ajustarCanvas(canvas);
       const paleta = colores();
-      dibujarFondo(contexto, paleta, ancho, alto, partida);
-      dibujarGuia(contexto, paleta, partida, ancho, alto);
-      const siguiente = puertaSiguiente(partida);
-      // De la más lejana a la más cercana para que las cercanas tapen a las lejanas.
-      const ordenadas = [...partida.puertas].sort((a, b) => b.x - a.x);
-      for (const puerta of ordenadas) dibujarPuerta(contexto, paleta, partida, puerta, ancho, alto, puerta === siguiente);
-      if (partida.puertasSuperadas > ultimasSuperadas) emitirParticulas(partida, ancho);
+      dibujarCielo(contexto, paleta, ancho, alto, partida);
+      dibujarGuia(contexto, paleta, partida, ancho);
+      dibujarPuertas(contexto, paleta, partida, ancho);
+      if (partida.puertasSuperadas > ultimasSuperadas) emitirParticulas(partida);
       ultimasSuperadas = partida.puertasSuperadas;
       dibujarParticulas(contexto, paleta, partida);
-      dibujarBola(contexto, paleta, partida, ancho);
+      dibujarEstela(contexto, paleta, partida);
+      dibujarPersonaje(contexto, paleta, partida);
     },
     limpiarEstela() {
       estela.length = 0;
       particulas.length = 0;
       ultimasSuperadas = 0;
+      yAnterior = null;
     },
     montar(alRedimensionar) {
       observador = new ResizeObserver(() => alRedimensionar());

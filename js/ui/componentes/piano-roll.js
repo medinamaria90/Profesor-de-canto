@@ -4,6 +4,7 @@ import { el, crearPaleta, ajustarCanvas } from '../dom.js';
 import { nombreNota } from '../../musica/notas.js';
 import { segundosPorPulso } from '../../audio/sintetizador.js';
 import { TOLERANCIA_CENTS_AFINADO, TOLERANCIA_CENTS_AMPLIA, UMBRAL_DOS_ESTRELLAS, UMBRAL_TRES_ESTRELLAS } from '../../ejercicios/puntuacion.js';
+import { dibujarAlondra } from '../../juegos/dibujar-alondra.js';
 
 const PIXELES_POR_SEGUNDO = 110;
 const POSICION_CURSOR_RELATIVA = 0.3;
@@ -13,7 +14,7 @@ const RADIO_ESQUINA = 8;
 const RADIO_PUNTO = 3.5;
 const SEPARACION_NOTAS_SEGUNDOS = 0.04;
 const MARGEN_RESUMEN = 8;
-const RADIO_BOLA_VOZ = 11;
+const TAMANO_ALONDRA_ROLLO = 30;
 const SEGUNDOS_BOLA_VISIBLE = 0.25;
 
 export function crearPianoRoll(notas, tempo, { etiqueta } = {}) {
@@ -51,8 +52,12 @@ export function crearPianoRoll(notas, tempo, { etiqueta } = {}) {
     cerca: '--aviso',
     lejos: '--error',
     texto: '--texto-suave',
-    bola: '--racha',
-    bolaBrillo: '--sobre-primario',
+    cuerpo: '--alondra-cuerpo',
+    vientre: '--alondra-vientre',
+    ala: '--alondra-ala',
+    pico: '--alondra-pico',
+    ojo: '--sobre-superficie',
+    brillo: '--sobre-primario',
   });
   const colores = () => paletaCss.obtener();
 
@@ -137,18 +142,12 @@ export function crearPianoRoll(notas, tempo, { etiqueta } = {}) {
 
     if (resumen) return;
 
-    // La voz es la bola: se dibuja en el cursor a la altura de la última lectura reciente.
+    // La voz es la alondra: vuela en el cursor a la altura de la última lectura reciente.
     const ultima = estela[estela.length - 1];
     if (ultima && tiempo - ultima.tiempo < SEGUNDOS_BOLA_VISIBLE) {
-      const y = yDeMidi(ultima.midi);
-      contexto.fillStyle = paleta.bola;
-      contexto.beginPath();
-      contexto.arc(xCursor, y, RADIO_BOLA_VOZ, 0, Math.PI * 2);
-      contexto.fill();
-      contexto.fillStyle = paleta.bolaBrillo;
-      contexto.beginPath();
-      contexto.arc(xCursor - RADIO_BOLA_VOZ * 0.35, y - RADIO_BOLA_VOZ * 0.35, RADIO_BOLA_VOZ * 0.3, 0, Math.PI * 2);
-      contexto.fill();
+      const anterior = estela[estela.length - 2];
+      const inclinacion = anterior ? -(ultima.midi - anterior.midi) * 0.6 : 0;
+      dibujarAlondra(contexto, xCursor, yDeMidi(ultima.midi), { tamano: TAMANO_ALONDRA_ROLLO, inclinacion, fase: tiempo, paleta });
     }
     contexto.strokeStyle = paleta.cursor;
     contexto.lineWidth = 2;

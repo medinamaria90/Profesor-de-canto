@@ -16,12 +16,14 @@ import {
 
 test('la escalera sube con dos aciertos, baja con un fallo y no se sale de los niveles', () => {
   let escalera = crearEscalera();
-  assert.equal(intervaloActual(escalera), 700);
+  assert.equal(intervaloActual(escalera), 200);
   escalera = responderRelativo(escalera, true);
   escalera = responderRelativo(escalera, true);
-  assert.equal(intervaloActual(escalera), 500);
+  assert.equal(intervaloActual(escalera), 100);
   escalera = responderRelativo(escalera, false);
-  assert.equal(intervaloActual(escalera), 700);
+  assert.equal(intervaloActual(escalera), 200);
+  escalera = responderRelativo(escalera, false);
+  escalera = responderRelativo(escalera, false);
   escalera = responderRelativo(escalera, false);
   assert.equal(intervaloActual(escalera), 700);
   for (let i = 0; i < 40; i++) escalera = responderRelativo(escalera, true);
@@ -30,15 +32,15 @@ test('la escalera sube con dos aciertos, baja con un fallo y no se sale de los n
 
 test('el umbral se estima con los cambios de sentido y se valora', () => {
   let escalera = crearEscalera();
-  // Acierta hasta 50 cents, falla en 25, vuelve a acertar en 50, falla en 25...
-  const patron = [true, true, true, true, true, true, true, true, true, true, false, true, true, false, true, true, false];
+  // Acierta hasta 50 cents, falla en 35, vuelve a acertar en 50, falla en 35...
+  const patron = [true, true, true, true, true, true, false, true, true, false, true, true, false];
   for (const acierto of patron) escalera = responderRelativo(escalera, acierto);
   const umbral = umbralRelativo(escalera);
-  // La escalera oscila entre 50 y 100 cents, así que el umbral queda entre ambos.
-  assert.ok(umbral >= 50 && umbral <= 100, `umbral ${umbral}`);
-  assert.equal(valorarRelativo(umbral), umbral <= 60 ? 'bueno' : 'normal');
+  // La escalera oscila entre 35 y 50 cents, así que el umbral queda entre ambos.
+  assert.ok(umbral >= 35 && umbral <= 50, `umbral ${umbral}`);
+  assert.equal(valorarRelativo(umbral), 'bueno');
   assert.equal(valorarRelativo(400), 'a-entrenar');
-  assert.equal(valorarRelativo(12), 'excelente');
+  assert.equal(valorarRelativo(10), 'excelente');
   assert.equal(valorarRelativo(25), 'muy-bueno');
   assert.equal(umbralRelativo(crearEscalera()), 700);
 });

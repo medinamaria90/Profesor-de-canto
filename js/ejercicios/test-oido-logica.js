@@ -1,12 +1,14 @@
 // Lógica pura del test de oído: escalera adaptativa para el oído relativo y evaluación del oído absoluto.
 
-export const NIVELES_RELATIVO_CENTS = [700, 500, 300, 200, 100, 50, 35, 25, 15, 10];
+// Se empieza en 200 cents (dos semitonos); los dos escalones superiores solo se usan si alguien falla ahí.
+export const NIVELES_RELATIVO_CENTS = [700, 400, 200, 100, 50, 35, 25, 15, 10, 5];
+export const INDICE_INICIAL_RELATIVO = 2;
 export const PREGUNTAS_RELATIVO = 18;
 export const PREGUNTAS_ABSOLUTO = 10;
 // Si las primeras respuestas del oído absoluto no aciertan ninguna nota exacta, el test se corta.
 export const PREGUNTAS_ABSOLUTO_MINIMAS = 4;
 // Umbral de referencia de los músicos profesionales, para dar margen de mejora.
-export const UMBRAL_PROFESIONAL_CENTS = 12;
+export const UMBRAL_PROFESIONAL_CENTS = 10;
 // Escalera "dos aciertos para subir, un fallo para bajar": converge hacia el 70 % de aciertos.
 const ACIERTOS_PARA_SUBIR = 2;
 const CAMBIOS_DE_SENTIDO_PARA_UMBRAL = 4;
@@ -15,7 +17,7 @@ export const SEMITONOS_POR_OCTAVA = 12;
 export const PROBABILIDAD_AZAR_ABSOLUTO = 1 / SEMITONOS_POR_OCTAVA;
 
 export function crearEscalera() {
-  return { indice: 0, racha: 0, historial: [], sentidoAnterior: null, cambios: [] };
+  return { indice: INDICE_INICIAL_RELATIVO, racha: 0, historial: [], sentidoAnterior: null, cambios: [] };
 }
 
 export function intervaloActual(escalera) {
@@ -50,7 +52,7 @@ export function umbralRelativo(escalera) {
 }
 
 export function valorarRelativo(umbralCents) {
-  if (umbralCents <= 15) return 'excelente';
+  if (umbralCents <= 12) return 'excelente';
   if (umbralCents <= 30) return 'muy-bueno';
   if (umbralCents <= 60) return 'bueno';
   if (umbralCents <= 150) return 'normal';

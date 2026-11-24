@@ -50,10 +50,16 @@
   --velo: rgba(27, 26, 34, 0.5);
   --foco: #5B3FE0;
 
-  /* Escenario del juego en primera persona */
-  --juego-cielo: #2B1E7A;
-  --juego-suelo: #0E0A2E;
-  --juego-tunel: rgba(255, 255, 255, 0.35);
+  /* Escenario del vuelo de la alondra */
+  --juego-cielo: #BFE3FF;
+  --juego-suelo: #EAF6FF;
+  --juego-colina-lejos: #A9D7B8;
+  --juego-colina-cerca: #6FB98A;
+  --juego-nube: rgba(255, 255, 255, 0.85);
+  --alondra-cuerpo: #B8793A;
+  --alondra-vientre: #F6E4C8;
+  --alondra-ala: #7A4A1E;
+  --alondra-pico: #F2B33D;
 
   --unidad-1: #5B3FE0;
   --unidad-2: #157A5E;
@@ -163,9 +169,15 @@
     --velo: rgba(0, 0, 0, 0.65);
     --foco: #C9B8FF;
 
-    --juego-cielo: #1B1250;
-    --juego-suelo: #07051A;
-    --juego-tunel: rgba(201, 184, 255, 0.35);
+    --juego-cielo: #1B2A5A;
+    --juego-suelo: #2E3F7A;
+    --juego-colina-lejos: #2F5A5C;
+    --juego-colina-cerca: #244B46;
+    --juego-nube: rgba(220, 230, 255, 0.35);
+    --alondra-cuerpo: #D08A48;
+    --alondra-vientre: #F9E9D0;
+    --alondra-ala: #8E5A2A;
+    --alondra-pico: #F7C04A;
 
     --unidad-1: #B3A3FF;
     --unidad-2: #3FB893;

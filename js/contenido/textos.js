@@ -6,8 +6,8 @@ export const TEXTOS = {
   navegacion: { aprender: 'Aprender', jugar: 'Jugar', afinador: 'Afinador', perfil: 'Perfil' },
 
   juego: {
-    titulo: 'Bola cantora',
-    subtitulo: 'Tu voz mueve la bola: grave para bajar, agudo para subir. Pasa por el hueco de cada puerta.',
+    titulo: 'Vuelo de la alondra',
+    subtitulo: 'Tu voz hace volar a la alondra: grave para bajar, agudo para subir. Pasa por el hueco de cada puerta.',
     recordFormato: (puertas) => `Récord: ${puertas} puertas`,
     sinRecord: 'Aún sin récord',
     jugar: 'Jugar',
@@ -16,7 +16,7 @@ export const TEXTOS = {
     vidas: 'Vidas',
     puertas: 'Puertas',
     siguienteNota: (nombre) => `Siguiente: ${nombre}`,
-    preparado: 'Canta para empezar a volar',
+    preparado: 'Canta y la alondra despega',
     finTitulo: 'Fin de la partida',
     finPuertas: (puertas) => (puertas === 1 ? '1 puerta superada' : `${puertas} puertas superadas`),
     finXp: (xp) => `+${xp} XP`,
@@ -132,7 +132,7 @@ export const TEXTOS = {
     melodia: {
       titulo: 'Melodía',
       instruccionEscucha: 'Primero escucha la melodía',
-      instruccionCanta: 'Ahora cántala siguiendo la bola',
+      instruccionCanta: 'Ahora cántala: tu voz lleva a la alondra',
       cantarYa: 'Me la sé: cantar ya',
       notasFormato: (afinadas, total) => `${afinadas} de ${total} notas afinadas`,
       desfaseFormato: (segundos) => `desfase compensado ${segundos.toFixed(2).replace('.', ',')} s`,
@@ -145,7 +145,7 @@ export const TEXTOS = {
     },
     reto: {
       titulo: 'Reto',
-      instruccion: (titulo) => `Vuela con tu voz por las notas de «${titulo}»`,
+      instruccion: (titulo) => `Haz volar a la alondra por las notas de «${titulo}»`,
       preparado: 'Las puertas siguen la canción. Cuando quieras, empieza.',
       resultadoFormato: (superadas, total) => `${superadas} de ${total} puertas`,
       perfecto: '¡Vuelo perfecto!',
@@ -153,7 +153,7 @@ export const TEXTOS = {
     cancion: {
       titulo: 'Canción',
       fraseFormato: (actual, total) => `Canción · frase ${actual} de ${total}`,
-      instruccionCanta: 'Ahora tú: tu voz es la bola, llévala por cada nota',
+      instruccionCanta: 'Ahora tú: tu voz lleva a la alondra por cada nota',
     },
     escucha: {
       titulo: 'Oído',
@@ -190,7 +190,7 @@ export const TEXTOS = {
     introTitulo: '¿Cómo está tu oído?',
     introRelativo: 'Oído relativo: distinguir qué nota es más aguda cuando están cada vez más cerca. Es el oído que usa cualquier cantante y se entrena.',
     introAbsoluto: 'Oído absoluto: reconocer una nota suelta sin ninguna referencia. Es raro de verdad (lo tiene menos de 1 de cada 1.000 personas).',
-    introDuracion: 'Unas 24 preguntas, 3 o 4 minutos. Mejor con auriculares o en un sitio tranquilo.',
+    introDuracion: 'Unas 20 preguntas, 3 o 4 minutos. Mejor con auriculares o en un sitio tranquilo. El oído humano entrenado llega a distinguir 3-5 cents; sin entrenar, entre 10 y 25.',
     empezar: 'Empezar el test',
     parteRelativa: 'Oído relativo',
     parteAbsoluta: 'Oído absoluto',

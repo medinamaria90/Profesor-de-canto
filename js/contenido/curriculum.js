@@ -29,7 +29,7 @@ export const UNIDADES = [
       { id: 'u1-l1', titulo: 'Respira y despega', icono: '🫁', ejercicios: [tecnica('respiracion-diafragma'), respiracion(2), sirena(), cancion('primer-vuelo', 'frase', 0)] },
       { id: 'u1-l2', titulo: 'Frase a frase', icono: '🎵', ejercicios: [sirena(), cancion('primer-vuelo', 'frase', 0), cancion('primer-vuelo', 'frase', 1), nota(4, [0, 4]), cancion('primer-vuelo', 'frase', 2), cancion('primer-vuelo', 'frase', 3)] },
       { id: 'u1-l3', titulo: 'La canción entera', icono: '🎤', ejercicios: [respiracion(1), cancion('primer-vuelo', 'frase', 2), escucha('agudo'), cancion('primer-vuelo')] },
-      { id: 'u1-l4', titulo: 'Reto: vuela con la bola', icono: '🎈', ejercicios: [tecnica('apoyo'), sirena(), cancion('primer-vuelo'), reto('primer-vuelo')] },
+      { id: 'u1-l4', titulo: 'Reto: vuela con la alondra', icono: '🐦', ejercicios: [tecnica('apoyo'), sirena(), cancion('primer-vuelo'), reto('primer-vuelo')] },
     ],
   },
   {

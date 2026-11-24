@@ -86,9 +86,9 @@ export const LOGROS = [
   },
   {
     id: 'bola-10',
-    icono: '🎈',
-    titulo: 'Bola voladora',
-    descripcion: `Pasa ${PUERTAS_LOGRO_BOLA} puertas seguidas en la Bola cantora.`,
+    icono: '🐦',
+    titulo: 'Alondra voladora',
+    descripcion: `Pasa ${PUERTAS_LOGRO_BOLA} puertas seguidas en el Vuelo de la alondra.`,
     condicion: (estado) => (estado.juegos?.[JUEGO_BOLA_CANTORA]?.mejorPuntuacion ?? 0) >= PUERTAS_LOGRO_BOLA,
   },
 ];
