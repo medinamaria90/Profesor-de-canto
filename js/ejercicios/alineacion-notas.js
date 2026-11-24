@@ -15,6 +15,9 @@ const HUECO_MAXIMO_SEGUNDOS = 0.25;
 const COSTE_MAXIMO_DESVIO = 3;
 const COSTE_SALTAR_CANTADA = 0.6;
 const COSTE_SALTAR_OBJETIVO = 2.5;
+// Dos notas seguidas iguales («Cum-ple») suelen cantarse ligadas, como una sola: una nota cantada puede
+// cubrir varias notas objetivo consecutivas por un pequeño coste extra.
+const COSTE_CUBRIR_OTRA_OBJETIVO = 0.3;
 
 function mediana(valores) {
   const ordenados = [...valores].sort((a, b) => a - b);
@@ -69,6 +72,7 @@ export function alinearNotas(cantadas, objetivos) {
       const opciones = [];
       if (i > 0 && j > 0) opciones.push({ valor: coste[i - 1][j - 1] + costeEmparejar(cantadas[i - 1], objetivos[j - 1]), desde: [i - 1, j - 1], tipo: 'par' });
       if (i > 0 && j > 0) opciones.push({ valor: coste[i - 1][j] + costeEmparejar(cantadas[i - 1], objetivos[j - 1]), desde: [i - 1, j], tipo: 'par' });
+      if (i > 0 && j > 0) opciones.push({ valor: coste[i][j - 1] + costeEmparejar(cantadas[i - 1], objetivos[j - 1]) + COSTE_CUBRIR_OTRA_OBJETIVO, desde: [i, j - 1], tipo: 'par' });
       if (i > 0) opciones.push({ valor: coste[i - 1][j] + COSTE_SALTAR_CANTADA, desde: [i - 1, j], tipo: 'saltar-cantada' });
       if (j > 0) opciones.push({ valor: coste[i][j - 1] + COSTE_SALTAR_OBJETIVO, desde: [i, j - 1], tipo: 'saltar-objetivo' });
       let mejor = opciones[0];

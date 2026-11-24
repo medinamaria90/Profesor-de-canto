@@ -80,6 +80,7 @@ export const TEXTOS = {
     salir: 'Salir',
     progresoFormato: (actual, total) => `${actual} de ${total}`,
     continuar: 'Continuar',
+    cantarOtraVez: 'Cantar otra vez',
     reintentar: 'Reintentar',
     saltar: 'Saltar',
     empezar: 'Empezar',

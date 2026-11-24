@@ -52,3 +52,19 @@ test('la alineación tolera notas de más (deslices) sin desplazar el resto', ()
   assert.deepEqual(alinearNotas([], SEGMENTOS), [null, null, null, null]);
   assert.equal(puntuarPorNotas([], SEGMENTOS).puntuacion, 0);
 });
+
+test('dos notas objetivo iguales seguidas se dan por buenas aunque se canten ligadas como una sola', () => {
+  const objetivos = [
+    { indice: 0, midi: 60, inicio: 0, fin: 0.3 },
+    { indice: 1, midi: 60, inicio: 0.3, fin: 0.6 },
+    { indice: 2, midi: 62, inicio: 0.6, fin: 1.2 },
+  ];
+  const cantadas = [
+    { midi: 60, inicio: 0.05, fin: 0.58 },
+    { midi: 62, inicio: 0.65, fin: 1.15 },
+  ];
+  const emparejadas = alinearNotas(cantadas, objetivos);
+  assert.equal(emparejadas[0]?.midi, 60);
+  assert.equal(emparejadas[1]?.midi, 60);
+  assert.equal(emparejadas[2]?.midi, 62);
+});

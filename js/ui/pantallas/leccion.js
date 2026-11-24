@@ -115,6 +115,18 @@ export function crearPantallaLeccion({ id }) {
       consejo = resultado.errorMedio > 0 ? T.desvioAgudo : T.desvioGrave;
     }
     const botonContinuar = crearBoton(T.continuar, { ancho: true, onClick: siguiente });
+    // Si el ejercicio se puede repetir, la puntuación que cuenta es la del último intento.
+    const botonRepetir =
+      resultado.repetir &&
+      crearBoton(T.cantarOtraVez, {
+        variante: 'tonal',
+        ancho: true,
+        onClick: () => {
+          puntuaciones.pop();
+          fijarAcciones([]);
+          resultado.repetir();
+        },
+      });
     pie.className = `leccion__pie leccion__pie--feedback leccion__pie--${calificacion}`;
     pie.replaceChildren(
       el(
@@ -125,6 +137,7 @@ export function crearPantallaLeccion({ id }) {
         consejo && el('p', { clase: 'leccion__feedback-consejo', texto: consejo }),
       ),
       botonContinuar,
+      ...(botonRepetir ? [botonRepetir] : []),
     );
     botonContinuar.focus();
   }

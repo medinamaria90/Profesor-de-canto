@@ -54,6 +54,9 @@ test('el desfase estimado recupera el retraso con el que se cantó la melodía',
 
 test('melodía es la media de sus notas', () => {
   assert.equal(puntuarMelodia([100, 50]), 75);
+  // Con pesos, la nota larga manda: una corchea fallada apenas resta.
+  assert.equal(puntuarMelodia([0, 100], [0.5, 4]), 89);
+  assert.equal(puntuarMelodia([100, 50], [0, 0]), 75);
   assert.equal(puntuarMelodia([]), 0);
 });
 

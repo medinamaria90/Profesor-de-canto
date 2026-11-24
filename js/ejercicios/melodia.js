@@ -152,6 +152,8 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
     }
     const porNotas = puntuarPorNotas(muestrasCrudas, rollo.segmentos);
     const puntuaciones = [];
+    // Cada nota pesa lo que dura: una corchea de paso no cuenta lo mismo que una nota larga.
+    const pesos = [];
     let afinadas = 0;
     let posicion = 0;
     for (const segmento of rollo.segmentos) {
@@ -164,15 +166,18 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
       const puntuacion = Math.max(porTiempo, porNotas.porNota[posicion]?.puntuacion ?? 0);
       posicion++;
       puntuaciones.push(puntuacion);
+      pesos.push(segmento.fin - segmento.inicio);
       if (puntuacion >= UMBRAL_DOS_ESTRELLAS) afinadas++;
       rollo.marcarNota(segmento.indice, puntuacion);
     }
     estado.textContent = '';
     rollo.mostrarResumen();
     alTerminar({
-      puntuacion: puntuarMelodia(puntuaciones),
+      puntuacion: puntuarMelodia(puntuaciones, pesos),
       detalle: `${T.notasFormato(afinadas, puntuaciones.length)} · ${T.desfaseFormato(desfase)}`,
       errorMedio: consejoFiable(porNotas) ? porNotas.errorMedio : null,
+      // Se puede volver a cantar para mejorar la puntuación.
+      repetir: faseCantar,
     });
   }
 

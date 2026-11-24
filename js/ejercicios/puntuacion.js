@@ -106,10 +106,14 @@ export function estimarDesfase(muestras, segmentos, { desfaseMaximo = DESFASE_MA
   return Math.round(centro * 1000) / 1000;
 }
 
-export function puntuarMelodia(puntuacionesNotas) {
+// Media de las puntuaciones; con pesos (la duración de cada nota), una nota larga cuenta más que una de paso.
+export function puntuarMelodia(puntuacionesNotas, pesos = null) {
   if (!puntuacionesNotas.length) return 0;
-  const suma = puntuacionesNotas.reduce((acumulado, valor) => acumulado + valor, 0);
-  return Math.round(suma / puntuacionesNotas.length);
+  const pesoDe = (indice) => (pesos ? Math.max(0, pesos[indice] ?? 0) : 1);
+  const totalPesos = puntuacionesNotas.reduce((acumulado, _, indice) => acumulado + pesoDe(indice), 0);
+  if (totalPesos <= 0) return puntuarMelodia(puntuacionesNotas);
+  const suma = puntuacionesNotas.reduce((acumulado, valor, indice) => acumulado + valor * pesoDe(indice), 0);
+  return Math.round(suma / totalPesos);
 }
 
 export function calcularEstrellas(puntuacion) {
