@@ -19,6 +19,7 @@
 @import url("pantallas/afinador.css");
 @import url("pantallas/juego.css");
 
+@import url("pantallas/bienvenida.css");
+
 /* Al final para que gane a las reglas de ancho de componentes y pantallas. */
 @import url("apaisado.css");
-@import url("pantallas/bienvenida.css");
