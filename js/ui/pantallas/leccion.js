@@ -24,6 +24,8 @@ import {
   registrarLeccion,
   registrarRutina,
   registrarActividad,
+  habilidadOido,
+  oidoDominado,
   XP_RUTINA_DIARIA,
   UMBRAL_LECCION_PERFECTA,
 } from '../../estado/progreso.js';
