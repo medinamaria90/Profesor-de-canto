@@ -51,7 +51,7 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
   }
 
   function faseEscuchar() {
-    fijarAcciones([]);
+    fijarAcciones([{ texto: T.cantarYa, variante: 'texto', accion: faseCantar }]);
     detenerAnimacion();
     captura?.cancelar();
     audio.detenerTodo();
@@ -81,6 +81,8 @@ export function crearEjercicioMelodia(ejercicio, { contenedor, alTerminar, fijar
   function faseCantar() {
     fijarAcciones([]);
     detenerAnimacion();
+    audio.detenerTodo();
+    captura?.cancelar();
     rollo.reiniciar();
     cabecera.fijarInstruccion(esCancion ? TC.instruccionCanta : T.instruccionCanta);
     contenedor.classList.add('ejercicio--grabando');

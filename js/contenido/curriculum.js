@@ -51,9 +51,9 @@ export const UNIDADES = [
     descripcion: 'Canciones que ya conoces, nota a nota.',
     lecciones: [
       { id: 'u3-l1', titulo: 'Fray Santiago', icono: '🔔', ejercicios: [tecnica('resonancia'), melodia(M.ESCALA_TRES_NOTAS), cancion('fray-santiago', 'frase', 0), cancion('fray-santiago', 'frase', 2), cancion('fray-santiago'), reto('fray-santiago')] },
-      { id: 'u3-l2', titulo: 'Cumpleaños feliz', icono: '🎂', ejercicios: [nota(5, [0, 5]), melodia(M.ESCALA_CINCO_NOTAS), melodia(M.CUMPLEANOS_FELIZ), escucha('agudo'), melodia(M.CUMPLEANOS_FELIZ)] },
+      { id: 'u3-l2', titulo: 'Cumpleaños feliz', icono: '🎂', ejercicios: [nota(5, [0, 5]), cancion('cumpleanos-feliz', 'frase', 0), cancion('cumpleanos-feliz', 'frase', 1), cancion('cumpleanos-feliz', 'frase', 2), cancion('cumpleanos-feliz', 'frase', 3), cancion('cumpleanos-feliz'), reto('cumpleanos-feliz')] },
       { id: 'u3-l3', titulo: 'Estrellita', icono: '⭐', ejercicios: [nota(7, [0, 7]), melodia(M.SALTO_QUINTA), cancion('estrellita', 'frase', 0), cancion('estrellita', 'frase', 1), cancion('estrellita'), reto('estrellita')] },
-      { id: 'u3-l4', titulo: 'Repaso', icono: '🏅', ejercicios: [respiracion(1), melodia(M.FRAY_SANTIAGO), nota(9, [7, 9]), melodia(M.CUMPLEANOS_FELIZ), melodia(M.ESTRELLITA_PRIMERA_PARTE)] },
+      { id: 'u3-l4', titulo: 'Repaso', icono: '🏅', ejercicios: [respiracion(1), cancion('fray-santiago'), nota(9, [7, 9]), cancion('cumpleanos-feliz'), cancion('estrellita')] },
     ],
   },
   {
@@ -76,8 +76,8 @@ export const UNIDADES = [
     lecciones: [
       { id: 'u5-l1', titulo: 'Himno de la alegría', icono: '🎻', ejercicios: [tecnica('vibrato'), melodia(M.ESCALA_CINCO_IDA_VUELTA), cancion('himno-alegria', 'frase', 0), cancion('himno-alegria', 'frase', 1), cancion('himno-alegria'), reto('himno-alegria')] },
       { id: 'u5-l2', titulo: 'Estrellita completa', icono: '🌟', ejercicios: [melodia(M.ESTRELLITA_PRIMERA_PARTE), melodia(M.ESTRELLITA_SEGUNDA_PARTE), nota(9, [7, 9]), melodia(M.ESTRELLITA_SEGUNDA_PARTE)] },
-      { id: 'u5-l3', titulo: 'Cucú, cantaba la rana', icono: '🐸', ejercicios: [nota(7, [4, 7]), melodia(M.ARPEGIO_MAYOR), melodia(M.CUCU_CANTABA_LA_RANA), escucha('agudo'), melodia(M.CUCU_CANTABA_LA_RANA)] },
-      { id: 'u5-l4', titulo: 'Debajo un botón', icono: '🔘', ejercicios: [melodia(M.ESCALA_TRES_NOTAS_IDA_VUELTA), melodia(M.DEBAJO_UN_BOTON), escucha('igual'), melodia(M.DEBAJO_UN_BOTON)] },
+      { id: 'u5-l3', titulo: 'Cucú, cantaba la rana', icono: '🐸', ejercicios: [nota(7, [4, 7]), melodia(M.ARPEGIO_MAYOR), melodia(M.CUCU_CANTABA_LA_RANA), nota(9, [7, 9])] },
+      { id: 'u5-l4', titulo: 'Debajo un botón', icono: '🔘', ejercicios: [melodia(M.ESCALA_TRES_NOTAS_IDA_VUELTA), melodia(M.DEBAJO_UN_BOTON), nota(5, [0, 5])] },
       { id: 'u5-l5', titulo: 'Por una cabeza', icono: '💃', ejercicios: [respiracion(1), sirena(), cancion('por-una-cabeza', 'frase', 0), cancion('por-una-cabeza', 'frase', 1), cancion('por-una-cabeza'), reto('por-una-cabeza')] },
       { id: 'u5-l6', titulo: 'Summertime', icono: '🎷', ejercicios: [tecnica('apoyo'), nota(7, [0, 7], 4), cancion('summertime', 'frase', 0), cancion('summertime'), reto('summertime')] },
     ],

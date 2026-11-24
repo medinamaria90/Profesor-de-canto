@@ -39,6 +39,27 @@ export const CANCIONES = [
     ],
   },
   {
+    id: 'cumpleanos-feliz',
+    titulo: 'Cumpleaños feliz',
+    origen: 'tradicional',
+    autor: 'Tradicional (melodía libre de derechos)',
+    estilo: 'balada',
+    tempo: 100,
+    dificultad: 2,
+    descripcion: 'La de siempre, con su salto de octava en la tercera frase.',
+    notas: [
+      [0, 0.5], [0, 0.5], [2, 1], [0, 1], [5, 1], [4, 2],
+      [0, 0.5], [0, 0.5], [2, 1], [0, 1], [7, 1], [5, 2],
+      [0, 0.5], [0, 0.5], [12, 1], [9, 1], [5, 1], [4, 1], [2, 2],
+      [10, 0.5], [10, 0.5], [9, 1], [5, 1], [7, 1], [5, 2],
+    ],
+    frases: [0, 6, 12, 19],
+    acordes: [
+      { compas: 0, grados: ACORDE.I }, { compas: 1, grados: ACORDE.V7 }, { compas: 2, grados: ACORDE.I }, { compas: 3, grados: ACORDE.I },
+      { compas: 4, grados: ACORDE.IV }, { compas: 5, grados: ACORDE.V7 }, { compas: 6, grados: ACORDE.I },
+    ],
+  },
+  {
     id: 'fray-santiago',
     titulo: 'Fray Santiago',
     origen: 'tradicional',

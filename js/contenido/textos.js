@@ -133,6 +133,7 @@ export const TEXTOS = {
       titulo: 'Melodía',
       instruccionEscucha: 'Primero escucha la melodía',
       instruccionCanta: 'Ahora cántala siguiendo la bola',
+      cantarYa: 'Me la sé: cantar ya',
       notasFormato: (afinadas, total) => `${afinadas} de ${total} notas afinadas`,
       desfaseFormato: (segundos) => `desfase compensado ${segundos.toFixed(2).replace('.', ',')} s`,
     },
