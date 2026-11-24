@@ -72,7 +72,7 @@ export function crearPantallaTestOido() {
   function intro() {
     area.replaceChildren(
       el('div', { clase: 'ejercicio' }, el('p', { clase: 'ejercicio__tipo', texto: T.titulo }), el('h1', { clase: 'ejercicio__instruccion', texto: T.introTitulo }),
-        el('div', { clase: 'tarjeta tecnica' }, el('p', { clase: 'tecnica__resumen', texto: T.introRelativo }), el('p', { texto: T.introAbsoluto }), el('p', { clase: 'tecnica__consejo', texto: T.introDuracion })),
+        el('div', { clase: 'tarjeta tecnica' }, el('p', { clase: 'tecnica__resumen', texto: T.introRelativo }), el('p', { clase: 'tecnica__resumen', texto: T.introAbsoluto }), el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.introDuracion })),
       ),
     );
     contador.textContent = `1/${TOTAL_PREGUNTAS}`;
@@ -183,7 +183,6 @@ export function crearPantallaTestOido() {
           { clase: 'tarjeta tecnica' },
           el('h2', { clase: 'perfil__subtitulo', texto: T.parteAbsoluta }),
           el('p', { clase: 'tecnica__resumen', texto: T.absolutoFormato(absoluto.exactas, absoluto.total, absoluto.cercanas, absoluto.azar) }),
-          absoluto.total < PREGUNTAS_ABSOLUTO && el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.absolutoCortado }),
           el('p', { texto: T.valoracionAbsoluta[nivelAbsoluto] }),
           el('p', { clase: 'tecnica__consejo', texto: T.consejoAbsoluto[nivelAbsoluto] }),
           el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.oidoAbsolutoExplicacion }),

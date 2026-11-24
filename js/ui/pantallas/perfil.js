@@ -33,7 +33,6 @@ function crearTarjetaRango(estado) {
     el('p', { clase: 'perfil__texto', texto }),
     historial.length > 0 && crearGraficoRango(historial, T.evolucionRango),
     historial.length > 1 && el('p', { clase: 'perfil__texto', texto: T.mejoraFormato(mejora) }),
-    el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.rangoConsejo }),
     crearBoton(rango ? T.medirOtraVez : T.medirRango, { variante: 'tonal', onClick: () => navegar('/rango?volver=/perfil') }),
   );
 }
@@ -57,7 +56,6 @@ function crearTarjetaDiagnostico() {
     'section',
     { clase: 'tarjeta perfil__seccion', 'aria-labelledby': 'perfil-diagnostico' },
     el('h2', { clase: 'perfil__subtitulo', id: 'perfil-diagnostico', texto: T.diagnostico }),
-    el('p', { clase: 'perfil__texto perfil__texto--pequeno', texto: T.diagnosticoTexto }),
     el('dl', { clase: 'diagnostico' }, filas.map(([etiqueta, valor]) => el('div', { clase: 'diagnostico__fila' }, el('dt', { texto: etiqueta }), el('dd', { texto: valor })))),
   );
 }

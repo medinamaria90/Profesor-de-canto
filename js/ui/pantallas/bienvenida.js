@@ -123,7 +123,6 @@ export function crearPantallaBienvenida() {
   function pasoObjetivo() {
     contenido.replaceChildren(
       el('h1', { clase: 'bienvenida__titulo', texto: T.objetivoTitulo }),
-      el('p', { clase: 'bienvenida__texto', texto: T.objetivoSubtitulo }),
       crearSelectorObjetivo(objetivo, (valor) => {
         objetivo = valor;
       }),

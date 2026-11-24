@@ -24,7 +24,7 @@ export const UNIDADES = [
     id: 'u1',
     numero: 1,
     titulo: 'Primer vuelo',
-    descripcion: 'Tu primera canción desde el minuto uno: respira, calienta y cántala con la banda.',
+    descripcion: 'Tu primera canción.',
     lecciones: [
       { id: 'u1-l1', titulo: 'Respira y despega', icono: '🫁', ejercicios: [tecnica('respiracion-diafragma'), respiracion(2), sirena(), cancion('primer-vuelo', 'frase', 0)] },
       { id: 'u1-l2', titulo: 'Frase a frase', icono: '🎵', ejercicios: [sirena(), cancion('primer-vuelo', 'frase', 0), cancion('primer-vuelo', 'frase', 1), nota(4, [0, 4]), cancion('primer-vuelo', 'frase', 2), cancion('primer-vuelo', 'frase', 3)] },
@@ -36,7 +36,7 @@ export const UNIDADES = [
     id: 'u2',
     numero: 2,
     titulo: 'Afinar el oído',
-    descripcion: 'Terceras, escalas cortas y notas que se sostienen.',
+    descripcion: 'Terceras y escalas.',
     lecciones: [
       { id: 'u2-l1', titulo: 'Tres notas', icono: '🎶', ejercicios: [melodia(M.ESCALA_TRES_NOTAS), nota(4, [0, 4]), escucha('igual'), melodia(M.ESCALA_TRES_NOTAS_IDA_VUELTA), nota(2, [2], 3)] },
       { id: 'u2-l2', titulo: 'Terceras', icono: '🪜', ejercicios: [nota(4, [0, 4]), melodia(M.ESCALA_TRES_NOTAS), escucha('agudo'), nota(0, [4, 0]), melodia(M.ESCALA_TRES_NOTAS_IDA_VUELTA)] },
@@ -48,7 +48,7 @@ export const UNIDADES = [
     id: 'u3',
     numero: 3,
     titulo: 'Primeras melodías',
-    descripcion: 'Canciones que ya conoces, nota a nota.',
+    descripcion: 'Canciones conocidas.',
     lecciones: [
       { id: 'u3-l1', titulo: 'Fray Santiago', icono: '🔔', ejercicios: [tecnica('resonancia'), melodia(M.ESCALA_TRES_NOTAS), cancion('fray-santiago', 'frase', 0), cancion('fray-santiago', 'frase', 2), cancion('fray-santiago'), reto('fray-santiago')] },
       { id: 'u3-l2', titulo: 'Cumpleaños feliz', icono: '🎂', ejercicios: [nota(5, [0, 5]), cancion('cumpleanos-feliz', 'frase', 0), cancion('cumpleanos-feliz', 'frase', 1), cancion('cumpleanos-feliz', 'frase', 2), cancion('cumpleanos-feliz', 'frase', 3), cancion('cumpleanos-feliz'), reto('cumpleanos-feliz')] },
@@ -60,7 +60,7 @@ export const UNIDADES = [
     id: 'u4',
     numero: 4,
     titulo: 'Saltos e intervalos',
-    descripcion: 'Cuartas, quintas, arpegios y la octava.',
+    descripcion: 'Cuartas, quintas y octava.',
     lecciones: [
       { id: 'u4-l1', titulo: 'Cuartas', icono: '🦘', ejercicios: [nota(5, [0, 5]), melodia(M.SALTO_CUARTA), escucha('agudo'), nota(0, [5, 0]), melodia(M.SALTO_CUARTA)] },
       { id: 'u4-l2', titulo: 'Quintas y arpegios', icono: '🎼', ejercicios: [nota(7, [0, 7]), melodia(M.SALTO_QUINTA), melodia(M.ARPEGIO_MAYOR), escucha('igual'), melodia(M.ARPEGIO_MAYOR)] },
@@ -72,7 +72,7 @@ export const UNIDADES = [
     id: 'u5',
     numero: 5,
     titulo: 'Canciones',
-    descripcion: 'Melodías completas para lucirte.',
+    descripcion: 'Canciones completas.',
     lecciones: [
       { id: 'u5-l1', titulo: 'Himno de la alegría', icono: '🎻', ejercicios: [tecnica('vibrato'), melodia(M.ESCALA_CINCO_IDA_VUELTA), cancion('himno-alegria', 'frase', 0), cancion('himno-alegria', 'frase', 1), cancion('himno-alegria'), reto('himno-alegria')] },
       { id: 'u5-l2', titulo: 'Estrellita completa', icono: '🌟', ejercicios: [melodia(M.ESTRELLITA_PRIMERA_PARTE), melodia(M.ESTRELLITA_SEGUNDA_PARTE), nota(9, [7, 9]), melodia(M.ESTRELLITA_SEGUNDA_PARTE)] },
