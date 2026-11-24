@@ -15,6 +15,8 @@ import { evaluarLogros } from '../../contenido/logros.js';
 import { TEXTOS } from '../../contenido/textos.js';
 import { obtenerEstado, actualizarEstado } from '../../estado/tienda.js';
 import { guardarResultadoLeccion } from '../../estado/sesion.js';
+import { leerLeccionEnCurso, guardarLeccionEnCurso, borrarLeccionEnCurso } from '../../estado/leccion-en-curso.js';
+import { mostrarAviso } from '../componentes/aviso.js';
 import {
   fechaClave,
   rangoVocalEfectivo,
@@ -40,11 +42,16 @@ export function crearPantallaLeccion({ id }) {
   if (!leccion) return crearPantallaNoEncontrada();
 
   const esRutina = leccion.id === RUTINA_DIARIA.id;
-  let ejercicios = instanciarEjercicios(leccion.ejercicios, rangoVocalEfectivo(obtenerEstado()));
-  const puntuaciones = [];
-  let indice = 0;
+  const enCurso = leerLeccionEnCurso(leccion.id);
+  let ejercicios = enCurso?.ejercicios ?? instanciarEjercicios(leccion.ejercicios, rangoVocalEfectivo(obtenerEstado()));
+  const puntuaciones = enCurso?.puntuaciones ?? [];
+  let indice = enCurso?.indice ?? 0;
   let ejercicioActual = null;
-  let modoPractica = false;
+  let modoPractica = enCurso?.modoPractica ?? false;
+
+  function recordarProgreso() {
+    guardarLeccionEnCurso({ leccionId: leccion.id, ejercicios, puntuaciones, indice, modoPractica });
+  }
 
   const barra = crearBarraProgreso({ valor: 0, maximo: ejercicios.length, etiqueta: T.progresoFormato(1, ejercicios.length) });
   const botonCerrar = crearBotonIcono(icono('cerrar'), { ariaLabel: T.salir, onClick: confirmarSalida });
@@ -102,13 +109,18 @@ export function crearPantallaLeccion({ id }) {
 
   function siguiente() {
     indice++;
-    if (indice >= ejercicios.length) terminarLeccion();
-    else mostrarEjercicio();
+    if (indice >= ejercicios.length) {
+      terminarLeccion();
+      return;
+    }
+    recordarProgreso();
+    mostrarEjercicio();
   }
 
   function terminarLeccion() {
     ejercicioActual?.destruir();
     ejercicioActual = null;
+    borrarLeccionEnCurso();
     const puntuacion = puntuarMelodia(puntuaciones);
     const estrellas = calcularEstrellas(puntuacion);
     const hoy = fechaClave();
@@ -143,7 +155,9 @@ export function crearPantallaLeccion({ id }) {
 
   async function confirmarSalida() {
     const salir = await mostrarDialogo({ titulo: T.confirmarSalirTitulo, texto: T.confirmarSalirTexto, confirmar: T.confirmarSalirSi, cancelar: T.confirmarSalirNo, peligro: true });
-    if (salir) navegar('/', { reemplazar: true });
+    if (!salir) return;
+    borrarLeccionEnCurso();
+    navegar('/', { reemplazar: true });
   }
 
   function seguirSinMicrofono() {
@@ -153,6 +167,7 @@ export function crearPantallaLeccion({ id }) {
       return;
     }
     modoPractica = true;
+    recordarProgreso();
     barra.fijarMaximo(ejercicios.length);
     elemento.insertBefore(el('p', { clase: 'aviso', role: 'note', texto: T.modoPractica }), area);
     mostrarEjercicio();
@@ -177,6 +192,10 @@ export function crearPantallaLeccion({ id }) {
 
   function montado() {
     audio.preparar().catch((error) => console.warn('No se pudo activar el audio aún.', error));
+    if (enCurso && indice > 0) {
+      mostrarAviso(T.reanudada);
+      if (modoPractica) elemento.insertBefore(el('p', { clase: 'aviso', role: 'note', texto: T.modoPractica }), area);
+    }
     if (ejercicios.some(requiereMicrofono)) prepararMicrofono();
     else mostrarEjercicio();
   }

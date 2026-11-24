@@ -82,6 +82,7 @@ export const TEXTOS = {
     tuTurno: 'Tu turno',
     cantaAhora: 'Canta ahora',
     noTeOimos: 'No te oímos. Acércate al micrófono y canta con decisión.',
+    reanudada: 'Seguimos donde lo dejaste.',
     confirmarSalirTitulo: '¿Salir de la lección?',
     confirmarSalirTexto: 'Perderás el progreso de esta lección. El XP conseguido hasta ahora no se guarda.',
     confirmarSalirSi: 'Salir',
