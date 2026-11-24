@@ -1,107 +1,184 @@
-// Dibujo en canvas del minijuego "Bola cantora". Solo pinta: la partida la mueve la lógica pura.
+// Dibujo en primera persona del minijuego "Bola cantora": las puertas vienen hacia ti desde el fondo,
+// la bola es grande y brilla, y un túnel de líneas da sensación de velocidad. Solo pinta: la partida
+// la mueve la lógica pura (que sigue trabajando en 2D: distancia horizontal = profundidad).
 
 import { el, crearPaleta, ajustarCanvas } from '../ui/dom.js';
 import { nombreNota } from '../musica/notas.js';
-import { ANCHO_PUERTA, RADIO_BOLA, huecoDePuerta, xDePuerta, puertaSiguiente } from './bola-cantora-logica.js';
+import { ANCHO_PUERTA, huecoDePuerta, xDePuerta, puertaSiguiente } from './bola-cantora-logica.js';
 
-const LONGITUD_ESTELA = 18;
-const RADIO_ESQUINA_PUERTA = 8;
+// Distancia focal de la perspectiva: cuanto mayor, menos "ojo de pez".
+const FOCAL = 260;
+const RADIO_BOLA_PANTALLA = 26;
+const LONGITUD_ESTELA = 14;
+const LINEAS_TUNEL = 10;
+const SEPARACION_LINEAS_TUNEL = 90;
 const FRECUENCIA_PARPADEO = 12;
-const OPACIDAD_GUIA = 0.45;
+const OPACIDAD_GUIA = 0.35;
+const GROSOR_MARCO = 14;
+const PARTICULAS_POR_PUERTA = 12;
+const VIDA_PARTICULA_SEGUNDOS = 0.6;
+const VELOCIDAD_PARTICULA = 90;
+const DISTANCIA_DESVANECER = ANCHO_PUERTA * 3;
 
 export function crearVistaBolaCantora() {
   const canvas = el('canvas', { clase: 'juego__canvas' });
   const elemento = el('div', { clase: 'juego__escenario' }, canvas);
   const estela = [];
+  const particulas = [];
   let observador = null;
+  let ultimasSuperadas = 0;
 
   const paletaCss = crearPaleta({
-    fondoArriba: '--superficie-1',
-    fondoAbajo: '--superficie-3',
+    fondoArriba: '--juego-cielo',
+    fondoAbajo: '--juego-suelo',
+    tunel: '--juego-tunel',
     puerta: '--primario',
     puertaSiguiente: '--secundario',
     puertaSuperada: '--acierto',
     puertaChocada: '--error',
-    etiqueta: '--sobre-superficie',
+    etiqueta: '--sobre-primario',
     bola: '--racha',
-    bolaBrillo: '--sobre-primario',
-    estela: '--racha-contenedor',
-    linea: '--primario',
+    bolaBorde: '--racha-contenedor',
+    brillo: '--sobre-primario',
+    guia: '--primario',
   });
   const colores = () => paletaCss.obtener();
 
-  function rectanguloRedondeado(contexto, x, y, ancho, alto, radio) {
-    const r = Math.min(radio, ancho / 2, Math.abs(alto) / 2);
-    contexto.beginPath();
-    contexto.moveTo(x + r, y);
-    contexto.arcTo(x + ancho, y, x + ancho, y + alto, r);
-    contexto.arcTo(x + ancho, y + alto, x, y + alto, r);
-    contexto.arcTo(x, y + alto, x, y, r);
-    contexto.arcTo(x, y, x + ancho, y, r);
-    contexto.closePath();
+  // Escala de un objeto a `distancia` píxeles por delante de la bola (0 = en el plano de la bola).
+  function escala(distancia) {
+    return FOCAL / (FOCAL + Math.max(0, distancia));
   }
 
-  function dibujarPuertas(contexto, partida, paleta, ancho) {
-    const siguiente = puertaSiguiente(partida);
-    contexto.font = '600 14px system-ui, sans-serif';
-    contexto.textAlign = 'center';
-    contexto.textBaseline = 'middle';
-    for (const puerta of partida.puertas) {
-      const x = xDePuerta(partida, puerta);
-      if (x > ancho || x + ANCHO_PUERTA < 0) continue;
-      const hueco = huecoDePuerta(partida, puerta);
-      let color = paleta.puerta;
-      if (puerta.superada) color = paleta.puertaSuperada;
-      else if (puerta.chocada) color = paleta.puertaChocada;
-      else if (puerta === siguiente) color = paleta.puertaSiguiente;
-      contexto.fillStyle = color;
-      rectanguloRedondeado(contexto, x, -RADIO_ESQUINA_PUERTA, ANCHO_PUERTA, hueco.arriba + RADIO_ESQUINA_PUERTA, RADIO_ESQUINA_PUERTA);
-      contexto.fill();
-      rectanguloRedondeado(contexto, x, hueco.abajo, ANCHO_PUERTA, partida.alto - hueco.abajo + RADIO_ESQUINA_PUERTA, RADIO_ESQUINA_PUERTA);
-      contexto.fill();
-      contexto.fillStyle = paleta.etiqueta;
-      contexto.fillText(nombreNota(puerta.nota, false), x + ANCHO_PUERTA / 2, hueco.centro);
+  function dibujarFondo(contexto, paleta, ancho, alto, partida) {
+    const degradado = contexto.createLinearGradient(0, 0, 0, alto);
+    degradado.addColorStop(0, paleta.fondoArriba);
+    degradado.addColorStop(1, paleta.fondoAbajo);
+    contexto.fillStyle = degradado;
+    contexto.fillRect(0, 0, ancho, alto);
+
+    const cx = ancho / 2;
+    const cy = alto / 2;
+    contexto.strokeStyle = paleta.tunel;
+    contexto.lineWidth = 1;
+    const avance = partida.desplazamiento % SEPARACION_LINEAS_TUNEL;
+    for (let i = 0; i < LINEAS_TUNEL; i++) {
+      const distancia = i * SEPARACION_LINEAS_TUNEL - avance + SEPARACION_LINEAS_TUNEL;
+      const s = escala(distancia);
+      contexto.globalAlpha = 0.5 * s;
+      contexto.strokeRect(cx - (ancho / 2) * s, cy - (alto / 2) * s, ancho * s, alto * s);
     }
-  }
-
-  function dibujarBola(contexto, partida, paleta) {
-    const bola = partida.bola;
-    estela.push({ x: bola.x, y: bola.y });
-    if (estela.length > LONGITUD_ESTELA) estela.shift();
-    estela.forEach((punto, indice) => {
-      const fraccion = (indice + 1) / estela.length;
-      contexto.globalAlpha = fraccion * 0.5;
-      contexto.fillStyle = paleta.estela;
-      contexto.beginPath();
-      contexto.arc(bola.x - (estela.length - indice) * (partida.velocidad / 60), punto.y, RADIO_BOLA * fraccion * 0.8, 0, Math.PI * 2);
-      contexto.fill();
-    });
-    contexto.globalAlpha = 1;
-    const invulnerable = partida.tiempo < partida.invulnerableHasta;
-    if (invulnerable && Math.floor(partida.tiempo * FRECUENCIA_PARPADEO) % 2 === 0) contexto.globalAlpha = 0.35;
-    contexto.fillStyle = paleta.bola;
     contexto.beginPath();
-    contexto.arc(bola.x, bola.y, RADIO_BOLA, 0, Math.PI * 2);
-    contexto.fill();
-    contexto.fillStyle = paleta.bolaBrillo;
-    contexto.beginPath();
-    contexto.arc(bola.x - RADIO_BOLA * 0.35, bola.y - RADIO_BOLA * 0.35, RADIO_BOLA * 0.3, 0, Math.PI * 2);
-    contexto.fill();
+    for (const [x, y] of [[0, 0], [ancho, 0], [0, alto], [ancho, alto]]) {
+      contexto.moveTo(x, y);
+      contexto.lineTo(cx, cy);
+    }
+    contexto.globalAlpha = 0.25;
+    contexto.stroke();
     contexto.globalAlpha = 1;
   }
 
-  function dibujarGuia(contexto, partida, paleta, ancho) {
+  function dibujarPuerta(contexto, paleta, partida, puerta, ancho, alto, esSiguiente) {
+    const distancia = xDePuerta(partida, puerta) - partida.bola.x;
+    if (distancia < -DISTANCIA_DESVANECER) return;
+    const s = escala(distancia);
+    const cx = ancho / 2;
+    const cy = alto / 2;
+    const anchoMarco = ancho * s;
+    const altoMarco = alto * s;
+    const x0 = cx - anchoMarco / 2;
+    const y0 = cy - altoMarco / 2;
+    const hueco = huecoDePuerta(partida, puerta);
+    const yArriba = cy + (hueco.arriba - alto / 2) * s;
+    const yAbajo = cy + (hueco.abajo - alto / 2) * s;
+    let color = paleta.puerta;
+    if (puerta.superada) color = paleta.puertaSuperada;
+    else if (puerta.chocada) color = paleta.puertaChocada;
+    else if (esSiguiente) color = paleta.puertaSiguiente;
+
+    contexto.globalAlpha = distancia < 0 ? Math.max(0, 1 + distancia / DISTANCIA_DESVANECER) : Math.min(1, 0.35 + s);
+    contexto.fillStyle = color;
+    contexto.fillRect(x0, y0, anchoMarco, Math.max(0, yArriba - y0));
+    contexto.fillRect(x0, yAbajo, anchoMarco, Math.max(0, y0 + altoMarco - yAbajo));
+    contexto.fillRect(x0, y0, GROSOR_MARCO * s, altoMarco);
+    contexto.fillRect(x0 + anchoMarco - GROSOR_MARCO * s, y0, GROSOR_MARCO * s, altoMarco);
+
+    if (s > 0.3 && !puerta.superada && !puerta.chocada) {
+      contexto.fillStyle = paleta.etiqueta;
+      contexto.font = `600 ${Math.round(16 + 18 * s)}px system-ui, sans-serif`;
+      contexto.textAlign = 'center';
+      contexto.textBaseline = 'middle';
+      contexto.fillText(nombreNota(puerta.nota, false), cx, Math.max(yArriba - 14 * s, y0 + 14 * s));
+    }
+    contexto.globalAlpha = 1;
+  }
+
+  function dibujarGuia(contexto, paleta, partida, ancho, alto) {
     if (partida.alturaObjetivo === null) return;
-    const y = partida.alto - partida.alturaObjetivo * partida.alto;
-    contexto.strokeStyle = paleta.linea;
+    const y = alto - partida.alturaObjetivo * alto;
+    contexto.strokeStyle = paleta.guia;
     contexto.globalAlpha = OPACIDAD_GUIA;
     contexto.lineWidth = 2;
-    contexto.setLineDash([6, 6]);
+    contexto.setLineDash([8, 8]);
     contexto.beginPath();
     contexto.moveTo(0, y);
     contexto.lineTo(ancho, y);
     contexto.stroke();
     contexto.setLineDash([]);
+    contexto.globalAlpha = 1;
+  }
+
+  function dibujarBola(contexto, paleta, partida, ancho) {
+    const cx = ancho / 2;
+    const y = partida.bola.y;
+    estela.push(y);
+    if (estela.length > LONGITUD_ESTELA) estela.shift();
+    estela.forEach((yAnterior, indice) => {
+      const fraccion = (indice + 1) / estela.length;
+      contexto.globalAlpha = fraccion * 0.35;
+      contexto.fillStyle = paleta.bolaBorde;
+      contexto.beginPath();
+      contexto.arc(cx - (1 - fraccion) * 40, yAnterior + (1 - fraccion) * 12, RADIO_BOLA_PANTALLA * (0.4 + 0.6 * fraccion), 0, Math.PI * 2);
+      contexto.fill();
+    });
+    contexto.globalAlpha = 1;
+
+    const invulnerable = partida.tiempo < partida.invulnerableHasta;
+    if (invulnerable && Math.floor(partida.tiempo * FRECUENCIA_PARPADEO) % 2 === 0) contexto.globalAlpha = 0.4;
+    contexto.shadowColor = paleta.bola;
+    contexto.shadowBlur = 24;
+    const degradado = contexto.createRadialGradient(cx - RADIO_BOLA_PANTALLA * 0.35, y - RADIO_BOLA_PANTALLA * 0.35, RADIO_BOLA_PANTALLA * 0.2, cx, y, RADIO_BOLA_PANTALLA);
+    degradado.addColorStop(0, paleta.brillo);
+    degradado.addColorStop(0.25, paleta.bola);
+    degradado.addColorStop(1, paleta.bola);
+    contexto.fillStyle = degradado;
+    contexto.beginPath();
+    contexto.arc(cx, y, RADIO_BOLA_PANTALLA, 0, Math.PI * 2);
+    contexto.fill();
+    contexto.shadowBlur = 0;
+    contexto.globalAlpha = 1;
+  }
+
+  function emitirParticulas(partida, ancho) {
+    for (let i = 0; i < PARTICULAS_POR_PUERTA; i++) {
+      const angulo = (i / PARTICULAS_POR_PUERTA) * Math.PI * 2;
+      particulas.push({ x: ancho / 2, y: partida.bola.y, vx: Math.cos(angulo) * VELOCIDAD_PARTICULA, vy: Math.sin(angulo) * VELOCIDAD_PARTICULA, nacimiento: partida.tiempo });
+    }
+  }
+
+  function dibujarParticulas(contexto, paleta, partida) {
+    contexto.fillStyle = paleta.puertaSuperada;
+    for (let i = particulas.length - 1; i >= 0; i--) {
+      const p = particulas[i];
+      const edad = partida.tiempo - p.nacimiento;
+      if (edad > VIDA_PARTICULA_SEGUNDOS) {
+        particulas.splice(i, 1);
+        continue;
+      }
+      contexto.globalAlpha = 1 - edad / VIDA_PARTICULA_SEGUNDOS;
+      contexto.beginPath();
+      contexto.arc(p.x + p.vx * edad, p.y + p.vy * edad, 4, 0, Math.PI * 2);
+      contexto.fill();
+    }
     contexto.globalAlpha = 1;
   }
 
@@ -114,17 +191,21 @@ export function crearVistaBolaCantora() {
     dibujar(partida) {
       const { contexto, ancho, alto } = ajustarCanvas(canvas);
       const paleta = colores();
-      const degradado = contexto.createLinearGradient(0, 0, 0, alto);
-      degradado.addColorStop(0, paleta.fondoArriba);
-      degradado.addColorStop(1, paleta.fondoAbajo);
-      contexto.fillStyle = degradado;
-      contexto.fillRect(0, 0, ancho, alto);
-      dibujarGuia(contexto, partida, paleta, ancho);
-      dibujarPuertas(contexto, partida, paleta, ancho);
-      dibujarBola(contexto, partida, paleta);
+      dibujarFondo(contexto, paleta, ancho, alto, partida);
+      dibujarGuia(contexto, paleta, partida, ancho, alto);
+      const siguiente = puertaSiguiente(partida);
+      // De la más lejana a la más cercana para que las cercanas tapen a las lejanas.
+      const ordenadas = [...partida.puertas].sort((a, b) => b.x - a.x);
+      for (const puerta of ordenadas) dibujarPuerta(contexto, paleta, partida, puerta, ancho, alto, puerta === siguiente);
+      if (partida.puertasSuperadas > ultimasSuperadas) emitirParticulas(partida, ancho);
+      ultimasSuperadas = partida.puertasSuperadas;
+      dibujarParticulas(contexto, paleta, partida);
+      dibujarBola(contexto, paleta, partida, ancho);
     },
     limpiarEstela() {
       estela.length = 0;
+      particulas.length = 0;
+      ultimasSuperadas = 0;
     },
     montar(alRedimensionar) {
       observador = new ResizeObserver(() => alRedimensionar());

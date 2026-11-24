@@ -55,7 +55,9 @@
 }
 
 .juego__escenario {
-  height: var(--alto-visual-grande);
+  height: 60vh;
+  min-height: var(--alto-visual-grande);
+  max-height: 520px;
   border-radius: var(--radio-l);
   overflow: hidden;
   box-shadow: inset 0 0 0 1px var(--contorno-suave);
@@ -124,6 +126,6 @@
 
 @media (min-width: 600px) {
   .juego__escenario {
-    height: 380px;
+    height: 60vh;
   }
 }
